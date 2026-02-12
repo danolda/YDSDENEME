@@ -267,7 +267,17 @@
 
 .scroll-top-btn:active {
     transform: scale(0.95);
-}    
+}
+        @media (max-width: 576px) {
+    .navbar .d-flex.gap-2 {
+        flex-wrap: wrap;
+        gap: 4px !important;
+    }
+    .navbar .d-flex.gap-2 .btn {
+        font-size: 0.7rem;
+        padding: 4px 6px;
+    }
+}
         
 </style>
 </head>
