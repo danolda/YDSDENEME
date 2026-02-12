@@ -14,6 +14,7 @@
     
     <style>
     :root {
+        --exam-color: #6f42c1;
         --bg-body: #f4f6f9;
         --bg-card: #ffffff;
         --text-color: #212529;
@@ -28,6 +29,7 @@
     }
 
     [data-theme="dark"] {
+        --exam-color: #a78bfa;
         --bg-body: #121212;
         --bg-card: #1e1e1e;
         --text-color: #e0e0e0;
@@ -90,11 +92,15 @@
 
     /* Şık Tasarımı */
     .option-row {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
         display: flex; align-items: center; padding: 10px; margin-bottom: 8px;
         border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s;
     }
-    .option-row:hover { background-color: var(--hover-bg); transform: translateX(5px); }
-    
+        .option-row:hover { background-color: var(--hover-bg); }
+        @media (min-width: 769px) {
+            .option-row:hover { transform: translateX(5px); }
+        }    
     .btn-circle {
         width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
         font-weight: bold; margin-right: 15px; flex-shrink: 0;
@@ -7742,6 +7748,16 @@ const rawExamVocabA = `1-C 2-D 3-A 4-A 5-E 6-B 7-E 8-E 9-B 10-A 11-C 12-D 13-C 1
 
 // 2. Kelime Sorusu Üretici
 function generateVocabQuestions() {
+    function seededShuffle(arr, seed) {
+    let m = arr.length, t, i;
+    let s = seed;
+    while (m) {
+        s = (s * 9301 + 49297) % 233280;
+        i = Math.floor((s / 233280) * m--);
+        t = arr[m]; arr[m] = arr[i]; arr[i] = t;
+    }
+    return arr;
+}
     let qList = [];
     const totalWords = ydsVocabDB.length;
     
@@ -7758,16 +7774,15 @@ function generateVocabQuestions() {
         }
 
         let distractors = [];
-        while(distractors.length < 4) {
-            let randomIdx = Math.floor(Math.random() * totalWords);
-            let randomItem = ydsVocabDB[randomIdx];
-            if (randomItem.en !== item.en && !distractors.includes(randomItem)) {
-                let distOption = isEnToTr ? randomItem.tr : randomItem.en;
-                if(!distractors.includes(distOption)) distractors.push(distOption);
-            }
+               // Sabit seed ile çeldirici seç (index bazlı)
+        let tempPool = ydsVocabDB.filter(w => w.en !== item.en);
+        let shuffled = seededShuffle([...tempPool], index + 42);
+        let distractors = [];
+        for (let j = 0; j < shuffled.length && distractors.length < 4; j++) {
+            let distOption = isEnToTr ? shuffled[j].tr : shuffled[j].en;
+            if (!distractors.includes(distOption)) distractors.push(distOption);
         }
-
-        let optionsArr = [...distractors, correctAns].sort(() => Math.random() - 0.5);
+        let optionsArr = seededShuffle([...distractors, correctAns], index + 99);
         let optionsObj = { A: optionsArr[0], B: optionsArr[1], C: optionsArr[2], D: optionsArr[3], E: optionsArr[4] };
 
         qList.push({
@@ -7978,6 +7993,11 @@ function showMistakes() {
         renderQuestions(combined);
         document.getElementById('progress-badge').innerText = combined.length;
     }
+}
+    
+    function updateProgressBadge(qList) {
+    const solved = qList.filter(q => progressData[q.id]).length;
+    document.getElementById('progress-badge').innerText = `${solved}/${qList.length}`;
 }
 
 function showAiGenerated() {
@@ -8435,13 +8455,13 @@ function goToFirstUnsolved() {
 
         // 1. Yanlışlar Bölümü ise
         if (currentSectionKey === 'mistakes') {
+            const mistakeQuestions = allQuestions.filter(q => wrongBank.includes(q.id));
+            const mistakeAi = generatedQuestions.filter(q => wrongBank.includes(q.id));
+            [...mistakeQuestions, ...mistakeAi].forEach(q => targetIds.push(q.id));
             wrongBank = [];
             localStorage.setItem('yds_mistakes', JSON.stringify([]));
-            // Yanlış bankasındaki tüm soruların cevap geçmişini de temizle
-            const mistakeQuestions = allQuestions.filter(q => wrongBank.includes(q.id));
-            mistakeQuestions.forEach(q => targetIds.push(q.id));
             showMistakes();
-        } 
+        }
         // 2. Yapay Zeka Bölümü ise
         else if (currentSectionKey === 'ai') {
             if(confirm("AI tarafından üretilen sorular tamamen silinsin mi? (Geri alınamaz)")) {
