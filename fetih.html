@@ -8144,6 +8144,8 @@ async function loadSvgMap() {
     wrapper.innerHTML = await resp.text();
 
     const svg = wrapper.querySelector('svg');
+    svg.querySelectorAll('style, defs').forEach(s => s.remove());
+    svg.querySelectorAll('[style]').forEach(el => el.removeAttribute('style'));
     svg.removeAttribute('width');
     svg.removeAttribute('height');
     svg.style.width = '100%';
@@ -8190,7 +8192,10 @@ function renderMapState() {
     // 1. TÜM PATHLARI TEMİZLE (inline style ile)
     document.querySelectorAll('path[id^="city-"]').forEach(p => {
     p.removeAttribute('class');
-    p.style.cssText = 'fill:#ecf0f1; stroke:#95a5a6; stroke-width:1px; cursor:pointer;';
+    p.removeAttribute('style');
+    p.setAttribute('fill', '#ecf0f1');
+    p.setAttribute('stroke', '#95a5a6');
+    p.setAttribute('stroke-width', '1');
 });
 
     // Label'ları sıfırla
@@ -8216,8 +8221,10 @@ function renderMapState() {
 function paintCity(id, fillColor, strokeColor, pid) {
     const el = document.getElementById(`city-${id}`);
     if(!el) return;
-    el.style.cssText = `fill:${fillColor}; stroke:${strokeColor}; stroke-width:1.5px; cursor:pointer;`;
-
+    el.removeAttribute('style');
+    el.setAttribute('fill', fillColor);
+    el.setAttribute('stroke', strokeColor);
+    el.setAttribute('stroke-width', '1.5');
     // Label'ı beyaz yap
     const label = document.getElementById(`label-${id}`);
     if(label) label.classList.add('city-label-owned');
