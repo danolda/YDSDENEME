@@ -76,6 +76,104 @@
     box-shadow: 0 0 15px #2ecc71; 
     transform: scale(1.02);
 }
+
+/* === UÇAN PUAN ANİMASYONU === */
+.float-score {
+    position: absolute;
+    z-index: 200;
+    font-size: 1.6rem;
+    font-weight: 900;
+    text-shadow: 0 0 8px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.5);
+    pointer-events: none;
+    animation: floatUp 2s ease-out forwards;
+    white-space: nowrap;
+}
+@keyframes floatUp {
+    0%   { opacity: 1; transform: translateY(0) scale(1); }
+    30%  { opacity: 1; transform: translateY(-30px) scale(1.3); }
+    100% { opacity: 0; transform: translateY(-90px) scale(0.8); }
+}
+
+/* === BİLGİLENDİRME TOAST === */
+.game-toast {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    z-index: 300;
+    background: rgba(0,0,0,0.92);
+    color: white;
+    padding: 18px 40px;
+    border-radius: 16px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-align: center;
+    border: 2px solid var(--gold);
+    animation: toastPop 2.5s ease-out forwards;
+    pointer-events: none;
+    max-width: 90vw;
+}
+@keyframes toastPop {
+    0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    15%  { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+    25%  { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    80%  { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -60%) scale(0.8); opacity: 0; }
+}
+
+/* === ŞEHİR İSİM ETİKETLERİ === */
+.city-label {
+    font-size: 7px;
+    fill: #2c3e50;
+    text-anchor: middle;
+    pointer-events: none;
+    font-weight: 600;
+    font-family: 'Segoe UI', sans-serif;
+    paint-order: stroke;
+    stroke: rgba(255,255,255,0.85);
+    stroke-width: 2.5px;
+    stroke-linejoin: round;
+}
+.city-label-owned {
+    fill: #fff;
+    stroke: rgba(0,0,0,0.6);
+    stroke-width: 2px;
+    font-weight: 700;
+}
+
+/* === GELİŞMİŞ STATUS BAR === */
+#status-bar {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, rgba(0,0,0,0.92), rgba(44,62,80,0.95));
+    padding: 12px 35px; border-radius: 30px;
+    font-size: 1.15rem; font-weight: bold;
+    border: 2px solid var(--gold);
+    z-index: 100; display: none; white-space: nowrap;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    transition: all 0.3s;
+}
+
+/* === PLAYER CARD GELİŞMİŞ === */
+.player-card {
+    background: linear-gradient(135deg, rgba(0,0,0,0.85), rgba(30,30,30,0.9)) !important;
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+    min-width: 180px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: all 0.3s;
+    font-size: 0.9rem;
+}
+.player-card h4 { font-size: 1.1rem; margin-bottom: 4px; }
+.score-highlight {
+    animation: scoreFlash 0.5s ease;
+}
+@keyframes scoreFlash {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.3); color: var(--gold); }
+    100% { transform: scale(1); }
+}
     </style>
 </head>
 <body>
@@ -5903,12 +6001,1511 @@ const rawExamVocabA = `1-C 2-D 3-A 4-A 5-E 6-B 7-E 8-E 9-B 10-A 11-C 12-D 13-C 1
     
 
 
-// Bölüm Tanımları (Index.html ile aynı)
+/* ================= YDS MEGA KELİME HAVUZU (GÜNCELLENMİŞ - 1200+ KELİME) ================= */
+    const ydsVocabDB = [
+        // --- A GRUBU ---
+        { en: "Abandon", tr: "Terk etmek, vazgeçmek" },
+        { en: "Abolition", tr: "Yürürlükten kaldırma, iptal" },
+        { en: "Abrupt", tr: "Ani, beklenmedik" },
+        { en: "Absence", tr: "Yokluk, bulunmama" },
+        { en: "Abstention", tr: "Çekimser kalma, sakınma" },
+        { en: "Abundant", tr: "Bol, bereketli" },
+        { en: "Abundantly", tr: "Bolca, fazlasıyla" },
+        { en: "Accelerate", tr: "Hızlandırmak" },
+        { en: "Acceleration", tr: "Hızlanma, ivme" },
+        { en: "Accessible", tr: "Erişilebilir, ulaşılabilir" },
+        { en: "Accompany", tr: "Eşlik etmek" },
+        { en: "Accomplished", tr: "Başarılı, yetenekli, tamamlanmış" },
+        { en: "Accomplishment", tr: "Başarı, kazanım" },
+        { en: "Account for", tr: "Oluşturmak, açıklamak, hesaba katmak" },
+        { en: "Accumulate", tr: "Birikmek, toplamak" },
+        { en: "Accuracy", tr: "Doğruluk, kesinlik" },
+        { en: "Accurately", tr: "Tam/doğru bir şekilde" },
+        { en: "Achieve", tr: "Başarmak, elde etmek" },
+        { en: "Acknowledge", tr: "Kabul etmek, tanımak, onaylamak" },
+        { en: "Acquire", tr: "Edinmek, kazanmak (bilgi/mülk)" },
+        { en: "Acquisition", tr: "Edinim, kazanım" },
+        { en: "Adapt", tr: "Uyum sağlamak" },
+        { en: "Adaptable", tr: "Uyarlanabilir, esnek" },
+        { en: "Addiction", tr: "Bağımlılık" },
+        { en: "Additional", tr: "Ek, ilave" },
+        { en: "Adequate", tr: "Yeterli" },
+        { en: "Adequately", tr: "Yeterli bir şekilde" },
+        { en: "Adherence", tr: "Bağlılık, riayet (kurala)" },
+        { en: "Adjustment", tr: "Ayarlama, düzeltme" },
+        { en: "Administer", tr: "Yönetmek, idare etmek, uygulamak" },
+        { en: "Admire", tr: "Hayran olmak" },
+        { en: "Admirably", tr: "Hayranlık uyandıracak şekilde" },
+        { en: "Admit", tr: "Kabul etmek, itiraf etmek, içeri almak" },
+        { en: "Adopt", tr: "Benimsemek, evlat edinmek" },
+        { en: "Adoption", tr: "Evlat edinme, benimseme" },
+        { en: "Advancement", tr: "İlerleme, gelişme" },
+        { en: "Advent", tr: "Geliş, ortaya çıkış (icat vb.)" },
+        { en: "Adverse", tr: "Olumsuz, kötü, ters" },
+        { en: "Adversely", tr: "Olumsuz bir şekilde" },
+        { en: "Adversity", tr: "Zorluk, sıkıntı, bela" },
+        { en: "Advocate", tr: "Savunmak, desteklemek" },
+        { en: "Affluent", tr: "Zengin, varlıklı" },
+        { en: "Aggravate", tr: "Giderek kötüleşmek, sinirlendirmek" },
+        { en: "Alienate", tr: "Yabancılaştırmak, uzaklaştırmak" },
+        { en: "Align with", tr: "Uyum sağlamak, hizalanmak" },
+        { en: "Allegedly", tr: "İddia edildiğine göre" },
+        { en: "Alleviate", tr: "Hafifletmek, dindirmek" },
+        { en: "Alleviation", tr: "Hafifletme, yatıştırma" },
+        { en: "Allocate", tr: "Ayırmak, tahsis etmek" },
+        { en: "Allocation", tr: "Tahsisat, paylaştırma" },
+        { en: "Alter", tr: "Değiştirmek" },
+        { en: "Alteration", tr: "Değişiklik, tadilat" },
+        { en: "Alternatively", tr: "Alternatif olarak" },
+        { en: "Ambiguous", tr: "Belirsiz, muğlak" },
+        { en: "Ambiguously", tr: "Belirsiz bir şekilde" },
+        { en: "Amend", tr: "Değişiklik yapmak (yasa vb.)" },
+        { en: "Amount to", tr: "Tutmak (miktar), anlamına gelmek" },
+        { en: "Ample", tr: "Bol, çok" },
+        { en: "Annually", tr: "Yıllık olarak" },
+        { en: "Anticipate", tr: "Ummak, beklemek, öngörmek" },
+        { en: "Appalling", tr: "Korkunç, dehşet verici" },
+        { en: "Apparent", tr: "Açık, bariz" },
+        { en: "Appear", tr: "Görünmek, ortaya çıkmak" },
+        { en: "Application", tr: "Uygulama, başvuru" },
+        { en: "Appreciate", tr: "Takdir etmek, değeri artmak" },
+        { en: "Appreciation", tr: "Takdir, değer bilme" },
+        { en: "Approach", tr: "Yaklaşım, ele alış" },
+        { en: "Appropriate", tr: "Uygun, yerinde" },
+        { en: "Appropriately", tr: "Uygun bir şekilde" },
+        { en: "Approve", tr: "Onaylamak" },
+        { en: "Approximate", tr: "Yaklaşık" },
+        { en: "Approximately", tr: "Yaklaşık olarak" },
+        { en: "Arbitrary", tr: "Keyfi, rastgele" },
+        { en: "Arbitrarily", tr: "Keyfi olarak, rastgele" },
+        { en: "Ardently", tr: "Ateşli bir şekilde, gayretle" },
+        { en: "Arguably", tr: "Muhtemelen, tartışılabilir şekilde" },
+        { en: "Arise", tr: "Ortaya çıkmak" },
+        { en: "Artificial", tr: "Yapay, suni" },
+        { en: "Aspiration", tr: "Özlem, büyük amaç, heves" },
+        { en: "Assert", tr: "İleri sürmek, iddia etmek" },
+        { en: "Assertion", tr: "İddia, sav" },
+        { en: "Assess", tr: "Değerlendirmek" },
+        { en: "Assist", tr: "Yardım etmek" },
+        { en: "Associate", tr: "İlişkilendirmek" },
+        { en: "Association", tr: "İlişki, dernek, çağrışım" },
+        { en: "Assume", tr: "Varsaymak, üstlenmek" },
+        { en: "Assumption", tr: "Varsayım" },
+        { en: "Assurance", tr: "Güvence, teminat" },
+        { en: "Assure", tr: "Güvence vermek" },
+        { en: "Astonishing", tr: "Şaşırtıcı" },
+        { en: "Attach", tr: "Eklemek, iliştirmek" },
+        { en: "Attain", tr: "Elde etmek, ulaşmak" },
+        { en: "Attempt", tr: "Girişimde bulunmak, teşebbüs" },
+        { en: "Attribute", tr: "Atfetmek, bağlamak" },
+        { en: "Availability", tr: "Mevcut olma, kullanılabilirlik" },
+        { en: "Available", tr: "Mevcut, müsait" },
+        { en: "Avert", tr: "Önlemek, kaçınmak" },
+        { en: "Avoid", tr: "Kaçınmak, sakınmak" },
+        { en: "Awareness", tr: "Farkındalık" },
+
+        // --- B GRUBU ---
+        { en: "Ban", tr: "Yasaklamak" },
+        { en: "Bargain for", tr: "Ummak, beklemek, pazarlık etmek" },
+        { en: "Barely", tr: "Hemen hemen hiç, zar zor" },
+        { en: "Barren", tr: "Çorak, verimsiz" },
+        { en: "Barrier", tr: "Engel" },
+        { en: "Beneficial", tr: "Faydalı" },
+        { en: "Bias", tr: "Önyargı" },
+        { en: "Blame", tr: "Suçlamak" },
+        { en: "Boost", tr: "Artırmak, yükseltmek" },
+        { en: "Break down", tr: "Bozulmak, parçalamak, çökmek" },
+        { en: "Break in", tr: "Sözünü kesmek, zorla girmek" },
+        { en: "Break into", tr: "Zorla girmek, aniden başlamak" },
+        { en: "Breakthrough", tr: "Büyük buluş, atılım" },
+        { en: "Briefly", tr: "Kısaca" },
+        { en: "Bring about", tr: "Sebep olmak, yol açmak" },
+        { en: "Bring back", tr: "Geri getirmek, hatırlatmak" },
+        { en: "Bring down", tr: "Devirmek, azaltmak, indirmek" },
+        { en: "Bring in", tr: "Kazandırmak, getirmek" },
+        { en: "Bring out", tr: "Ortaya çıkarmak, yayımlamak" },
+        { en: "Bring up", tr: "Büyütmek (çocuk), gündeme getirmek" },
+        { en: "Broad", tr: "Geniş" },
+
+        // --- C GRUBU ---
+        { en: "Call for", tr: "Gerektirmek, çağrıda bulunmak" },
+        { en: "Call off", tr: "İptal etmek" },
+        { en: "Capability", tr: "Kabiliyet, yetenek" },
+        { en: "Capture", tr: "Yakalamak, ele geçirmek" },
+        { en: "Carry out", tr: "Uygulamak, yerine getirmek" },
+        { en: "Catch up", tr: "Yetişmek, yakalamak" },
+        { en: "Cautious", tr: "Temkinli, dikkatli" },
+        { en: "Cautiously", tr: "Dikkatli bir şekilde" },
+        { en: "Cease", tr: "Durdurmak, sona erdirmek" },
+        { en: "Celebrate", tr: "Kutlamak" },
+        { en: "Challenge", tr: "Zorluk, meydan okuma" },
+        { en: "Challenging", tr: "Zorlu, güç" },
+        { en: "Circulate", tr: "Dolaşmak (kan, haber)" },
+        { en: "Cite", tr: "Alıntı yapmak, bahsetmek" },
+        { en: "Clarify", tr: "Açıklığa kavuşturmak" },
+        { en: "Clarity", tr: "Açıklık, netlik" },
+        { en: "Classification", tr: "Sınıflandırma" },
+        { en: "Coincide", tr: "Denk gelmek, çakışmak" },
+        { en: "Coincidentally", tr: "Tesadüfen" },
+        { en: "Collaborate", tr: "İşbirliği yapmak" },
+        { en: "Collapse", tr: "Çökmek" },
+        { en: "Collide", tr: "Çarpışmak" },
+        { en: "Collision", tr: "Çarpışma" },
+        { en: "Commence", tr: "Başlamak" },
+        { en: "Commit", tr: "İşlemek (suç), adamak" },
+        { en: "Committed", tr: "Bağlı, sadık" },
+        { en: "Commodity", tr: "Ticari mal, hammadde" },
+        { en: "Compel", tr: "Zorlamak" },
+        { en: "Compelling", tr: "Zorlayıcı, ikna edici, saygı uyandıran" },
+        { en: "Compensate", tr: "Telafi etmek" },
+        { en: "Compensation", tr: "Telafi, tazminat" },
+        { en: "Compete", tr: "Yarışmak, rekabet etmek" },
+        { en: "Competence", tr: "Yetkinlik, yeterlilik" },
+        { en: "Competitive", tr: "Rekabetçi" },
+        { en: "Compile", tr: "Derlemek, bir araya getirmek" },
+        { en: "Complain", tr: "Şikayet etmek" },
+        { en: "Complaint", tr: "Şikayet" },
+        { en: "Complete", tr: "Tamamlamak" },
+        { en: "Completely", tr: "Tamamen" },
+        { en: "Complex", tr: "Karmaşık" },
+        { en: "Complexity", tr: "Karmaşıklık" },
+        { en: "Complicating", tr: "Karmaşıklaştıran" },
+        { en: "Compliment", tr: "İltifat" },
+        { en: "Comply", tr: "Uymak (kurala)" },
+        { en: "Compose", tr: "Oluşturmak, bestelemek" },
+        { en: "Comprehend", tr: "Kavramak, anlamak" },
+        { en: "Comprehensive", tr: "Kapsamlı" },
+        { en: "Comprise", tr: "Oluşmak, içermek" },
+        { en: "Compulsion", tr: "Zorlama, dürtü" },
+        { en: "Compulsorily", tr: "Zorunlu olarak" },
+        { en: "Compulsory", tr: "Zorunlu" },
+        { en: "Concede", tr: "Kabullenmek (isteksizce)" },
+        { en: "Conceive", tr: "Tasarlamak, hamile kalmak" },
+        { en: "Concentrate", tr: "Odaklanmak" },
+        { en: "Conclude", tr: "Sonuçlandırmak" },
+        { en: "Conclusion", tr: "Sonuç" },
+        { en: "Conclusively", tr: "Kesin olarak" },
+        { en: "Condition", tr: "Durum, koşul" },
+        { en: "Conduct", tr: "Yürütmek (deney, anket), iletmek" },
+        { en: "Confess", tr: "İtiraf etmek" },
+        { en: "Confidential", tr: "Gizli, mahrem" },
+        { en: "Confine", tr: "Sınırlamak, hapsetmek" },
+        { en: "Confirm", tr: "Onaylamak" },
+        { en: "Conflict", tr: "Çatışma" },
+        { en: "Conform", tr: "Uymak (kurallara)" },
+        { en: "Confront", tr: "Yüzleşmek" },
+        { en: "Confuse", tr: "Kafası karışmak" },
+        { en: "Congest", tr: "Tıkamak (trafik)" },
+        { en: "Consecutive", tr: "Ardışık, peş peşe" },
+        { en: "Consecutively", tr: "Ardışık olarak" },
+        { en: "Consequence", tr: "Sonuç, netice" },
+        { en: "Conserve", tr: "Korumak, muhafaza etmek" },
+        { en: "Considerable", tr: "Önemli, kayda değer" },
+        { en: "Considerably", tr: "Önemli ölçüde" },
+        { en: "Consist", tr: "Oluşmak" },
+        { en: "Consistency", tr: "Tutarlılık" },
+        { en: "Consistent", tr: "Tutarlı, istikrarlı" },
+        { en: "Consolidate", tr: "Sağlamlaştırmak, birleştirmek" },
+        { en: "Conspire", tr: "Komplo kurmak" },
+        { en: "Constant", tr: "Sürekli, sabit" },
+        { en: "Constitute", tr: "Oluşturmak, teşkil etmek" },
+        { en: "Constrain", tr: "Kısıtlamak, zorlamak" },
+        { en: "Constraint", tr: "Kısıtlama, baskı" },
+        { en: "Construct", tr: "İnşa etmek" },
+        { en: "Constructive", tr: "Yapıcı" },
+        { en: "Consult", tr: "Danışmak" },
+        { en: "Consume", tr: "Tüketmek" },
+        { en: "Contact", tr: "İletişim kurmak" },
+        { en: "Contain", tr: "İçermek" },
+        { en: "Contaminate", tr: "Kirletmek (mikrop/radyasyon)" },
+        { en: "Contemporary", tr: "Çağdaş, modern" },
+        { en: "Contend", tr: "İddia etmek, uğraşmak" },
+        { en: "Content", tr: "İçerik / Memnun" },
+        { en: "Contentious", tr: "Tartışmalı" },
+        { en: "Contest", tr: "Yarışma" },
+        { en: "Context", tr: "Bağlam" },
+        { en: "Contract", tr: "Sözleşme / Hastalık kapmak" },
+        { en: "Contradict", tr: "Çelişmek" },
+        { en: "Contradiction", tr: "Çelişki" },
+        { en: "Contribute", tr: "Katkıda bulunmak" },
+        { en: "Controversy", tr: "Tartışma, ihtilaf" },
+        { en: "Convenient", tr: "Uygun, elverişli, pratik" },
+        { en: "Conventionally", tr: "Geleneksel olarak" },
+        { en: "Convert", tr: "Dönüştürmek" },
+        { en: "Convertible", tr: "Dönüştürülebilir" },
+        { en: "Convey", tr: "İletmek, taşımak" },
+        { en: "Convince", tr: "İkna etmek" },
+        { en: "Convincingly", tr: "İkna edici bir şekilde" },
+        { en: "Cooperate", tr: "İşbirliği yapmak" },
+        { en: "Cope with", tr: "Başa çıkmak" },
+        { en: "Correspond", tr: "Denk gelmek, yazışmak" },
+        { en: "Corruption", tr: "Yolsuzluk, çürüme" },
+        { en: "Counter", tr: "Karşı koymak, aksini iddia etmek" },
+        { en: "Counteract", tr: "Etkisini azaltmak, karşı gelmek" },
+        { en: "Create", tr: "Yaratmak" },
+        { en: "Credible", tr: "İnandırıcı, güvenilir" },
+        { en: "Credit with", tr: "İle tanınmak, atfetmek" },
+        { en: "Crisis", tr: "Kriz" },
+        { en: "Critical", tr: "Eleştirel / Kritik" },
+        { en: "Criticize", tr: "Eleştirmek" },
+        { en: "Crucial", tr: "Hayati, çok önemli" },
+        { en: "Culminate", tr: "Zirveye ulaşmak, sonuçlanmak" },
+        { en: "Cultivate", tr: "Ekip biçmek, geliştirmek" },
+        { en: "Cure", tr: "Tedavi etmek" },
+        { en: "Curiosity", tr: "Merak" },
+        { en: "Current", tr: "Mevcut, şu anki" },
+        { en: "Curtail", tr: "Kısmak, azaltmak" },
+        { en: "Cut down on", tr: "Azaltmak (tüketimi vb.)" },
+        { en: "Cut off", tr: "Kesmek (elektrik, ilişki vb.)" },
+
+        // --- D GRUBU ---
+        { en: "Damage", tr: "Hasar vermek" },
+        { en: "Damaging", tr: "Zarar verici" },
+        { en: "Dampening", tr: "Azaltan, nemlendiren" },
+        { en: "Dangerously", tr: "Tehlikeli bir şekilde" },
+        { en: "Deal with", tr: "Ele almak, ilgilenmek" },
+        { en: "Debatable", tr: "Tartışılabilir" },
+        { en: "Debate", tr: "Tartışmak" },
+        { en: "Decade", tr: "On yıl" },
+        { en: "Decay", tr: "Çürümek" },
+        { en: "Deceive", tr: "Aldatmak, kandırmak" },
+        { en: "Decent", tr: "Terbiyeli, dürüst, makul" },
+        { en: "Decently", tr: "Terbiyeli bir şekilde, uygunca" },
+        { en: "Deception", tr: "Aldatma, hile" },
+        { en: "Decide", tr: "Karar vermek" },
+        { en: "Decisive", tr: "Belirleyici, kararlı" },
+        { en: "Decisively", tr: "Kararlı bir şekilde" },
+        { en: "Declare", tr: "İlan etmek" },
+        { en: "Decline", tr: "Azalmak / Reddetmek" },
+        { en: "Dedicate", tr: "Adamak" },
+        { en: "Dedication", tr: "Adama, bağlılık" },
+        { en: "Deduce", tr: "Çıkarım yapmak" },
+        { en: "Deduction", tr: "Çıkarım, kesinti" },
+        { en: "Deepen", tr: "Derinleştirmek" },
+        { en: "Defeat", tr: "Yenmek, mağlup etmek" },
+        { en: "Defect", tr: "Kusur, hata" },
+        { en: "Defend", tr: "Savunmak" },
+        { en: "Defer", tr: "Ertelemek" },
+        { en: "Deficiency", tr: "Eksiklik, yetersizlik" },
+        { en: "Deficient", tr: "Eksik, yetersiz" },
+        { en: "Define", tr: "Tanımlamak" },
+        { en: "Deformity", tr: "Şekil bozukluğu" },
+        { en: "Defy", tr: "Meydan okumak, karşı gelmek" },
+        { en: "Delay", tr: "Geciktirmek" },
+        { en: "Deliberately", tr: "Kasten, bilerek" },
+        { en: "Delicacy", tr: "Narinlik, incelik, lezzet" },
+        { en: "Delicate", tr: "Narin, hassas" },
+        { en: "Demand", tr: "Talep etmek" },
+        { en: "Demolish", tr: "Yıkmak" },
+        { en: "Demonstrate", tr: "Göstermek, kanıtlamak" },
+        { en: "Deniably", tr: "İnkar edilebilir şekilde" },
+        { en: "Deny", tr: "İnkar etmek" },
+        { en: "Depend on", tr: "Bağlı olmak, güvenmek" },
+        { en: "Dependent", tr: "Bağımlı" },
+        { en: "Depict", tr: "Tasvir etmek, betimlemek" },
+        { en: "Deplete", tr: "Tüketmek, bitirmek" },
+        { en: "Depletion", tr: "Tükenme, azalma" },
+        { en: "Deprive", tr: "Mahrum etmek" },
+        { en: "Derive", tr: "Türetmek, kaynaklanmak" },
+        { en: "Descend", tr: "Alçalmak, inmek, soyundan gelmek" },
+        { en: "Describe", tr: "Tanımlamak" },
+        { en: "Deserve", tr: "Hak etmek" },
+        { en: "Design", tr: "Tasarlamak" },
+        { en: "Designation", tr: "Atama, belirleme" },
+        { en: "Desire", tr: "Arzulamak" },
+        { en: "Despair", tr: "Umutsuzluk" },
+        { en: "Desperate", tr: "Umutsuz, çaresiz" },
+        { en: "Desperately", tr: "Çaresizce, umutsuzca" },
+        { en: "Despite", tr: "-e rağmen" },
+        { en: "Destiny", tr: "Kader" },
+        { en: "Destroy", tr: "Yok etmek" },
+        { en: "Destruction", tr: "Yıkım" },
+        { en: "Detail", tr: "Detay" },
+        { en: "Detect", tr: "Tespit etmek" },
+        { en: "Detection", tr: "Tespit, bulma" },
+        { en: "Deter", tr: "Caydırmak" },
+        { en: "Deteriorate", tr: "Kötüleşmek, bozulmak" },
+        { en: "Deterioration", tr: "Bozulma, kötüleşme" },
+        { en: "Determine", tr: "Belirlemek, saptamak" },
+        { en: "Deterrent", tr: "Caydırıcı" },
+        { en: "Devastate", tr: "Harap etmek, mahvetmek" },
+        { en: "Devastatingly", tr: "Yıkıcı bir şekilde" },
+        { en: "Develop", tr: "Geliştirmek" },
+        { en: "Development", tr: "Gelişme" },
+        { en: "Deviancy", tr: "Sapma, normalden ayrılma" },
+        { en: "Deviate", tr: "Sapmak, ayrılmak" },
+        { en: "Device", tr: "Cihaz" },
+        { en: "Devise", tr: "Tasarlamak, icat etmek" },
+        { en: "Devote", tr: "Adamak" },
+        { en: "Diagnose", tr: "Teşhis etmek" },
+        { en: "Differ", tr: "Farklılık göstermek" },
+        { en: "Different", tr: "Farklı" },
+        { en: "Differentiate", tr: "Ayırt etmek" },
+        { en: "Difficult", tr: "Zor" },
+        { en: "Diffuse", tr: "Yaymak, dağıtmak" },
+        { en: "Dig", tr: "Kazmak" },
+        { en: "Digest", tr: "Sindirmek" },
+        { en: "Dilemma", tr: "İkilem" },
+        { en: "Diligent", tr: "Gayretli, çalışkan" },
+        { en: "Dim", tr: "Loş, sönük" },
+        { en: "Dimension", tr: "Boyut" },
+        { en: "Diminish", tr: "Azalmak" },
+        { en: "Direct", tr: "Yönlendirmek / Doğrudan" },
+        { en: "Disappoint", tr: "Hayal kırıklığına uğratmak" },
+        { en: "Disaster", tr: "Felaket" },
+        { en: "Disastrous", tr: "Felaket getiren" },
+        { en: "Discard", tr: "Atmak, elden çıkarmak" },
+        { en: "Discern", tr: "Fark etmek, seçmek" },
+        { en: "Discharge", tr: "Taburcu etmek, boşaltmak" },
+        { en: "Discipline", tr: "Disiplin / Bilim dalı" },
+        { en: "Disclose", tr: "Açığa vurmak, ifşa etmek" },
+        { en: "Discover", tr: "Keşfetmek" },
+        { en: "Discrepancy", tr: "Tutarsızlık, farklılık" },
+        { en: "Discriminate", tr: "Ayrımcılık yapmak, ayırt etmek" },
+        { en: "Discrimination", tr: "Ayrımcılık" },
+        { en: "Discuss", tr: "Tartışmak" },
+        { en: "Disease", tr: "Hastalık" },
+        { en: "Disgust", tr: "İğrenmek" },
+        { en: "Dismiss", tr: "Kovmak, reddetmek, kafadan atmak" },
+        { en: "Disorder", tr: "Bozukluk, rahatsızlık" },
+        { en: "Dispel", tr: "Gidermek, kovmak (korku vb.)" },
+        { en: "Dispensable", tr: "Vazgeçilebilir, zorunlu olmayan" },
+        { en: "Display", tr: "Sergilemek" },
+        { en: "Disposal", tr: "İmha, atma, kullanım" },
+        { en: "Dispose", tr: "Elden çıkarmak" },
+        { en: "Dispute", tr: "Anlaşmazlık, tartışma" },
+        { en: "Disregard", tr: "Göz ardı etmek" },
+        { en: "Disrupt", tr: "Bozmak, aksatmak" },
+        { en: "Disruptive", tr: "Bozucu, yıkıcı" },
+        { en: "Dissolve", tr: "Çözünmek, feshetmek" },
+        { en: "Distance", tr: "Mesafe" },
+        { en: "Distant", tr: "Uzak" },
+        { en: "Distinct", tr: "Belirgin, farklı" },
+        { en: "Distinction", tr: "Ayrım, fark" },
+        { en: "Distinctive", tr: "Kendine özgü, ayırt edici" },
+        { en: "Distinguish", tr: "Ayırt etmek" },
+        { en: "Distort", tr: "Çarpıtmak, bozmak" },
+        { en: "Distract", tr: "Dikkatini dağıtmak" },
+        { en: "Distress", tr: "Sıkıntı, üzüntü" },
+        { en: "Distribute", tr: "Dağıtmak" },
+        { en: "Distribution", tr: "Dağılım" },
+        { en: "District", tr: "İlçe, bölge" },
+        { en: "Disturb", tr: "Rahatsız etmek" },
+        { en: "Diverse", tr: "Çeşitli" },
+        { en: "Diversify", tr: "Çeşitlendirmek" },
+        { en: "Diversity", tr: "Çeşitlilik" },
+        { en: "Divert", tr: "Yönünü değiştirmek, saptırmak" },
+        { en: "Divide", tr: "Bölmek" },
+        { en: "Divine", tr: "İlahi" },
+        { en: "Division", tr: "Bölüm" },
+        { en: "Divisively", tr: "Bölücü bir şekilde" },
+        { en: "Divorce", tr: "Boşanmak" },
+        { en: "Do away with", tr: "Yürürlükten kaldırmak, yok etmek" },
+        { en: "Domestic", tr: "Yerli, evcil" },
+        { en: "Dominate", tr: "Hükmetmek, baskın çıkmak" },
+        { en: "Donate", tr: "Bağışlamak" },
+        { en: "Doubtful", tr: "Şüpheli" },
+        { en: "Draft", tr: "Taslak" },
+        { en: "Drastic", tr: "Köklü, şiddetli" },
+        { en: "Drastically", tr: "Şiddetle, önemli ölçüde" },
+        { en: "Draw up", tr: "Düzenlemek, hazırlamak" },
+        { en: "Drawback", tr: "Dezavantaj, eksiklik" },
+        { en: "Drought", tr: "Kuraklık" },
+        { en: "Duration", tr: "Süre" },
+        { en: "Dwell", tr: "İkamet etmek" },
+        { en: "Dwindle", tr: "Giderek azalmak" },
+
+        // --- E GRUBU ---
+        { en: "Eager", tr: "Hevesli, istekli" },
+        { en: "Earn", tr: "Kazanmak (para/itibar)" },
+        { en: "Earthquake", tr: "Deprem" },
+        { en: "Ease", tr: "Kolaylaştırmak" },
+        { en: "Eccentrically", tr: "Tuhaf/alışılmadık bir şekilde" },
+        { en: "Effect", tr: "Etki" },
+        { en: "Effective", tr: "Etkili" },
+        { en: "Efficacy", tr: "Yarar, etkililik" },
+        { en: "Efficient", tr: "Verimli" },
+        { en: "Efficiently", tr: "Verimli bir şekilde" },
+        { en: "Effort", tr: "Çaba" },
+        { en: "Elaborate", tr: "Ayrıntılı / Detaylandırmak" },
+        { en: "Elaborately", tr: "Ayrıntılı bir şekilde" },
+        { en: "Elect", tr: "Seçmek" },
+        { en: "Elegant", tr: "Zarif" },
+        { en: "Element", tr: "Unsur" },
+        { en: "Elevate", tr: "Yükseltmek" },
+        { en: "Eligible", tr: "Uygun, nitelikli" },
+        { en: "Eligibly", tr: "Seçilebilir/uygun şekilde" },
+        { en: "Eliminate", tr: "Elemek, ortadan kaldırmak" },
+        { en: "Elimination", tr: "Eleme, yok etme" },
+        { en: "Embark on", tr: "Başlamak, girişmek" },
+        { en: "Embarrass", tr: "Utandırmak" },
+        { en: "Embed", tr: "Gömmek, yerleştirmek" },
+        { en: "Embrace", tr: "Kucaklamak, benimsemek" },
+        { en: "Emerge", tr: "Ortaya çıkmak" },
+        { en: "Emergency", tr: "Acil durum" },
+        { en: "Emigrate", tr: "Göç etmek" },
+        { en: "Emit", tr: "Yaymak (gaz, ışık)" },
+        { en: "Emotion", tr: "Duygu" },
+        { en: "Emphasis", tr: "Vurgu" },
+        { en: "Emphasize", tr: "Vurgulamak" },
+        { en: "Empire", tr: "İmparatorluk" },
+        { en: "Employ", tr: "İşe almak / Kullanmak" },
+        { en: "Empower", tr: "Yetki vermek, güçlendirmek" },
+        { en: "Empty", tr: "Boş" },
+        { en: "Enable", tr: "Olanak sağlamak" },
+        { en: "Enact", tr: "Yürürlüğe koymak (yasa)" },
+        { en: "Encompass", tr: "Kapsamak, çevrelemek" },
+        { en: "Encounter", tr: "Karşılaşmak" },
+        { en: "Encourage", tr: "Teşvik etmek" },
+        { en: "End up with", tr: "İle sonuçlanmak, kendini ...da bulmak" },
+        { en: "Endanger", tr: "Tehlikeye atmak" },
+        { en: "Endeavor", tr: "Çabalamak" },
+        { en: "Endorse", tr: "Onaylamak, desteklemek" },
+        { en: "Endure", tr: "Dayanmak, katlanmak" },
+        { en: "Enemy", tr: "Düşman" },
+        { en: "Energy", tr: "Enerji" },
+        { en: "Enforce", tr: "Uygulamak, zorlamak" },
+        { en: "Enforcement", tr: "Uygulama, zorlama" },
+        { en: "Engage", tr: "Meşgul olmak, nişanlanmak" },
+        { en: "Enhance", tr: "Geliştirmek, artırmak" },
+        { en: "Enjoy", tr: "Keyif almak" },
+        { en: "Enlarge", tr: "Genişletmek" },
+        { en: "Enlighten", tr: "Aydınlatmak" },
+        { en: "Enormous", tr: "Kocaman, muazzam" },
+        { en: "Enough", tr: "Yeterli" },
+        { en: "Enrich", tr: "Zenginleştirmek" },
+        { en: "Enrichment", tr: "Zenginleştirme" },
+        { en: "Enroll", tr: "Kaydolmak" },
+        { en: "Ensure", tr: "Garantiye almak, sağlamak" },
+        { en: "Entail", tr: "Gerektirmek, kapsamak" },
+        { en: "Entanglement", tr: "Karışıklık, dolaşıklık" },
+        { en: "Enter", tr: "Girmek" },
+        { en: "Enterprise", tr: "Girişim" },
+        { en: "Entertain", tr: "Eğlendirmek" },
+        { en: "Enthusiasm", tr: "Heves" },
+        { en: "Entire", tr: "Tüm, bütün" },
+        { en: "Entitle", tr: "Yetki vermek, hak kazandırmak" },
+        { en: "Entitlement", tr: "Hak, yetki" },
+        { en: "Entity", tr: "Varlık" },
+        { en: "Entrance", tr: "Giriş" },
+        { en: "Entrepreneur", tr: "Girişimci" },
+        { en: "Environment", tr: "Çevre" },
+        { en: "Envy", tr: "Kıskanmak" },
+        { en: "Epidemic", tr: "Salgın" },
+        { en: "Equal", tr: "Eşit" },
+        { en: "Equip", tr: "Donatmak" },
+        { en: "Equipment", tr: "Ekipman" },
+        { en: "Equivalent", tr: "Eşdeğer, denk" },
+        { en: "Era", tr: "Çağ, dönem" },
+        { en: "Eradicate", tr: "Kökünü kazımak, yok etmek" },
+        { en: "Erect", tr: "Dikmek, inşa etmek" },
+        { en: "Erode", tr: "Aşınmak" },
+        { en: "Erroneous", tr: "Hatalı, yanlış" },
+        { en: "Error", tr: "Hata" },
+        { en: "Erupt", tr: "Patlamak (yanardağ)" },
+        { en: "Escalate", tr: "Tırmanmak, yükselmek" },
+        { en: "Escape", tr: "Kaçmak" },
+        { en: "Especially", tr: "Özellikle" },
+        { en: "Essential", tr: "Gerekli, temel" },
+        { en: "Establish", tr: "Kurmak" },
+        { en: "Estate", tr: "Mülk" },
+        { en: "Esteem", tr: "Saygı" },
+        { en: "Estimate", tr: "Tahmin etmek" },
+        { en: "Estimation", tr: "Tahmin, kestirim" },
+        { en: "Eternal", tr: "Sonsuz" },
+        { en: "Ethical", tr: "Etik" },
+        { en: "Evacuate", tr: "Tahliye etmek" },
+        { en: "Evaluate", tr: "Değerlendirmek" },
+        { en: "Evaporate", tr: "Buharlaşmak" },
+        { en: "Evenly", tr: "Eşit bir şekilde" },
+        { en: "Event", tr: "Olay" },
+        { en: "Eventually", tr: "Sonunda, nihayetinde" },
+        { en: "Evidence", tr: "Kanıt" },
+        { en: "Evident", tr: "Belirgin, aşikar" },
+        { en: "Evil", tr: "Kötü" },
+        { en: "Evoke", tr: "Çağrıştırmak, anımsatmak" },
+        { en: "Evolve", tr: "Evrimleşmek, gelişmek" },
+        { en: "Exact", tr: "Tam, kesin" },
+        { en: "Exactly", tr: "Tam olarak" },
+        { en: "Exaggerate", tr: "Abartmak" },
+        { en: "Examine", tr: "İncelemek" },
+        { en: "Example", tr: "Örnek" },
+        { en: "Excavate", tr: "Kazı yapmak" },
+        { en: "Exceed", tr: "Aşmak, geçmek" },
+        { en: "Excel", tr: "Üstün olmak" },
+        { en: "Excellent", tr: "Mükemmel" },
+        { en: "Except", tr: "Hariç" },
+        { en: "Exception", tr: "İstisna" },
+        { en: "Exceptional", tr: "Olağanüstü, istisnai" },
+        { en: "Excess", tr: "Fazlalık" },
+        { en: "Excessive", tr: "Aşırı, fazla" },
+        { en: "Exchange", tr: "Takas etmek" },
+        { en: "Excite", tr: "Heyecanlandırmak" },
+        { en: "Exclude", tr: "Hariç tutmak, dışlamak" },
+        { en: "Exclusive", tr: "Özel, ayrıcalıklı" },
+        { en: "Exclusively", tr: "Sadece, özel olarak" },
+        { en: "Excuse", tr: "Mazeret / Affetmek" },
+        { en: "Execute", tr: "İdam etmek / Yürütmek" },
+        { en: "Executive", tr: "Yönetici" },
+        { en: "Exempt", tr: "Muaf" },
+        { en: "Exercise", tr: "Egzersiz" },
+        { en: "Exert", tr: "Çaba sarf etmek" },
+        { en: "Exhaust", tr: "Tüketmek, yormak" },
+        { en: "Exhaustion", tr: "Tükenme, yorgunluk" },
+        { en: "Exhibit", tr: "Sergilemek" },
+        { en: "Exhibition", tr: "Sergi" },
+        { en: "Exile", tr: "Sürgün" },
+        { en: "Exist", tr: "Var olmak" },
+        { en: "Exit", tr: "Çıkış" },
+        { en: "Expand", tr: "Genişlemek" },
+        { en: "Expansion", tr: "Genişleme" },
+        { en: "Expect", tr: "Beklemek" },
+        { en: "Expectation", tr: "Beklenti" },
+        { en: "Expedition", tr: "Sefer" },
+        { en: "Expel", tr: "Kovmak, sınır dışı etmek" },
+        { en: "Expenditure", tr: "Masraf, harcama" },
+        { en: "Expense", tr: "Masraf" },
+        { en: "Expensive", tr: "Pahalı" },
+        { en: "Experience", tr: "Deneyim" },
+        { en: "Experiment", tr: "Deney" },
+        { en: "Expert", tr: "Uzman" },
+        { en: "Expire", tr: "Süresi dolmak" },
+        { en: "Explain", tr: "Açıklamak" },
+        { en: "Explicable", tr: "Açıklanabilir" },
+        { en: "Explicit", tr: "Açık, net" },
+        { en: "Explicitly", tr: "Açıkça" },
+        { en: "Explode", tr: "Patlamak" },
+        { en: "Exploit", tr: "Sömürmek, yararlanmak" },
+        { en: "Exploitation", tr: "Sömürü, faydalanma" },
+        { en: "Explore", tr: "Keşfetmek" },
+        { en: "Explosion", tr: "Patlama" },
+        { en: "Exponentially", tr: "Katlanarak" },
+        { en: "Export", tr: "İhraç etmek" },
+        { en: "Expose", tr: "Maruz bırakmak" },
+        { en: "Exposure", tr: "Maruz kalma" },
+        { en: "Express", tr: "İfade etmek" },
+        { en: "Extend", tr: "Uzatmak, genişletmek" },
+        { en: "Extension", tr: "Uzatma, genişletme" },
+        { en: "Extensively", tr: "Kapsamlıca" },
+        { en: "Extent", tr: "Boyut, kapsam" },
+        { en: "External", tr: "Harici" },
+        { en: "Externally", tr: "Dışarıdan" },
+        { en: "Extinct", tr: "Nesli tükenmiş" },
+        { en: "Extinction", tr: "Nesli tükenme" },
+        { en: "Extinguish", tr: "Söndürmek (yangın)" },
+        { en: "Extra", tr: "Ekstra" },
+        { en: "Extract", tr: "Çıkarmak, özünü almak" },
+        { en: "Extraction", tr: "Çıkarma, özüt" },
+        { en: "Extraordinary", tr: "Olağanüstü" },
+        { en: "Extravagant", tr: "Savurgan" },
+        { en: "Extreme", tr: "Aşırı" },
+
+        // --- F GRUBU ---
+        { en: "Fabricate", tr: "Uydurmak, üretmek" },
+        { en: "Facilitate", tr: "Kolaylaştırmak" },
+        { en: "Facility", tr: "Tesis, imkan" },
+        { en: "Fact", tr: "Gerçek" },
+        { en: "Factor", tr: "Faktör" },
+        { en: "Factory", tr: "Fabrika" },
+        { en: "Fade", tr: "Solmak" },
+        { en: "Fail", tr: "Başarısız olmak" },
+        { en: "Faint", tr: "Bayılmak / Soluk" },
+        { en: "Fair", tr: "Adil / Fuar" },
+        { en: "Faith", tr: "İnanç" },
+        { en: "Fake", tr: "Sahte" },
+        { en: "Fall", tr: "Düşmek" },
+        { en: "Fallacy", tr: "Yanılgı, safsata" },
+        { en: "False", tr: "Yanlış" },
+        { en: "Fame", tr: "Şöhret" },
+        { en: "Familiar", tr: "Tanıdık" },
+        { en: "Famine", tr: "Kıtlık" },
+        { en: "Famous", tr: "Ünlü" },
+        { en: "Fan", tr: "Hayran / Vantilatör" },
+        { en: "Fancy", tr: "Süslü / İstemek" },
+        { en: "Far", tr: "Uzak" },
+        { en: "Fare", tr: "Ücret (yol)" },
+        { en: "Farm", tr: "Çiftlik" },
+        { en: "Fascinate", tr: "Büyülemek" },
+        { en: "Fashion", tr: "Moda" },
+        { en: "Fast", tr: "Hızlı" },
+        { en: "Fasten", tr: "Bağlamak" },
+        { en: "Fat", tr: "Şişman" },
+        { en: "Fatal", tr: "Ölümcül" },
+        { en: "Fate", tr: "Kader" },
+        { en: "Father", tr: "Baba" },
+        { en: "Fatigue", tr: "Yorgunluk" },
+        { en: "Fault", tr: "Hata" },
+        { en: "Favor", tr: "İyilik" },
+        { en: "Favorable", tr: "Olumlu" },
+        { en: "Favourably", tr: "Olumlu bir şekilde" },
+        { en: "Fear", tr: "Korku" },
+        { en: "Feasible", tr: "Mümkün, yapılabilir" },
+        { en: "Feast", tr: "Ziyafet" },
+        { en: "Feat", tr: "Kahramanlık, beceri" },
+        { en: "Feather", tr: "Tüy" },
+        { en: "Feature", tr: "Özellik" },
+        { en: "Federal", tr: "Federal" },
+        { en: "Fee", tr: "Ücret" },
+        { en: "Feed", tr: "Beslemek" },
+        { en: "Feel", tr: "Hissetmek" },
+        { en: "Fellow", tr: "Arkadaş" },
+        { en: "Female", tr: "Dişi" },
+        { en: "Fence", tr: "Çit" },
+        { en: "Fertile", tr: "Verimli" },
+        { en: "Fetch", tr: "Gidip getirmek" },
+        { en: "Fever", tr: "Ateş" },
+        { en: "Few", tr: "Az" },
+        { en: "Field", tr: "Alan, saha" },
+        { en: "Fierce", tr: "Şiddetli, vahşi" },
+        { en: "Fight", tr: "Kavga etmek" },
+        { en: "Figure", tr: "Rakam / Şekil" },
+        { en: "Figure out", tr: "Çözmek, anlamak" },
+        { en: "File", tr: "Dosya" },
+        { en: "Fill", tr: "Doldurmak" },
+        { en: "Fill out", tr: "Doldurmak (form vb.)" },
+        { en: "Film", tr: "Film" },
+        { en: "Final", tr: "Son" },
+        { en: "Finance", tr: "Finans" },
+        { en: "Find", tr: "Bulmak" },
+        { en: "Fine", tr: "İyi / Para cezası" },
+        { en: "Finger", tr: "Parmak" },
+        { en: "Finish", tr: "Bitirmek" },
+        { en: "Fire", tr: "Ateş / Kovmak" },
+        { en: "Firm", tr: "Firma / Sıkı" },
+        { en: "Firmly", tr: "Sıkıca, kesin olarak" },
+        { en: "First", tr: "İlk" },
+        { en: "Fiscal", tr: "Mali" },
+        { en: "Fish", tr: "Balık" },
+        { en: "Fit", tr: "Uymak" },
+        { en: "Fix", tr: "Tamir etmek" },
+        { en: "Flag", tr: "Bayrak" },
+        { en: "Flame", tr: "Alev" },
+        { en: "Flash", tr: "Parlama" },
+        { en: "Flat", tr: "Düz / Daire" },
+        { en: "Flatter", tr: "Yağ çekmek" },
+        { en: "Flavor", tr: "Tat" },
+        { en: "Flee", tr: "Kaçmak" },
+        { en: "Flesh", tr: "Et (insan/hayvan)" },
+        { en: "Flexible", tr: "Esnek" },
+        { en: "Flight", tr: "Uçuş" },
+        { en: "Float", tr: "Yüzmek (su üstünde)" },
+        { en: "Flood", tr: "Sel" },
+        { en: "Floor", tr: "Zemin / Kat" },
+        { en: "Flour", tr: "Un" },
+        { en: "Flow", tr: "Akmak" },
+        { en: "Flower", tr: "Çiçek" },
+        { en: "Fluctuate", tr: "Dalgalanmak (fiyat vb.)" },
+        { en: "Fluctuation", tr: "Dalgalanma" },
+        { en: "Fluent", tr: "Akıcı" },
+        { en: "Fluid", tr: "Sıvı" },
+        { en: "Fly", tr: "Uçmak" },
+        { en: "Focus", tr: "Odaklanmak" },
+        { en: "Fog", tr: "Sis" },
+        { en: "Fold", tr: "Katlamak" },
+        { en: "Follow", tr: "Takip etmek" },
+        { en: "Fond", tr: "Düşkün" },
+        { en: "Food", tr: "Yiyecek" },
+        { en: "Fool", tr: "Aptal" },
+        { en: "Foot", tr: "Ayak" },
+        { en: "Forbid", tr: "Yasaklamak" },
+        { en: "Force", tr: "Zorlamak / Güç" },
+        { en: "Forecast", tr: "Tahmin etmek" },
+        { en: "Foreign", tr: "Yabancı" },
+        { en: "Forest", tr: "Orman" },
+        { en: "Forever", tr: "Sonsuza dek" },
+        { en: "Forget", tr: "Unutmak" },
+        { en: "Forgive", tr: "Affetmek" },
+        { en: "Fork", tr: "Çatal" },
+        { en: "Form", tr: "Biçim / Oluşturmak" },
+        { en: "Formal", tr: "Resmi" },
+        { en: "Formally", tr: "Resmi olarak" },
+        { en: "Former", tr: "Önceki" },
+        { en: "Formidable", tr: "Ürkütücü, zorlu" },
+        { en: "Formula", tr: "Formül" },
+        { en: "Fortify", tr: "Güçlendirmek" },
+        { en: "Fortunate", tr: "Şanslı" },
+        { en: "Fortune", tr: "Servet / Şans" },
+        { en: "Forward", tr: "İleri" },
+        { en: "Foster", tr: "Teşvik etmek, büyütmek" },
+        { en: "Found out", tr: "Öğrenmek, keşfetmek" },
+        { en: "Foundation", tr: "Temel, vakıf" },
+        { en: "Fragile", tr: "Kırılgan" },
+        { en: "Fragment", tr: "Parça" },
+        { en: "Fragmentation", tr: "Parçalanma" },
+        { en: "Frame", tr: "Çerçeve" },
+        { en: "Framework", tr: "Çerçeve, iskelet" },
+        { en: "Frank", tr: "Açık sözlü" },
+        { en: "Frankly", tr: "Dürüst olmak gerekirse" },
+        { en: "Fraud", tr: "Dolandırıcılık" },
+        { en: "Free", tr: "Özgür / Ücretsiz" },
+        { en: "Freedom", tr: "Özgürlük" },
+        { en: "Freeze", tr: "Donmak" },
+        { en: "Frequent", tr: "Sık" },
+        { en: "Fresh", tr: "Taze" },
+        { en: "Friend", tr: "Arkadaş" },
+        { en: "Frighten", tr: "Korkutmak" },
+        { en: "Frog", tr: "Kurbağa" },
+        { en: "Front", tr: "Ön" },
+        { en: "Frontier", tr: "Sınır" },
+        { en: "Fruit", tr: "Meyve" },
+        { en: "Fruitful", tr: "Verimli" },
+        { en: "Fruitfully", tr: "Verimli bir şekilde" },
+        { en: "Frustrate", tr: "Hüsrana uğratmak" },
+        { en: "Frustrating", tr: "Sinir bozucu, hüsran yaratan" },
+        { en: "Fuel", tr: "Yakıt" },
+        { en: "Fulfill", tr: "Yerine getirmek, gerçekleştirmek" },
+        { en: "Fulfillment", tr: "Gerçekleştirme, tatmin" },
+        { en: "Full", tr: "Dolu" },
+        { en: "Fun", tr: "Eğlence" },
+        { en: "Function", tr: "İşlev" },
+        { en: "Fund", tr: "Fon" },
+        { en: "Fundamental", tr: "Temel, esas" },
+        { en: "Funeral", tr: "Cenaze" },
+        { en: "Funny", tr: "Komik" },
+        { en: "Fur", tr: "Kürk" },
+        { en: "Furious", tr: "Öfkeli" },
+        { en: "Furnish", tr: "Döşemek" },
+        { en: "Furniture", tr: "Mobilya" },
+        { en: "Further", tr: "Daha ileri" },
+        { en: "Futile", tr: "Beyhude, boş" },
+        { en: "Future", tr: "Gelecek" },
+
+        // --- G GRUBU ---
+        { en: "Gain", tr: "Kazanmak" },
+        { en: "Gamble", tr: "Kumar oynamak" },
+        { en: "Game", tr: "Oyun" },
+        { en: "Gap", tr: "Boşluk" },
+        { en: "Garage", tr: "Garaj" },
+        { en: "Garbage", tr: "Çöp" },
+        { en: "Garden", tr: "Bahçe" },
+        { en: "Gas", tr: "Gaz" },
+        { en: "Gate", tr: "Kapı" },
+        { en: "Gather", tr: "Toplamak" },
+        { en: "Gaze", tr: "Gözünü dikip bakmak" },
+        { en: "Gear", tr: "Vites / Ekipman" },
+        { en: "Gender", tr: "Cinsiyet" },
+        { en: "Gene", tr: "Gen" },
+        { en: "General", tr: "Genel" },
+        { en: "Generate", tr: "Üretmek" },
+        { en: "Generation", tr: "Nesil" },
+        { en: "Generous", tr: "Cömert" },
+        { en: "Genius", tr: "Dahi" },
+        { en: "Gentle", tr: "Nazik" },
+        { en: "Genuine", tr: "Gerçek, samimi" },
+        { en: "Geography", tr: "Coğrafya" },
+        { en: "Get", tr: "Almak" },
+        { en: "Get along", tr: "Geçinmek, başarmak" },
+        { en: "Get along with", tr: "Biriyle iyi geçinmek" },
+        { en: "Get away from", tr: "Uzaklaşmak, kaçmak" },
+        { en: "Get back to", tr: "Geri dönmek" },
+        { en: "Get off", tr: "İnmek, kurtulmak" },
+        { en: "Get on", tr: "Binmek, geçinmek, ilerlemek" },
+        { en: "Get over", tr: "Atlatmak, iyileşmek" },
+        { en: "Get through", tr: "Telefonla ulaşmak, tamamlamak" },
+        { en: "Ghost", tr: "Hayalet" },
+        { en: "Giant", tr: "Dev" },
+        { en: "Gift", tr: "Hediye" },
+        { en: "Girl", tr: "Kız" },
+        { en: "Give", tr: "Vermek" },
+        { en: "Give away", tr: "Ele vermek, bağışlamak" },
+        { en: "Give in", tr: "Teslim olmak, boyun eğmek" },
+        { en: "Give off", tr: "Yaymak (koku, ısı vb.)" },
+        { en: "Give up", tr: "Bırakmak, vazgeçmek" },
+        { en: "Glad", tr: "Memnun" },
+        { en: "Glance", tr: "Göz atmak" },
+        { en: "Glass", tr: "Cam / Bardak" },
+        { en: "Global", tr: "Küresel" },
+        { en: "Glory", tr: "Şan, şeref" },
+        { en: "Glove", tr: "Eldiven" },
+        { en: "Go", tr: "Gitmek" },
+        { en: "Go through", tr: "Yaşamak (zorluk), incelemek" },
+        { en: "Goal", tr: "Hedef" },
+        { en: "Goat", tr: "Keçi" },
+        { en: "God", tr: "Tanrı" },
+        { en: "Gold", tr: "Altın" },
+        { en: "Good", tr: "İyi" },
+        { en: "Goods", tr: "Mallar" },
+        { en: "Govern", tr: "Yönetmek" },
+        { en: "Government", tr: "Hükümet" },
+        { en: "Grab", tr: "Kapmak" },
+        { en: "Grace", tr: "Zarafet" },
+        { en: "Grade", tr: "Sınıf / Not" },
+        { en: "Gradual", tr: "Kademeli" },
+        { en: "Graduate", tr: "Mezun olmak" },
+        { en: "Grain", tr: "Tahıl" },
+        { en: "Grammar", tr: "Gramer" },
+        { en: "Grand", tr: "Büyük, görkemli" },
+        { en: "Grant", tr: "Vermek, bağışlamak" },
+        { en: "Grape", tr: "Üzüm" },
+        { en: "Grasp", tr: "Kavramak" },
+        { en: "Grass", tr: "Çim" },
+        { en: "Grateful", tr: "Minnettar" },
+        { en: "Grave", tr: "Mezar / Ciddi" },
+        { en: "Gravity", tr: "Yerçekimi" },
+        { en: "Great", tr: "Harika" },
+        { en: "Greed", tr: "Açgözlülük" },
+        { en: "Green", tr: "Yeşil" },
+        { en: "Greet", tr: "Selamlamak" },
+        { en: "Grey", tr: "Gri" },
+        { en: "Grief", tr: "Keder" },
+        { en: "Grim", tr: "Karamsar, korkunç" },
+        { en: "Grind", tr: "Öğütmek" },
+        { en: "Grip", tr: "Sıkıca tutmak" },
+        { en: "Ground", tr: "Yer" },
+        { en: "Group", tr: "Grup" },
+        { en: "Grow", tr: "Büyümek" },
+        { en: "Guarantee", tr: "Garanti etmek" },
+        { en: "Guard", tr: "Nöbetçi / Korumak" },
+        { en: "Guess", tr: "Tahmin etmek" },
+        { en: "Guest", tr: "Misafir" },
+        { en: "Guide", tr: "Rehber" },
+        { en: "Guilt", tr: "Suçluluk" },
+        { en: "Gun", tr: "Silah" },
+        { en: "Guy", tr: "Adam" },
+
+        // --- H GRUBU ---
+        { en: "Habit", tr: "Alışkanlık" },
+        { en: "Habitat", tr: "Yaşam alanı" },
+        { en: "Hair", tr: "Saç" },
+        { en: "Half", tr: "Yarım" },
+        { en: "Hall", tr: "Salon, hol" },
+        { en: "Halt", tr: "Durdurmak" },
+        { en: "Hammer", tr: "Çekiç" },
+        { en: "Hamper", tr: "Engellemek" },
+        { en: "Hand", tr: "El" },
+        { en: "Hand out", tr: "Dağıtmak" },
+        { en: "Hand over", tr: "Teslim etmek, devretmek" },
+        { en: "Handicap", tr: "Engel" },
+        { en: "Handle", tr: "Ele almak, halletmek" },
+        { en: "Handsome", tr: "Yakışıklı" },
+        { en: "Hang", tr: "Asmak" },
+        { en: "Happen", tr: "Olmak" },
+        { en: "Happy", tr: "Mutlu" },
+        { en: "Harass", tr: "Taciz etmek" },
+        { en: "Harbor", tr: "Liman / Barındırmak" },
+        { en: "Hard", tr: "Zor / Sert" },
+        { en: "Hardly", tr: "Hemen hemen hiç" },
+        { en: "Hardship", tr: "Zorluk" },
+        { en: "Harm", tr: "Zarar" },
+        { en: "Harmony", tr: "Uyum" },
+        { en: "Harsh", tr: "Sert, kaba" },
+        { en: "Harvest", tr: "Hasat" },
+        { en: "Haste", tr: "Acele" },
+        { en: "Hat", tr: "Şapka" },
+        { en: "Hate", tr: "Nefret etmek" },
+        { en: "Haul", tr: "Çekmek, taşımak" },
+        { en: "Have", tr: "Sahip olmak" },
+        { en: "Hazard", tr: "Tehlike" },
+        { en: "Head", tr: "Baş" },
+        { en: "Heal", tr: "İyileşmek" },
+        { en: "Health", tr: "Sağlık" },
+        { en: "Hear", tr: "Duymak" },
+        { en: "Heart", tr: "Kalp" },
+        { en: "Heat", tr: "Isı" },
+        { en: "Heaven", tr: "Cennet" },
+        { en: "Heavy", tr: "Ağır" },
+        { en: "Hectic", tr: "Yoğun, telaşlı" },
+        { en: "Heed", tr: "Aldırış etmek" },
+        { en: "Heel", tr: "Topuk" },
+        { en: "Height", tr: "Yükseklik" },
+        { en: "Heir", tr: "Mirasçı" },
+        { en: "Hell", tr: "Cehennem" },
+        { en: "Help", tr: "Yardım etmek" },
+        { en: "Hence", tr: "Bu yüzden" },
+        { en: "Herald", tr: "Müjdelemek, habercisi olmak" },
+        { en: "Here", tr: "Burada" },
+        { en: "Hereditary", tr: "Kalıtsal" },
+        { en: "Heritage", tr: "Miras" },
+        { en: "Hero", tr: "Kahraman" },
+        { en: "Hesitate", tr: "Tereddüt etmek" },
+        { en: "Hide", tr: "Saklamak" },
+        { en: "High", tr: "Yüksek" },
+        { en: "Highlight", tr: "Vurgulamak, öne çıkarmak" },
+        { en: "Highway", tr: "Otoyol" },
+        { en: "Hill", tr: "Tepe" },
+        { en: "Hinder", tr: "Engel olmak" },
+        { en: "Hint", tr: "İpucu" },
+        { en: "Hire", tr: "Kiralamak / İşe almak" },
+        { en: "History", tr: "Tarih" },
+        { en: "Hit", tr: "Vurmak" },
+        { en: "Hobby", tr: "Hobi" },
+        { en: "Hold", tr: "Tutmak" },
+        { en: "Hole", tr: "Delik" },
+        { en: "Holiday", tr: "Tatil" },
+        { en: "Hollow", tr: "Oyuk, boş" },
+        { en: "Holy", tr: "Kutsal" },
+        { en: "Home", tr: "Ev" },
+        { en: "Honest", tr: "Dürüst" },
+        { en: "Honor", tr: "Onur" },
+        { en: "Hook", tr: "Kanca" },
+        { en: "Hope", tr: "Umut" },
+        { en: "Horizon", tr: "Ufuk" },
+        { en: "Horizontal", tr: "Yatay" },
+        { en: "Horn", tr: "Boynuz / Korna" },
+        { en: "Horror", tr: "Korku" },
+        { en: "Horse", tr: "At" },
+        { en: "Hospital", tr: "Hastane" },
+        { en: "Host", tr: "Ev sahibi" },
+        { en: "Hostile", tr: "Düşmanca" },
+        { en: "Hot", tr: "Sıcak" },
+        { en: "Hotel", tr: "Otel" },
+        { en: "Hour", tr: "Saat" },
+        { en: "House", tr: "Ev" },
+        { en: "Household", tr: "Ev halkı" },
+        { en: "Housing", tr: "Konut" },
+        { en: "How", tr: "Nasıl" },
+        { en: "However", tr: "Ancak" },
+        { en: "Huge", tr: "Kocaman" },
+        { en: "Human", tr: "İnsan" },
+        { en: "Humble", tr: "Alçakgönüllü" },
+        { en: "Humiliate", tr: "Aşağılamak" },
+        { en: "Humor", tr: "Mizah" },
+        { en: "Hungry", tr: "Aç" },
+        { en: "Hunt", tr: "Avlamak" },
+        { en: "Hurry", tr: "Acele etmek" },
+        { en: "Hurt", tr: "İncitmek" },
+        { en: "Husband", tr: "Eş (erkek)" },
+        { en: "Hut", tr: "Kulübe" },
+
+        // --- I GRUBU ---
+        { en: "Ice", tr: "Buz" },
+        { en: "Idea", tr: "Fikir" },
+        { en: "Ideal", tr: "İdeal" },
+        { en: "Identical", tr: "Tıpatıp aynı" },
+        { en: "Identification", tr: "Kimlik saptama, tanımlama" },
+        { en: "Identify", tr: "Tanımlamak, belirlemek" },
+        { en: "Identity", tr: "Kimlik" },
+        { en: "Idle", tr: "Boş, aylak" },
+        { en: "Ignite", tr: "Ateşlemek" },
+        { en: "Ignorance", tr: "Cehalet" },
+        { en: "Ignore", tr: "Görmezden gelmek" },
+        { en: "Ill", tr: "Hasta" },
+        { en: "Illegal", tr: "Yasadışı" },
+        { en: "Illusion", tr: "Yanılsama" },
+        { en: "Illustrate", tr: "Resimlemek, örneklemek" },
+        { en: "Image", tr: "Görüntü" },
+        { en: "Imaginary", tr: "Hayali" },
+        { en: "Imagine", tr: "Hayal etmek" },
+        { en: "Imitate", tr: "Taklit etmek" },
+        { en: "Immediate", tr: "Derhal" },
+        { en: "Immigrant", tr: "Göçmen" },
+        { en: "Immune", tr: "Bağışık" },
+        { en: "Impact", tr: "Etki" },
+        { en: "Impair", tr: "Bozmak, zarar vermek" },
+        { en: "Impartial", tr: "Tarafsız" },
+        { en: "Impatient", tr: "Sabırsız" },
+        { en: "Imperative", tr: "Zorunlu, mecburi" },
+        { en: "Impermissible", tr: "İzin verilemez" },
+        { en: "Implement", tr: "Uygulamak" },
+        { en: "Implication", tr: "İma, sonuç, çıkarım" },
+        { en: "Implicit", tr: "İmalı, üstü kapalı" },
+        { en: "Implicitly", tr: "İmalı olarak" },
+        { en: "Imply", tr: "İma etmek" },
+        { en: "Import", tr: "İthal etmek" },
+        { en: "Importance", tr: "Önem" },
+        { en: "Impose", tr: "Dayatmak" },
+        { en: "Impossible", tr: "İmkansız" },
+        { en: "Impress", tr: "Etkilemek" },
+        { en: "Impressively", tr: "Etkileyici bir şekilde" },
+        { en: "Imprison", tr: "Hapsetmek" },
+        { en: "Improve", tr: "Geliştirmek" },
+        { en: "Improvement", tr: "Gelişme, iyileşme" },
+        { en: "Impulse", tr: "Dürtü" },
+        { en: "Inability", tr: "Yetersizlik" },
+        { en: "Inaccessible", tr: "Erişilemez" },
+        { en: "Inaccurate", tr: "Hatalı" },
+        { en: "Inadequate", tr: "Yetersiz" },
+        { en: "Inadequately", tr: "Yetersiz bir şekilde" },
+        { en: "Inaugurate", tr: "Açılış yapmak, göreve başlatmak" },
+        { en: "Incapable", tr: "Yeteneksiz" },
+        { en: "Incentive", tr: "Teşvik, dürtü" },
+        { en: "Incessant", tr: "Aralıksız, sürekli" },
+        { en: "Inch", tr: "İnç" },
+        { en: "Incidence", tr: "Vaka, olay oranı" },
+        { en: "Incident", tr: "Olay" },
+        { en: "Incidentally", tr: "Tesadüfen, bu arada" },
+        { en: "Inclination", tr: "Eğilim, meyil" },
+        { en: "Inclined", tr: "Eğilimli" },
+        { en: "Include", tr: "İçermek" },
+        { en: "Inclusion", tr: "Dahil etme" },
+        { en: "Income", tr: "Gelir" },
+        { en: "Incomparably", tr: "Kıyaslanamaz şekilde" },
+        { en: "Incompatible", tr: "Uyumsuz" },
+        { en: "Inconclusive", tr: "Sonuçsuz" },
+        { en: "Inconsistent", tr: "Tutarsız" },
+        { en: "Inconvenient", tr: "Zahmetli, uygunsuz" },
+        { en: "Incorporate", tr: "Dahil etmek, birleştirmek" },
+        { en: "Increase", tr: "Artmak" },
+        { en: "Incredible", tr: "İnanılmaz" },
+        { en: "Indestructible", tr: "Yok edilemez" },
+        { en: "Indicate", tr: "Göstermek, belirtmek" },
+        { en: "Indicative", tr: "Göstergesi olan" },
+        { en: "Indifferent", tr: "Kaygısız, umursamaz" },
+        { en: "Indigenous", tr: "Yerli" },
+        { en: "Indispensable", tr: "Vazgeçilmez" },
+        { en: "Individual", tr: "Birey" },
+        { en: "Induce", tr: "Neden olmak, tetiklemek" },
+        { en: "Industrial", tr: "Endüstriyel" },
+        { en: "Industrious", tr: "Çalışkan" },
+        { en: "Industry", tr: "Sanayi" },
+        { en: "Ineffectively", tr: "Etkisiz bir şekilde" },
+        { en: "Inevitably", tr: "Kaçınılmaz olarak" },
+        { en: "Inexplicable", tr: "Açıklanamaz" },
+        { en: "Infant", tr: "Bebek" },
+        { en: "Infect", tr: "Bulaşmak" },
+        { en: "Infer", tr: "Çıkarım yapmak" },
+        { en: "Inferior", tr: "Aşağı, kalitesiz" },
+        { en: "Infinite", tr: "Sonsuz" },
+        { en: "Inflation", tr: "Enflasyon" },
+        { en: "Inflict", tr: "Acı vermek, uğratmak" },
+        { en: "Influence", tr: "Etki / Etkilemek" },
+        { en: "Inform", tr: "Bilgilendirmek" },
+        { en: "Infrastructure", tr: "Altyapı" },
+        { en: "Ingenious", tr: "Dahice" },
+        { en: "Inhabit", tr: "İkamet etmek, yaşamak" },
+        { en: "Inherent", tr: "Doğasında olan" },
+        { en: "Inherit", tr: "Miras almak" },
+        { en: "Inheritance", tr: "Miras, kalıtım" },
+        { en: "Inhibit", tr: "Engellemek" },
+        { en: "Initial", tr: "İlk" },
+        { en: "Initially", tr: "Başlangıçta" },
+        { en: "Initiate", tr: "Başlatmak" },
+        { en: "Inject", tr: "Enjekte etmek" },
+        { en: "Injure", tr: "Yaralamak" },
+        { en: "Innately", tr: "Doğuştan" },
+        { en: "Innocent", tr: "Masum" },
+        { en: "Innovate", tr: "Yenilik yapmak" },
+        { en: "Input", tr: "Girdi" },
+        { en: "Inquire", tr: "Soruşturmak" },
+        { en: "Inquiry", tr: "Soruşturma, sorgu" },
+        { en: "Insane", tr: "Deli" },
+        { en: "Insect", tr: "Böcek" },
+        { en: "Inseparable", tr: "Ayrılmaz" },
+        { en: "Insert", tr: "Yerleştirmek" },
+        { en: "Insight", tr: "Kavrayış" },
+        { en: "Insignificant", tr: "Önemsiz" },
+        { en: "Insist", tr: "Israr etmek" },
+        { en: "Inspect", tr: "Teftiş etmek" },
+        { en: "Inspection", tr: "Teftiş, inceleme" },
+        { en: "Inspire", tr: "İlham vermek" },
+        { en: "Install", tr: "Kurmak" },
+        { en: "Instance", tr: "Örnek" },
+        { en: "Instant", tr: "Anlık" },
+        { en: "Instantly", tr: "Anında" },
+        { en: "Instantaneously", tr: "Anında, hemen" },
+        { en: "Instead", tr: "Yerine" },
+        { en: "Instinct", tr: "İçgüdü" },
+        { en: "Institute", tr: "Enstitü / Kurmak" },
+        { en: "Instruct", tr: "Talimat vermek" },
+        { en: "Instrument", tr: "Enstrüman / Alet" },
+        { en: "Insufficient", tr: "Yetersiz" },
+        { en: "Insulate", tr: "Yalıtmak" },
+        { en: "Insult", tr: "Hakaret etmek" },
+        { en: "Insurance", tr: "Sigorta" },
+        { en: "Intact", tr: "Dokunulmamış, sağlam" },
+        { en: "Integrate", tr: "Bütünleştirmek" },
+        { en: "Intelligence", tr: "Zeka" },
+        { en: "Intend", tr: "Niyet etmek" },
+        { en: "Intense", tr: "Yoğun" },
+        { en: "Intentional", tr: "Kasıtlı" },
+        { en: "Interact", tr: "Etkileşime girmek" },
+        { en: "Interest", tr: "İlgi / Faiz" },
+        { en: "Interfere", tr: "Müdahale etmek" },
+        { en: "Interfere with", tr: "Müdahale etmek, bozmak" },
+        { en: "Interior", tr: "İç" },
+        { en: "Internal", tr: "Dahili" },
+        { en: "International", tr: "Uluslararası" },
+        { en: "Interpret", tr: "Yorumlamak" },
+        { en: "Interpretation", tr: "Yorum, çeviri" },
+        { en: "Interrupt", tr: "Sözünü kesmek" },
+        { en: "Interval", tr: "Aralık" },
+        { en: "Intervene", tr: "Araya girmek" },
+        { en: "Intervention", tr: "Müdahale" },
+        { en: "Interview", tr: "Röportaj" },
+        { en: "Intimate", tr: "Samimi" },
+        { en: "Intimidate", tr: "Gözdağı vermek" },
+        { en: "Intricately", tr: "Karmaşık/incelikli bir şekilde" },
+        { en: "Introduce", tr: "Tanıtmak" },
+        { en: "Intuitive", tr: "Sezgisel" },
+        { en: "Invade", tr: "İstila etmek" },
+        { en: "Invasion", tr: "İstila" },
+        { en: "Invariably", tr: "Değişmez şekilde, daima" },
+        { en: "Invent", tr: "İcat etmek" },
+        { en: "Invention", tr: "İcat" },
+        { en: "Invest", tr: "Yatırım yapmak" },
+        { en: "Investigate", tr: "Soruşturmak" },
+        { en: "Invite", tr: "Davet etmek" },
+        { en: "Invoke", tr: "Başvurmak (yasa vb.)" },
+        { en: "Involve", tr: "İçermek, kapsamak" },
+        { en: "Iron", tr: "Demir / Ütü" },
+        { en: "Irrelevant", tr: "Alakasız" },
+        { en: "Irresponsible", tr: "Sorumsuz" },
+        { en: "Irreversible", tr: "Geri döndürülemez" },
+        { en: "Irrigate", tr: "Sulamak" },
+        { en: "Irritate", tr: "Rahatsız etmek, tahriş etmek" },
+        { en: "Island", tr: "Ada" },
+        { en: "Isolate", tr: "İzole etmek" },
+        { en: "Isolation", tr: "İzolasyon, yalnızlık" },
+        { en: "Issue", tr: "Konu / Yayınlamak" },
+        { en: "Item", tr: "Öğe, parça" },
+
+        // --- J GRUBU ---
+        { en: "Jail", tr: "Hapis" },
+        { en: "Jealous", tr: "Kıskanç" },
+        { en: "Jeopardize", tr: "Tehlikeye atmak" },
+        { en: "Jeopardy", tr: "Tehlike, risk" },
+        { en: "Jerk", tr: "Sarsmak / Pislik (argo)" },
+        { en: "Jewel", tr: "Mücevher" },
+        { en: "Job", tr: "İş" },
+        { en: "Join", tr: "Katılmak" },
+        { en: "Joint", tr: "Eklem / Ortak" },
+        { en: "Jointly", tr: "Ortaklaşa" },
+        { en: "Joke", tr: "Şaka" },
+        { en: "Journal", tr: "Dergi, günlük" },
+        { en: "Journey", tr: "Yolculuk" },
+        { en: "Joy", tr: "Neşe" },
+        { en: "Judge", tr: "Yargıç / Yargılamak" },
+        { en: "Judgment", tr: "Yargı" },
+        { en: "Juice", tr: "Meyve suyu" },
+        { en: "Jump", tr: "Zıplamak" },
+        { en: "Junior", tr: "Kıdemsiz, küçük" },
+        { en: "Jury", tr: "Jüri" },
+        { en: "Just", tr: "Sadece / Adil" },
+        { en: "Justice", tr: "Adalet" },
+        { en: "Justification", tr: "Gerekçe" },
+        { en: "Justify", tr: "Haklı çıkarmak" },
+
+        // --- K GRUBU ---
+        { en: "Keep away", tr: "Uzak tutmak" },
+        { en: "Keep off", tr: "Uzak durmak" },
+        { en: "Keep on", tr: "Devam etmek" },
+
+        // --- L GRUBU ---
+        { en: "Lay out", tr: "Düzenlemek, sermek" },
+        { en: "Lead to", tr: "Yol açmak, sebep olmak" },
+        { en: "Legitimate", tr: "Meşru, yasal" },
+        { en: "Limiting", tr: "Sınırlayıcı" },
+        { en: "Look into", tr: "İncelemek, araştırmak" },
+        { en: "Look up", tr: "Sözlükten bakmak, hayran olmak" },
+        { en: "Look up to", tr: "Hayran olmak, saygı duymak" },
+
+        // --- M GRUBU ---
+        { en: "Maintenance", tr: "Bakım, sürdürme" },
+        { en: "Make out", tr: "Anlamak, seçebilmek, çözmek" },
+        { en: "Make up", tr: "Oluşturmak, uydurmak" },
+        { en: "Make up for", tr: "Telafi etmek" },
+        { en: "Manifest", tr: "Göstermek, ortaya çıkmak" },
+        { en: "Manipulation", tr: "Manipülasyon, yönlendirme" },
+        { en: "Measure", tr: "Ölçmek / Önlem" },
+        { en: "Mediocre", tr: "Vasat, sıradan" },
+        { en: "Memorable", tr: "Unutulmaz" },
+        { en: "Merely", tr: "Sadece, yalnızca" },
+        { en: "Misleading", tr: "Yanıltıcı" },
+        { en: "Mitigate", tr: "Hafifletmek, azaltmak" },
+        { en: "Mutually", tr: "Karşılıklı olarak" },
+
+        // --- N GRUBU ---
+        { en: "Narrowly", tr: "Dar bir şekilde, kıl payı" },
+        { en: "Necessity", tr: "Gereklilik" },
+        { en: "Neglect", tr: "İhmal etmek" },
+        { en: "Negligible", tr: "İhmal edilebilir, önemsiz" },
+        { en: "Nomination", tr: "Aday gösterme" },
+        { en: "Notably", tr: "Özellikle, bilhassa" },
+        { en: "Notorious", tr: "Kötü şöhretli" },
+        { en: "Notoriously", tr: "Kötü ünle, herkesçe bilinen şekilde" },
+
+        // --- O GRUBU ---
+        { en: "Objective", tr: "Hedef / Nesnel" },
+        { en: "Objectively", tr: "Nesnel bir şekilde" },
+        { en: "Obligation", tr: "Zorunluluk" },
+        { en: "Obligatory", tr: "Zorunlu" },
+        { en: "Observable", tr: "Gözlemlenebilir" },
+        { en: "Obscurely", tr: "Belirsizce" },
+        { en: "Observation", tr: "Gözlem" },
+        { en: "Obsolete", tr: "Modası geçmiş, eskimiş" },
+        { en: "Obstacle", tr: "Engel" },
+        { en: "Obstruction", tr: "Engel, tıkanıklık" },
+        { en: "Occupy", tr: "İşgal etmek, meşgul etmek" },
+        { en: "Oddity", tr: "Tuhaflık" },
+        { en: "Offensive", tr: "Saldırgan, kırıcı" },
+        { en: "Offensively", tr: "Saldırgan bir şekilde" },
+        { en: "Outdated", tr: "Çağdışı, eski" },
+        { en: "Outcome", tr: "Sonuç" },
+        { en: "Overcome", tr: "Üstesinden gelmek" },
+        { en: "Overlook", tr: "Gözden kaçırmak, tepeden bakmak" },
+        { en: "Overt", tr: "Açık, belirgin" },
+        { en: "Overtake", tr: "Sollamak, yetişip geçmek" },
+
+        // --- P GRUBU ---
+        { en: "Partially", tr: "Kısmen" },
+        { en: "Pass down", tr: "Nesilden nesile aktarmak" },
+        { en: "Pass for", tr: "... olarak geçinmek, sanılmak" },
+        { en: "Pass over", tr: "Es geçmek, görmezden gelmek" },
+        { en: "Peculiar", tr: "Tuhaf, kendine özgü" },
+        { en: "Penetrate", tr: "Nüfuz etmek, içine girmek" },
+        { en: "Permission", tr: "İzin" },
+        { en: "Permanent", tr: "Kalıcı" },
+        { en: "Perpetuate", tr: "Sürdürmek, ebedileştirmek" },
+        { en: "Persistence", tr: "Süreklilik, inat" },
+        { en: "Persistently", tr: "Israrla, sürekli" },
+        { en: "Persuade", tr: "Ikna etmek" },
+        { en: "Pervasive", tr: "Yaygın, her yere sinen" },
+        { en: "Pin down", tr: "Kıstırmak, kesinleştirmek" },
+        { en: "Precaution", tr: "Önlem" },
+        { en: "Precede", tr: "Önce gelmek" },
+        { en: "Preciously", tr: "Değerli bir şekilde" },
+        { en: "Predict", tr: "Tahmin etmek" },
+        { en: "Predictable", tr: "Öngörülebilir" },
+        { en: "Prediction", tr: "Tahmin" },
+        { en: "Prejudice", tr: "Önyargı" },
+        { en: "Pretended", tr: "Sahte, yapmacık" },
+        { en: "Pretend", tr: "Gibi yapmak" },
+        { en: "Prevalence", tr: "Yaygınlık" },
+        { en: "Prevalent", tr: "Yaygın" },
+        { en: "Prevail over", tr: "Üstün gelmek, hakim olmak" },
+        { en: "Prevent", tr: "Önlemek" },
+        { en: "Prevention", tr: "Önleme" },
+        { en: "Primarily", tr: "Öncelikle, esasen" },
+        { en: "Priority", tr: "Öncelik" },
+        { en: "Privately", tr: "Özel olarak" },
+        { en: "Productively", tr: "Üretken bir şekilde" },
+        { en: "Profoundly", tr: "Derinden, son derece" },
+        { en: "Progress", tr: "İlerlemek, gelişmek" },
+        { en: "Progression", tr: "İlerleme" },
+        { en: "Prohibit", tr: "Yasaklamak" },
+        { en: "Prolonged", tr: "Uzamış, uzun süreli" },
+        { en: "Promise", tr: "Söz vermek / Umut vaat etmek" },
+        { en: "Promote", tr: "Desteklemek, terfi ettirmek" },
+        { en: "Prompt", tr: "Çabuk, tez / Tetiklemek" },
+        { en: "Promptly", tr: "Derhal, hemen" },
+        { en: "Properly", tr: "Uygun bir şekilde" },
+        { en: "Proposal", tr: "Teklif, öneri" },
+        { en: "Prospect", tr: "Olasılık, beklenti" },
+        { en: "Protect", tr: "Korumak" },
+        { en: "Protection", tr: "Koruma" },
+        { en: "Provable", tr: "Kanıtlanabilir" },
+        { en: "Provide", tr: "Sağlamak" },
+        { en: "Provoke", tr: "Kışkırtmak, tetiklemek" },
+        { en: "Pull down", tr: "Yıkmak, aşağı çekmek" },
+        { en: "Pull through", tr: "İyileşmek, badireyi atlatmak" },
+        { en: "Pull up", tr: "Durmak (araç), yukarı çekmek" },
+        { en: "Purely", tr: "Sadece, safça" },
+        { en: "Purpose", tr: "Amaç" },
+        { en: "Pursuit", tr: "Takip, uğraş" },
+        { en: "Put aside", tr: "Kenara koymak, biriktirmek" },
+        { en: "Put away", tr: "Yerine koymak, kaldırmak" },
+        { en: "Put back", tr: "Geri koymak, ertelemek" },
+        { en: "Put forward", tr: "İleri sürmek, önermek" },
+        { en: "Put off", tr: "Ertelemek" },
+        { en: "Put on", tr: "Giymek, kilo almak" },
+
+        // --- Q GRUBU ---
+        { en: "Qualify", tr: "Hak kazanmak, nitelendirmek" },
+        { en: "Questionable", tr: "Şüpheli, tartışmalı" },
+        { en: "Questionably", tr: "Şüpheli bir şekilde" },
+
+        // --- R GRUBU ---
+        { en: "Ramification", tr: "Sonuç, etki, dallanıp budaklanma" },
+        { en: "Ranged against", tr: "Karşısına dizilmek, karşı çıkmak" },
+        { en: "Reactive", tr: "Tepkisel" },
+        { en: "Reasonable", tr: "Makul, mantıklı" },
+        { en: "Receive", tr: "Almak" },
+        { en: "Recession", tr: "Durgunluk (ekonomik)" },
+        { en: "Recklessly", tr: "Pervasızca" },
+        { en: "Recognition", tr: "Tanınma, kabul" },
+        { en: "Reduction", tr: "Azalma" },
+        { en: "Redundant", tr: "Gereksiz, fazla" },
+        { en: "Reference", tr: "Referans, atıf" },
+        { en: "Refinement", tr: "Arıtma, iyileştirme" },
+        { en: "Reflect on", tr: "Düşünmek, yansıtmak" },
+        { en: "Reflectively", tr: "Düşünceli bir şekilde" },
+        { en: "Refrain from", tr: "Sakınmak, kaçınmak" },
+        { en: "Refutable", tr: "Çürütülebilir" },
+        { en: "Regulation", tr: "Düzenleme, yönetmelik" },
+        { en: "Reject", tr: "Reddetmek" },
+        { en: "Rejection", tr: "Reddetme" },
+        { en: "Relevant", tr: "İlgili, alakalı" },
+        { en: "Relieve", tr: "Rahatlatmak, hafifletmek" },
+        { en: "Relieved", tr: "Rahatlamış" },
+        { en: "Reluctantly", tr: "İsteksizce" },
+        { en: "Rely on", tr: "Güvenmek, bel bağlamak" },
+        { en: "Remnant", tr: "Kalıntı" },
+        { en: "Removal", tr: "Kaldırma, sökme" },
+        { en: "Remove", tr: "Kaldırmak, çıkarmak" },
+        { en: "Require", tr: "Gerektirmek" },
+        { en: "Requirement", tr: "Gereksinim" },
+        { en: "Resemblance", tr: "Benzerlik" },
+        { en: "Resistance", tr: "Direnç" },
+        { en: "Resolution", tr: "Kararlılık, çözüm" },
+        { en: "Respectively", tr: "Sırasıyla" },
+        { en: "Respond", tr: "Yanıt vermek" },
+        { en: "Responsibility", tr: "Sorumluluk" },
+        { en: "Rest on", tr: "Dayanmak, bağlı olmak" },
+        { en: "Restraining", tr: "Kısıtlayıcı" },
+        { en: "Restrict", tr: "Kısıtlamak" },
+        { en: "Restriction", tr: "Kısıtlama" },
+        { en: "Restrictive", tr: "Kısıtlayıcı" },
+        { en: "Result in", tr: "İle sonuçlanmak" },
+        { en: "Retain", tr: "Muhafaza etmek, tutmak" },
+        { en: "Reveal", tr: "Ortaya çıkarmak" },
+        { en: "Reverse", tr: "Tersine çevirmek" },
+        { en: "Reversible", tr: "Geri alınabilir, tersine çevrilebilir" },
+        { en: "Roughly", tr: "Kabaca, yaklaşık olarak" },
+        { en: "Run into", tr: "Karşılaşmak, çarpmak" },
+        { en: "Run out of", tr: "Tüketmek, bitirmek" },
+        { en: "Rush into", tr: "Acele etmek" },
+
+        // --- S GRUBU ---
+        { en: "Sacrifice", tr: "Feda etmek" },
+        { en: "Scarcity", tr: "Kıtlık" },
+        { en: "Scarcely", tr: "Neredeyse hiç" },
+        { en: "Scatter", tr: "Dağıtmak, saçmak" },
+        { en: "Seek out", tr: "Aramak, bulmaya çalışmak" },
+        { en: "Segregation", tr: "Ayrım, tecrit" },
+        { en: "Separately", tr: "Ayrı olarak" },
+        { en: "Severe", tr: "Ciddi, sert" },
+        { en: "Severely", tr: "Şiddetle, ciddi şekilde" },
+        { en: "Severity", tr: "Şiddet, ciddiyet" },
+        { en: "Shift", tr: "Değişim, kayma" },
+        { en: "Show off", tr: "Hava atmak, sergilemek" },
+        { en: "Significance", tr: "Önem" },
+        { en: "Significant", tr: "Önemli" },
+        { en: "Significantly", tr: "Önemli ölçüde" },
+        { en: "Slightly", tr: "Hafifçe, azıcık" },
+        { en: "Sovereignty", tr: "Egemenlik" },
+        { en: "Speculation", tr: "Spekülasyon, tahminde bulunma" },
+        { en: "Speculative", tr: "Spekülatif, kurgusal" },
+        { en: "Speed up", tr: "Hızlandırmak" },
+        { en: "Stand for", tr: "Temsil etmek, anlamına gelmek" },
+        { en: "Stem from", tr: "-den kaynaklanmak" },
+        { en: "Stretch", tr: "Uzanmak, germek" },
+        { en: "Strictly", tr: "Katı bir şekilde" },
+        { en: "Strive", tr: "Çabalamak" },
+        { en: "Submission", tr: "Teslimiyet, sunma" },
+        { en: "Subtle", tr: "İnce, hemen göze çarpmayan" },
+        { en: "Subtly", tr: "İnce bir şekilde, sinsice" },
+        { en: "Substitute", tr: "Yerine geçmek / Yedek" },
+        { en: "Substitution", tr: "Yerine koyma" },
+        { en: "Succession", tr: "Ardışıklık, silsile" },
+        { en: "Sufficiently", tr: "Yeterince" },
+        { en: "Superficial", tr: "Yüzeysel" },
+        { en: "Superficially", tr: "Yüzeysel olarak" },
+        { en: "Superfluous", tr: "Gereksiz, fazlalık" },
+        { en: "Supervision", tr: "Denetim, gözetim" },
+        { en: "Surpass", tr: "Aşmak, geçmek" },
+        { en: "Surrender", tr: "Teslim olmak" },
+        { en: "Suspect", tr: "Şüphelenmek" },
+        { en: "Suspend", tr: "Askıya almak" },
+        { en: "Suspension", tr: "Askıya alma" },
+        { en: "Suspiciously", tr: "Şüpheyle" },
+        { en: "Sustain", tr: "Sürdürmek" },
+        { en: "Sustainable", tr: "Sürdürülebilir" },
+        { en: "Swift", tr: "Hızlı, süratli" },
+        { en: "Switch off", tr: "Kapatmak" },
+        { en: "Sympathetic", tr: "Canayakın, anlayışlı" },
+
+        // --- T GRUBU ---
+        { en: "Tackle", tr: "Ele almak, çözmeye çalışmak" },
+        { en: "Take apart", tr: "Parçalarına ayırmak" },
+        { en: "Take after", tr: "Benzemek (çekmek)" },
+        { en: "Take on", tr: "Üstlenmek, halini almak" },
+        { en: "Take out", tr: "Çıkarmak" },
+        { en: "Take over", tr: "Devralmak" },
+        { en: "Take up", tr: "Başlamak (hobi), yer kaplamak" },
+        { en: "Tediously", tr: "Bıktırıcı/sıkıcı bir şekilde" },
+        { en: "Temptation", tr: "Kışkırtma, cezbedicilik" },
+        { en: "Tendency", tr: "Eğilim" },
+        { en: "Termination", tr: "Sonlandırma" },
+        { en: "Thoroughly", tr: "İyice, tamamen" },
+        { en: "Threat", tr: "Tehdit" },
+        { en: "Threaten", tr: "Tehdit etmek" },
+        { en: "Thrust on", tr: "Zorla kabul ettirmek, dayatmak" },
+        { en: "Tightly", tr: "Sıkıca" },
+        { en: "Transmit", tr: "İletmek" },
+        { en: "Transmission", tr: "İletim" },
+        { en: "Turn down", tr: "Reddetmek, kısmak" },
+        { en: "Turn over", tr: "Devretmek, çevirmek" },
+
+        // --- U GRUBU ---
+        { en: "Ultimately", tr: "Sonuçta, nihayetinde" },
+        { en: "Unattainable", tr: "Ulaşılamaz" },
+        { en: "Unavailable", tr: "Mevcut olmayan" },
+        { en: "Unbearably", tr: "Dayanılmaz bir şekilde" },
+        { en: "Undeniable", tr: "İnkar edilemez" },
+        { en: "Undeniably", tr: "İnkar edilemez şekilde" },
+        { en: "Undergo", tr: "Maruz kalmak, geçirmek" },
+        { en: "Undermine", tr: "Baltalamak, zayıflatmak" },
+        { en: "Unearth", tr: "Gün yüzüne çıkarmak" },
+        { en: "Unequally", tr: "Eşitsizce" },
+        { en: "Unevenly", tr: "Eşitsiz bir şekilde" },
+        { en: "Unfeasible", tr: "Uygulanamaz" },
+        { en: "Uniformity", tr: "Yeknesaklık, tekdüzelik" },
+        { en: "Unintelligible", tr: "Anlaşılmaz" },
+        { en: "Unique", tr: "Eşsiz" },
+        { en: "Unprecedented", tr: "Eşi görülmemiş" },
+        { en: "Unremarkable", tr: "Sıradan, dikkat çekmeyen" },
+        { en: "Unresolved", tr: "Çözülmemiş" },
+        { en: "Unsophisticated", tr: "Basit, karmaşık olmayan" },
+        { en: "Unsustainable", tr: "Sürdürülemez" },
+        { en: "Urgency", tr: "Aciliyet" },
+        { en: "Urgent", tr: "Acil" },
+        { en: "Urgently", tr: "Acilen" },
+        { en: "Utilisation", tr: "Kullanım, faydalanma" },
+
+        // --- V GRUBU ---
+        { en: "Validate", tr: "Doğrulamak, geçerli kılmak" },
+        { en: "Variety", tr: "Çeşitlilik" },
+        { en: "Viable", tr: "Uygulanabilir, yaşayabilir" },
+        { en: "Vigorous", tr: "Güçlü, dinç" },
+        { en: "Violate", tr: "İhlal etmek" },
+        { en: "Violation", tr: "İhlal" },
+        { en: "Virtual", tr: "Sanal" },
+        { en: "Virtually", tr: "Neredeyse, sanal olarak" },
+        { en: "Visibility", tr: "Görünürlük" },
+        { en: "Visible", tr: "Görünür" },
+        { en: "Vividly", tr: "Canlı bir şekilde" },
+        { en: "Vulnerability", tr: "Savunmasızlık, hassasiyet" },
+        { en: "Vulnerable", tr: "Savunmasız, kırılgan" },
+
+        // --- W GRUBU ---
+        { en: "Wander", tr: "Dolaşmak, gezinmek" },
+        { en: "Ward off", tr: "Savuşturmak, engellemek" },
+        { en: "Warrant", tr: "Garanti etmek, gerektirmek" },
+        { en: "Weaken", tr: "Zayıflatmak" },
+        { en: "Widely", tr: "Geniş çapta" },
+        { en: "Withdrawal", tr: "Geri çekilme" },
+        { en: "Work out", tr: "Çözmek, antrenman yapmak" },
+        { en: "Worthwhile", tr: "Değer, zahmete değer" },
+
+        // --- Y GRUBU ---
+        { en: "Yield", tr: "Ürün vermek / Teslim olmak" }
+    ];
+
+// ============================================================
+// ŞEHİR İSİMLERİ HARİTASI (Plaka → İsim)
+// ============================================================
+const CITY_NAMES = {
+    1:"Adana",2:"Adıyaman",3:"Afyon",4:"Ağrı",5:"Amasya",6:"Ankara",7:"Antalya",8:"Artvin",9:"Aydın",
+    10:"Balıkesir",11:"Bilecik",12:"Bingöl",13:"Bitlis",14:"Bolu",15:"Burdur",16:"Bursa",17:"Çanakkale",
+    18:"Çankırı",19:"Çorum",20:"Denizli",21:"Diyarbakır",22:"Edirne",23:"Elazığ",24:"Erzincan",25:"Erzurum",
+    26:"Eskişehir",27:"Gaziantep",28:"Giresun",29:"Gümüşhane",30:"Hakkari",31:"Hatay",32:"Isparta",
+    33:"Mersin",34:"İstanbul",35:"İzmir",36:"Kars",37:"Kastamonu",38:"Kayseri",39:"Kırklareli",40:"Kırşehir",
+    41:"Kocaeli",42:"Konya",43:"Kütahya",44:"Malatya",45:"Manisa",46:"K.Maraş",47:"Mardin",48:"Muğla",
+    49:"Muş",50:"Nevşehir",51:"Niğde",52:"Ordu",53:"Rize",54:"Sakarya",55:"Samsun",56:"Siirt",57:"Sinop",
+    58:"Sivas",59:"Tekirdağ",60:"Tokat",61:"Trabzon",62:"Tunceli",63:"Ş.Urfa",64:"Uşak",65:"Van",
+    66:"Yozgat",67:"Zonguldak",68:"Aksaray",69:"Bayburt",70:"Karaman",71:"Kırıkkale",72:"Batman",
+    73:"Şırnak",74:"Bartın",75:"Ardahan",76:"Iğdır",77:"Yalova",78:"Karabük",79:"Kilis",80:"Osmaniye",81:"Düzce"
+};
+
+// ============================================================
+// BÖLÜM TANIMLARI (Kelime bölümü EKLENDİ)
+// ============================================================
 const sections = [
     { key: "sec1", title: "Prepositions & Collocations", start: 1, end: 70 },
     { key: "sec2", title: "Conjunctions & Linkers", start: 71, end: 130 },
     { key: "sec3", title: "Relative Clauses", start: 131, end: 190 },
     { key: "sec4", title: "Tense & Modals", start: 191, end: 250 },
+    { key: "secVocab", title: "⭐ YDS Kelimeler", start: 5000, end: 5999 },
     { key: "secExamPrep", title: "Çıkmış Prepositions", start: 3000, end: 3200 },
     { key: "secExamConj", title: "Çıkmış Bağlaçlar", start: 3201, end: 3500 },
     { key: "secExamTense", title: "Çıkmış Tense/Modals", start: 3501, end: 3800 },
@@ -5916,27 +7513,73 @@ const sections = [
 ];
 
 let allQuestions = [];
-let gameQuestions = []; // Seçilen ve karıştırılan oyun soruları
+let gameQuestions = [];
 
-// Sayfa Yüklendiğinde
+// ============================================================
+// KELİME SORUSU ÜRETİCİ (OYUN FORMATI: {id, text, opts, correctAnswer})
+// ============================================================
+function generateVocabQuestions() {
+    const qList = [];
+    const total = ydsVocabDB.length;
+    
+    ydsVocabDB.forEach((item, index) => {
+        const isEnToTr = index < (total / 2);
+        const questionText = isEnToTr 
+            ? `"${item.en}" kelimesinin Türkçe karşılığı nedir?`
+            : `"${item.tr}" ifadesinin İngilizce karşılığı nedir?`;
+        const correctAns = isEnToTr ? item.tr : item.en;
+
+        // Sabit seed ile çeldirici seç (her yüklemede aynı)
+        let distractors = [];
+        let seed = index + 42;
+        let tempPool = ydsVocabDB.filter(w => w.en !== item.en);
+        
+        while(distractors.length < 4 && tempPool.length > 0) {
+            seed = (seed * 9301 + 49297) % 233280;
+            const rIdx = Math.floor((seed / 233280) * tempPool.length);
+            const pick = isEnToTr ? tempPool[rIdx].tr : tempPool[rIdx].en;
+            if(!distractors.includes(pick) && pick !== correctAns) {
+                distractors.push(pick);
+            }
+            tempPool.splice(rIdx, 1);
+        }
+
+        // Sabit sıralama
+        let optionsArr = [...distractors, correctAns];
+        let s2 = index + 99;
+        for(let i = optionsArr.length - 1; i > 0; i--) {
+            s2 = (s2 * 9301 + 49297) % 233280;
+            const j = Math.floor((s2 / 233280) * (i + 1));
+            [optionsArr[i], optionsArr[j]] = [optionsArr[j], optionsArr[i]];
+        }
+
+        const opts = { A: optionsArr[0], B: optionsArr[1], C: optionsArr[2], D: optionsArr[3], E: optionsArr[4] };
+        
+        qList.push({
+            id: 5000 + index,
+            text: questionText,
+            opts: opts,
+            correctAnswer: Object.keys(opts).find(k => opts[k] === correctAns) || 'A',
+            isVocab: true
+        });
+    });
+    return qList;
+}
+
+// ============================================================
+// SAYFA YÜKLEME
+// ============================================================
 window.onload = function() {
     loadAllData();
-    renderCategorySelection(); // Kategori listesini doldur
+    renderCategorySelection();
 };
 
-// --- KRİTİK FONKSİYON: VERİLERİ YÜKLEME ---
 function loadAllData() {
     allQuestions = [];
 
-    // 1. ADIM: İLK 250 SORUYU (GRUP A) TEK SEFERDE YÜKLE
-    // Bu fonksiyon 1'den 250'ye kadar tüm soruları "rawQuestionsText" içinden ayıklayacak
     if(typeof rawQuestionsText !== 'undefined' && typeof rawAnswersText !== 'undefined') {
-        // Offset 0 çünkü sorular 1'den başlıyor
-        const mixedQuestions = parseRawData(rawQuestionsText, rawAnswersText, 0);
-        allQuestions = allQuestions.concat(mixedQuestions);
+        allQuestions = allQuestions.concat(parseRawData(rawQuestionsText, rawAnswersText, 0));
     }
-
-    // 2. ADIM: ÇIKMIŞ SORULARI (GRUP B) AYRI AYRI EKLE
     if(typeof rawExamPrepQ !== 'undefined' && typeof rawExamPrepA !== 'undefined') {
         allQuestions = allQuestions.concat(parseRawData(rawExamPrepQ, rawExamPrepA, 3000));
     }
@@ -5949,331 +7592,254 @@ function loadAllData() {
     if(typeof rawExamVocabQ !== 'undefined' && typeof rawExamVocabA !== 'undefined') {
         allQuestions = allQuestions.concat(parseRawData(rawExamVocabQ, rawExamVocabA, 3800));
     }
+    // KELİME SORULARI
+    allQuestions = allQuestions.concat(generateVocabQuestions());
+    
+    console.log("Toplam Yüklenen Soru:", allQuestions.length);
 }
 
-// --- PARSE FONKSİYONU (HEPSİ İÇİN ORTAK) ---
 function parseRawData(qText, aText, offset) {
     const questions = [];
     const answerMap = {};
-    
-    // 1. Cevapları Haritala (1:A, 2:B gibi)
-    const ansRegex = /(\d+)\s*[:\-\u2013]\s*([A-E])/g; 
+    const ansRegex = /(\d+)\s*[:\-\u2013]\s*([A-E])/g;
     let match;
-    while ((match = ansRegex.exec(aText)) !== null) {
-        answerMap[match[1]] = match[2];
-    }
+    while ((match = ansRegex.exec(aText)) !== null) { answerMap[match[1]] = match[2]; }
 
     const lines = qText.split('\n');
     let currentQ = null;
-    
-    // 2. Satır Satır Oku
+
     lines.forEach(line => {
         line = line.trim();
         if (!line) return;
-
-        // Soru Başlangıcını Yakala (Örn: "1) ...", "350. ...")
         if (/^\d+[\.\)\-]/.test(line)) {
-            // Önceki soruyu kaydet
-            if (currentQ) { 
-                currentQ.correctAnswer = answerMap[currentQ.localId]; // Cevabı eşleştir
+            if (currentQ) {
+                currentQ.correctAnswer = answerMap[currentQ.localId];
                 if(currentQ.correctAnswer) questions.push(currentQ);
             }
-
             const qNum = parseInt(line.match(/^\d+/)[0]);
-            currentQ = { 
-                localId: qNum, 
-                id: offset + qNum, // ID Çakışmasını önlemek için offset ekle
-                text: line.replace(/^\d+[\.\)\-]\s*/, '').trim(), 
-                opts: {}
-            };
-        } 
-        else if (currentQ) {
-            // Şıkları Yakala
+            currentQ = { localId: qNum, id: offset + qNum, text: line.replace(/^\d+[\.\)\-]\s*/, '').trim(), opts: {} };
+        } else if (currentQ) {
             if (line.startsWith('A)')) currentQ.opts.A = line.substring(2).trim();
             else if (line.startsWith('B)')) currentQ.opts.B = line.substring(2).trim();
             else if (line.startsWith('C)')) currentQ.opts.C = line.substring(2).trim();
             else if (line.startsWith('D)')) currentQ.opts.D = line.substring(2).trim();
             else if (line.startsWith('E)')) currentQ.opts.E = line.substring(2).trim();
-            // TIP (İpucu) veya Section başlıklarını sorunun içine alma
             else if (!line.startsWith('TIP:') && !line.startsWith('Section:')) {
                 currentQ.text += " " + line;
             }
         }
     });
-
-    // Döngü bitince son soruyu da ekle
     if (currentQ) {
         currentQ.correctAnswer = answerMap[currentQ.localId];
         if(currentQ.correctAnswer) questions.push(currentQ);
     }
-
     return questions;
 }
-    
-// Kategori Listesini Ekrana Bas (Setup Ekranı İçin)
+
 function renderCategorySelection() {
     const list = document.getElementById('vs-cat-list');
     if(!list) return;
     list.innerHTML = "";
-    
     sections.forEach(c => {
+        const count = allQuestions.filter(q => q.id >= c.start && q.id <= c.end).length;
         list.innerHTML += `
         <div class="col-6 mb-2">
             <div class="form-check">
                 <input class="form-check-input vs-cat-check" type="checkbox" value="${c.key}" id="chk-${c.key}" checked>
-                <label class="form-check-label text-white" for="chk-${c.key}">${c.title}</label>
+                <label class="form-check-label text-white" for="chk-${c.key}">${c.title} <small class="text-muted">(${count})</small></label>
             </div>
         </div>`;
     });
 }
 
-    
-    /* ================= AYARLAR & DATA ================= */
-    const ICON_SIZE = 55; 
-    const SVG_URL = './tr.svg'; 
-    const ICONS = { CASTLE: './castle.svg', HOST_SOLDIER: './hostsoldier.svg', GUEST_SOLDIER: './questsoldier.svg' };
-    
- // GÜNCELLENMİŞ KOMŞULUK HARİTASI (SVG UYUMLU)
-    const NEIGHBORS = {
-        1: [33, 51, 38, 46, 80, 31], // Adana
-        2: [46, 44, 21, 63, 27], // Adıyaman
-        3: [26, 42, 32, 20, 64, 43], // Afyon
-        4: [25, 36, 76, 65, 13, 49], // Ağrı
-        5: [60, 19, 55], // Amasya
-        6: [14, 26, 42, 68, 40, 71, 18], // Ankara
-        7: [48, 15, 32, 42, 70, 33], // Antalya
-        8: [53, 25, 61, 28], // Artvin (Sadece Ardahan komşu değil SVG'de Rize'ye sınır)
-        9: [35, 45, 20, 48], // Aydın
-        10: [17, 35, 45, 43, 16], // Balıkesir
-        11: [54, 16, 43, 26, 14], // Bilecik
-        12: [62, 24, 25, 49, 21, 23], // Bingöl
-        13: [49, 04, 65, 56, 72, 21], // Bitlis
-        14: [81, 54, 11, 26, 06, 18, 37, 78, 67], // Bolu
-        15: [48, 09, 20, 03, 32, 07], // Burdur
-        16: [77, 41, 54, 11, 43, 10], // Bursa
-        17: [22, 59, 10], // Çanakkale
-        18: [37, 19, 06, 14, 71], // Çankırı
-        19: [57, 55, 05, 66, 71, 18, 37], // Çorum
-        20: [09, 45, 64, 03, 15, 48], // Denizli
-        21: [63, 02, 44, 12, 13, 72, 47], // Diyarbakır
-        22: [59, 39, 17], // Edirne
-        23: [44, 24, 62, 12, 21], // Elazığ
-        24: [58, 28, 29, 61, 12, 62, 23], // Erzincan
-        25: [08, 61, 24, 12, 49, 04, 36, 75], // Erzurum
-        26: [11, 14, 06, 42, 03, 43], // Eskişehir
-        27: [31, 80, 46, 02, 63, 79], // Gaziantep
-        28: [52, 58, 24, 29, 61], // Giresun
-        29: [28, 24, 61], // Gümüşhane (Trabzon ve Bayburt ile)
-        30: [65, 73], // Hakkari (Şırnak, Van)
-        31: [01, 80, 27], // Hatay
-        32: [07, 15, 03, 42], // Isparta
-        33: [07, 70, 42, 51, 01], // Mersin
-        34: [59, 41], // İstanbul
-        35: [10, 45, 09], // İzmir
-        36: [75, 25, 04, 76], // Kars
-        37: [74, 67, 14, 18, 19, 57], // Kastamonu
-        38: [58, 66, 50, 51, 01, 46], // Kayseri
-        39: [22, 59], // Kırklareli
-        40: [71, 18, 06, 68, 50, 66], // Kırşehir
-        41: [34, 59, 16, 54], // Kocaeli
-        42: [07, 32, 03, 26, 06, 68, 51, 33, 70], // Konya
-        43: [10, 16, 11, 26, 03, 64, 45], // Kütahya
-        44: [58, 24, 23, 21, 02, 46, 38], // Malatya
-        45: [35, 10, 43, 64, 20, 09], // Manisa
-        46: [38, 44, 02, 27, 80, 01], // K.Maraş
-        47: [63, 21, 72, 73], // Mardin
-        48: [09, 20, 15, 07], // Muğla
-        49: [04, 25, 12, 13, 21, 72], // Muş
-        50: [40, 71, 06, 68, 51, 38, 66], // Nevşehir (Kırşehir yoğunluklu)
-        51: [38, 01, 33, 42, 68, 50], // Niğde
-        52: [55, 60, 58, 28, 24], // Ordu
-        53: [08, 25, 61], // Rize
-        54: [41, 16, 11, 14, 81], // Sakarya
-        55: [57, 19, 05, 60, 52], // Samsun
-        56: [13, 65, 30, 73, 47, 72], // Siirt
-        57: [37, 19, 55], // Sinop
-        58: [28, 52, 60, 66, 38, 46, 44, 23, 24], // Sivas
-        59: [22, 39, 34, 17, 10], // Tekirdağ
-        60: [55, 05, 19, 66, 58, 52], // Tokat
-        61: [53, 25, 29, 28], // Trabzon
-        62: [24, 12, 23], // Tunceli
-        63: [27, 02, 21, 47], // Şanlıurfa
-        64: [43, 03, 20, 45], // Uşak
-        65: [04, 13, 56, 30, 73], // Van
-        66: [19, 06, 40, 50, 38, 58, 60], // Yozgat
-        67: [81, 14, 37, 74], // Zonguldak
-        68: [42, 06, 40, 50, 51], // Aksaray
-        69: [29, 24, 25, 61], // Bayburt
-        70: [07, 42, 33], // Karaman
-        71: [18, 06, 40, 66, 19], // Kırıkkale
-        72: [21, 13, 56, 47, 49], // Batman
-        73: [47, 56, 30, 65], // Şırnak
-        74: [67, 37], // Bartın
-        75: [36, 25, 08], // Ardahan
-        76: [36, 04], // Iğdır
-        77: [34, 41, 16], // Yalova
-        78: [74, 37, 18, 14, 67], // Karabük
-        79: [27, 63], // Kilis
-        80: [01, 46, 27], // Osmaniye
-        81: [54, 14, 67]  // Düzce
-    };
+// ============================================================
+// AYARLAR & SABITLER
+// ============================================================
+const ICON_SIZE = 55;
+const SVG_URL = './tr.svg';
+const ICONS = { CASTLE: './castle.svg', HOST_SOLDIER: './hostsoldier.svg', GUEST_SOLDIER: './questsoldier.svg' };
 
-    let peer = null, conn = null, isHost = false, gameState = "LOBBY";
-    let currentTurn = 0, timerInterval = null;
-    let turnQueue = []; // Fetih sırasını tutan kuyruk: ['p1', 'p2'] gibi
-    let turnLockedCities = []; // O turda işlem yapılan şehirleri tutar
+const NEIGHBORS = {
+    1:[33,51,38,46,80,31],2:[46,44,21,63,27],3:[26,42,32,20,64,43],4:[25,36,76,65,13,49],5:[60,19,55],
+    6:[14,26,42,68,40,71,18],7:[48,15,32,42,70,33],8:[53,25,61,28],9:[35,45,20,48],10:[17,35,45,43,16],
+    11:[54,16,43,26,14],12:[62,24,25,49,21,23],13:[49,4,65,56,72,21],14:[81,54,11,26,6,18,37,78,67],
+    15:[48,9,20,3,32,7],16:[77,41,54,11,43,10],17:[22,59,10],18:[37,19,6,14,71],19:[57,55,5,66,71,18,37],
+    20:[9,45,64,3,15,48],21:[63,2,44,12,13,72,47],22:[59,39,17],23:[44,24,62,12,21],24:[58,28,29,61,12,62,23],
+    25:[8,61,24,12,49,4,36,75],26:[11,14,6,42,3,43],27:[31,80,46,2,63,79],28:[52,58,24,29,61],
+    29:[28,24,61],30:[65,73],31:[1,80,27],32:[7,15,3,42],33:[7,70,42,51,1],34:[59,41],35:[10,45,9],
+    36:[75,25,4,76],37:[74,67,14,18,19,57],38:[58,66,50,51,1,46],39:[22,59],40:[71,18,6,68,50,66],
+    41:[34,59,16,54],42:[7,32,3,26,6,68,51,33,70],43:[10,16,11,26,3,64,45],44:[58,24,23,21,2,46,38],
+    45:[35,10,43,64,20,9],46:[38,44,2,27,80,1],47:[63,21,72,73],48:[9,20,15,7],49:[4,25,12,13,21,72],
+    50:[40,71,6,68,51,38,66],51:[38,1,33,42,68,50],52:[55,60,58,28,24],53:[8,25,61],54:[41,16,11,14,81],
+    55:[57,19,5,60,52],56:[13,65,30,73,47,72],57:[37,19,55],58:[28,52,60,66,38,46,44,23,24],
+    59:[22,39,34,17,10],60:[55,5,19,66,58,52],61:[53,25,29,28],62:[24,12,23],63:[27,2,21,47],
+    64:[43,3,20,45],65:[4,13,56,30,73],66:[19,6,40,50,38,58,60],67:[81,14,37,74],68:[42,6,40,50,51],
+    69:[29,24,25,61],70:[7,42,33],71:[18,6,40,66,19],72:[21,13,56,47,49],73:[47,56,30,65],74:[67,37],
+    75:[36,25,8],76:[36,4],77:[34,41,16],78:[74,37,18,14,67],79:[27,63],80:[1,46,27],81:[54,14,67]
+};
 
+// ============================================================
+// OYUN DEĞİŞKENLERİ
+// ============================================================
+let peer = null, conn = null, isHost = false, gameState = "LOBBY";
+let currentTurn = 0, timerInterval = null;
+let turnQueue = [];
+let turnLockedCities = [];
+let questions = [];
+let svgReady = false;
+let pendingMapRender = false;
 
-     let questions = []; // Artık boş başlıyor, Setup'tan dolacak
+let players = {
+    p1: { name: "", base: null, cities: [], score: 0, hp: 3, id: 'p1', time: 0 },
+    p2: { name: "", base: null, cities: [], score: 0, hp: 3, id: 'p2', time: 0 }
+};
 
-    let players = {
-        p1: { name: "", base: null, cities: [], score: 0, hp: 3, id: 'p1', time: 0 },
-        p2: { name: "", base: null, cities: [], score: 0, hp: 3, id: 'p2', time: 0 }
-    };
+// ============================================================
+// PEERJS BAĞLANTI
+// ============================================================
+function createGame() {
+    const room = document.getElementById('room-id').value.trim();
+    const name = document.getElementById('player-name').value.trim() || "Mavi";
+    if(!room) return alert("Oda ismi girin!");
+    if(peer) peer.destroy();
+    peer = new Peer(room, { debug: 1 });
+    peer.on('open', () => { isHost = true; players.p1.name = name; document.getElementById('lobby-status').innerHTML = '<span class="text-success">✅ Oda Açıldı! Rakip bekleniyor...</span>'; });
+    peer.on('error', e => alert(e.type === 'unavailable-id' ? "Oda ismi dolu!" : "Hata: " + e.type));
+    peer.on('connection', c => { conn = c; setupConnection(); });
+}
 
-    /* ================= PEERJS BAĞLANTI ================= */
-    function createGame() {
-        const room = document.getElementById('room-id').value;
-        const name = document.getElementById('player-name').value || "Mavi";
-        if(!room) return alert("Oda ismi girin!");
-        if(peer) peer.destroy();
-        peer = new Peer(room, { debug: 2 });
-        peer.on('open', id => { isHost = true; players.p1.name = name; document.getElementById('lobby-status').innerHTML = "Oda Açıldı! Bekleniyor..."; });
-        peer.on('error', e => alert(e.type === 'unavailable-id' ? "Oda ismi dolu!" : e.type));
-        peer.on('connection', c => { conn = c; setupConnection(); });
-    }
-    function joinGame() {
-        const room = document.getElementById('room-id').value;
-        const name = document.getElementById('player-name').value || "Kırmızı";
-        if(!room) return alert("Oda ismi girin!");
-        if(peer) peer.destroy();
-        peer = new Peer();
-        peer.on('open', id => { conn = peer.connect(room); isHost = false; players.p2.name = name; setupConnection(); });
-    }
-    function setupConnection() {
-        conn.on('data', handleData);
-        conn.on('open', () => {
-            conn.send(isHost ? { type: 'INIT', p1Name: players.p1.name } : { type: 'JOIN', p2Name: players.p2.name });
-        });
-        if(conn.open) conn.send(isHost ? { type: 'INIT', p1Name: players.p1.name } : { type: 'JOIN', p2Name: players.p2.name });
-    }
+function joinGame() {
+    const room = document.getElementById('room-id').value.trim();
+    const name = document.getElementById('player-name').value.trim() || "Kırmızı";
+    if(!room) return alert("Oda ismi girin!");
+    if(peer) peer.destroy();
+    peer = new Peer();
+    peer.on('open', () => { conn = peer.connect(room); isHost = false; players.p2.name = name; setupConnection(); });
+    peer.on('error', e => alert("Bağlantı hatası: " + e.type));
+}
 
-    /* ================= VERİ İŞLEME ================= */
-    function handleData(data) {
-        if(data.type === 'INIT') { players.p1.name = data.p1Name; document.getElementById('lobby-status').innerText = "Bağlandı!"; }
-        else if(data.type === 'START_GAME_DATA') {
-    players = data.players;
-    // Guest oyunu başlatıyor
-    startGameUI(data.questions, data.timer);
-}    
-        else if(data.type === 'JOIN') { players.p2.name = data.p2Name; goToSetup(); }
-        else if(data.type === 'UPDATE_MAP') { 
-        // 1. Gelen oyuncu verisini al
-        if(data.players) {
+function setupConnection() {
+    conn.on('data', handleData);
+    conn.on('open', () => {
+        conn.send(isHost ? { type: 'INIT', p1Name: players.p1.name } : { type: 'JOIN', p2Name: players.p2.name });
+    });
+    if(conn.open) conn.send(isHost ? { type: 'INIT', p1Name: players.p1.name } : { type: 'JOIN', p2Name: players.p2.name });
+}
+
+// ============================================================
+// VERİ İŞLEME (DÜZELTİLMİŞ)
+// ============================================================
+function handleData(data) {
+    switch(data.type) {
+        case 'INIT':
+            players.p1.name = data.p1Name;
+            document.getElementById('lobby-status').innerHTML = '<span class="text-success">✅ Bağlandı!</span>';
+            break;
+
+        case 'JOIN':
+            players.p2.name = data.p2Name;
+            goToSetup();
+            break;
+
+        case 'START_GAME_DATA':
             players = data.players;
-        }
-        
-                if(data.queue) {
-            turnQueue = data.queue;
-        }
-        if(data.lockedCities) {
-            turnLockedCities = data.lockedCities;
-        }
+            startGameUI(data.questions, data.timer);
+            break;
 
-        // 3. Mesaj varsa göster
-        if(data.msg) showStatus(data.msg);
-    
-        // 4. Haritayı çiz (Hemen ve biraz sonra garanti olsun diye)
-        renderMapState();
-        setTimeout(renderMapState, 100); 
-        
-        // 5. Durum güncellemeleri
-        updateExpansionStatus();
-        if(data.gameOver) return endGame(data.winner, data.reason, data.scores);
-        if(isHost) checkTurnProgress(); 
-        if(isHost && gameState === "BASE_SELECT") checkGameStart();
-    }
-                   
-        else if(data.type === 'NEW_TURN') { currentTurn = data.turnIndex; showQuestion(data.question); }
-        else if(data.type === 'OPPONENT_ANSWER') { if(isHost) resolveTurn(data.ans, data.time); }
-        else if(data.type === 'TURN_RESULT') { handleTurnResult(data); }
-        else if(data.type === 'QUEUE_UPDATE') { 
-            turnQueue = data.queue; 
-            updateExpansionStatus(); 
-        }
-          
-          else if(data.type === 'GUEST_BASE_SELECT') {
-    // Host, Guest'in kale seçimini güvenle işler
-    if (isHost) {
-        const plate = parseInt(data.plate);
-        if (!players.p2.base && players.p1.base !== plate) {
-            players.p2.base = plate;
-            players.p2.cities.push(plate);
-            players.p2.name = data.p2Name || players.p2.name;
-            sendSyncToGuest("Kırmızı kale kurdu!");
-            checkGameStart();
-        }
+        case 'UPDATE_MAP':
+            if(data.players) players = data.players;
+            if(data.queue) turnQueue = data.queue;
+            if(data.lockedCities) turnLockedCities = data.lockedCities;
+            if(data.msg) showGameToast(data.msg);
+            renderMapState();
+            setTimeout(renderMapState, 150);
+            updateExpansionStatus();
+            if(data.gameOver) return endGame(data.winner, data.reason, data.scores);
+            if(isHost) checkTurnProgress();
+            if(isHost && gameState === "BASE_SELECT") checkGameStart();
+            break;
+
+        case 'GUEST_BASE_SELECT':
+            if(isHost) {
+                const plate = parseInt(data.plate);
+                if(!players.p2.base && players.p1.base !== plate) {
+                    players.p2.base = plate;
+                    players.p2.cities.push(plate);
+                    players.p2.name = data.p2Name || players.p2.name;
+                    broadcastState("🏰 " + players.p2.name + " kalesini kurdu: " + (CITY_NAMES[plate] || plate));
+                    checkGameStart();
+                }
+            }
+            break;
+
+        case 'CLAIM_REQUEST':
+            if(isHost) processClaim(data.plate, 'p2');
+            break;
+
+        case 'NEW_TURN':
+            currentTurn = data.turnIndex;
+            showQuestion(data.question);
+            break;
+
+        case 'OPPONENT_ANSWER':
+            if(isHost) resolveTurn(data.ans, data.time);
+            break;
+
+        case 'TURN_RESULT':
+            handleTurnResult(data);
+            break;
+
+        case 'QUEUE_UPDATE':
+            turnQueue = data.queue;
+            updateExpansionStatus();
+            break;
+
+        case 'GAME_OVER':
+            endGame(data.winner, data.reason, data.scores);
+            break;
     }
 }
-            // --- YENİ EKLENECEK KISIM ---
-        else if(data.type === 'CLAIM_REQUEST') {
-            // Sadece Host bu isteği işler
-            if (isHost) processClaim(data.plate, 'p2');
-        }
-        else if(data.type === 'GAME_OVER') { endGame(data.winner, data.reason, data.scores); }
-    }
 
-    /* ================= OYUN MANTIĞI ================= */
-    function goToSetup() { document.getElementById('screen-lobby').classList.add('d-none'); document.getElementById('screen-setup').classList.remove('d-none'); }
-// OYUNU BAŞLAT (HOST)
+// ============================================================
+// OYUN BAŞLATMA
+// ============================================================
+function goToSetup() {
+    document.getElementById('screen-lobby').classList.add('d-none');
+    document.getElementById('screen-setup').classList.remove('d-none');
+    renderCategorySelection(); // Güncel soru sayılarıyla
+}
+
 function startFetihMatch() {
-    // 1. Kategori ve Ayarları Al
     const checkboxes = document.querySelectorAll('.vs-cat-check:checked');
-    if (checkboxes.length < 1) return alert("En az 1 kategori seçmelisiniz!");
+    if(checkboxes.length < 1) return alert("En az 1 kategori seçin!");
 
-    const qCount = parseInt(document.getElementById('vs-q-count-input').value);
-    const timeLimit = parseInt(document.getElementById('vs-time-input').value);
-    
-    // --- BU SATIRI EKLEYİN (Host kendi süresini ayarlasın) ---
-    window.GAME_TIMER = timeLimit; 
-    // ---------------------------------------------------------
-    
-    // 2. Havuzdan Soru Çek
+    const qCount = Math.max(10, Math.min(100, parseInt(document.getElementById('vs-q-count-input').value) || 40));
+    const timeLimit = Math.max(10, Math.min(300, parseInt(document.getElementById('vs-time-input').value) || 60));
+    window.GAME_TIMER = timeLimit;
+
     let pool = [];
     checkboxes.forEach(chk => {
         const sec = sections.find(s => s.key === chk.value);
         if(sec) {
-            const sectionQuestions = allQuestions.filter(q => q.id >= sec.start && q.id <= sec.end);
-            pool = pool.concat(sectionQuestions);
+            pool = pool.concat(allQuestions.filter(q => q.id >= sec.start && q.id <= sec.end));
         }
     });
 
-    if (pool.length < qCount) return alert("Yeterli soru yok, daha fazla kategori seçin.");
+    if(pool.length < 10) return alert("Seçili kategorilerde yeterli soru yok! (" + pool.length + " soru bulundu)");
 
-    // 3. Karıştır ve Seç
-    gameQuestions = pool.sort(() => 0.5 - Math.random()).slice(0, qCount);
+    // Karıştır ve seç
+    const shuffled = pool.sort(() => 0.5 - Math.random());
+    gameQuestions = shuffled.slice(0, Math.min(qCount, shuffled.length));
 
-    // 4. Veriyi Hazırla ve Gönder
-    // Soruları normalleştir (Fetih oyununun beklediği formata çevir: {q: text, opts: {}, ans: 'A'})
-    const formattedQuestions = gameQuestions.map(q => ({
+    const formatted = gameQuestions.map(q => ({
         q: q.text,
         opts: q.opts,
-        ans: q.correctAnswer || "A" // Index.html parse mantığına göre burayı düzenleyin
+        ans: q.correctAnswer || "A"
     }));
 
-    // Guest'e gönder
-    conn.send({ 
-        type: 'START_GAME_DATA', 
-        questions: formattedQuestions, 
-        timer: timeLimit,
-        players: players 
-    });
-
-    // Kendi oyununu başlat
-    startGameUI(formattedQuestions, timeLimit);
+    conn.send({ type: 'START_GAME_DATA', questions: formatted, timer: timeLimit, players: players });
+    startGameUI(formatted, timeLimit);
 }
-let svgReady = false;
-let pendingMapRender = false;
 
 function startGameUI(loadedQuestions, loadedTimer) {
     if(loadedQuestions) {
@@ -6283,30 +7849,30 @@ function startGameUI(loadedQuestions, loadedTimer) {
     document.getElementById('screen-lobby').classList.add('d-none');
     document.getElementById('screen-setup').classList.add('d-none');
     document.getElementById('screen-game').classList.remove('d-none');
-    
-    loadSvgMap().then(() => { 
+
+    svgReady = false;
+    pendingMapRender = false;
+
+    loadSvgMap().then(() => {
         svgReady = true;
-        updateScoreboard(); 
-        showStatus("KALE ŞEHRİNİ SEÇ"); 
-        gameState = "BASE_SELECT"; 
-        // SVG yüklendi, bekleyen render varsa şimdi yap
-        if (pendingMapRender) {
-            pendingMapRender = false;
-            renderMapState();
-        }
+        updateScoreboard();
+        showGameToast("🏰 KALE ŞEHRİNİ SEÇ!");
+        showStatus("Haritada bir şehir tıkla → Kalen olacak");
+        gameState = "BASE_SELECT";
+        if(pendingMapRender) { pendingMapRender = false; renderMapState(); }
     });
 }
 
-    /* ================= TUR VE SORU ================= */
-    let myAnswer = null, myTime = 0, p2AnswerTemp = null, p2TimeTemp = 0;
+// ============================================================
+// TUR VE SORU SİSTEMİ
+// ============================================================
+let myAnswer = null, myTime = 0, p2AnswerTemp = null, p2TimeTemp = 0;
 
 function startNewTurn() {
-    // OYUN BİTİŞ KONTROLÜ: SORULAR BİTTİ Mİ? (Koşul 3)
     if(currentTurn >= questions.length) {
-        return calculateFinalWinner("Süre/Soru Bitti");
+        return calculateFinalWinner("Tüm Sorular Bitti!");
     }
-    
-    myAnswer = null; p2AnswerTemp = null; turnQueue = [];
+    myAnswer = null; p2AnswerTemp = null; turnQueue = []; turnLockedCities = [];
     const q = questions[currentTurn];
     conn.send({ type: 'NEW_TURN', question: q, turnIndex: currentTurn });
     showQuestion(q);
@@ -6314,469 +7880,527 @@ function startNewTurn() {
 
 function showQuestion(q) {
     const modal = new bootstrap.Modal(document.getElementById('questionModal'));
-    document.getElementById('q-text').innerText = formatQuestionText(q.q); // Boşlukları düzelt
+    document.getElementById('q-text').innerText = formatQuestionText(q.q);
     document.getElementById('q-counter').innerText = `Soru ${currentTurn+1} / ${questions.length}`;
-    
+
     let html = '';
-    // A, B, C, D, E şıkları için döngü
     ['A','B','C','D','E'].forEach(key => {
-        if(q.opts[key]) {
+        if(q.opts && q.opts[key]) {
             html += `<button class="option-btn" onclick="submitAnswer('${key}')"><b>${key})</b> ${q.opts[key]}</button>`;
         }
     });
-    
+
     document.getElementById('q-options').innerHTML = html;
     document.getElementById('wait-msg').classList.add('d-none');
     modal.show();
-    startTimer(window.GAME_TIMER || 30); // Ayarlanan süreyi kullan
+    startTimer();
 }
 
-// Helper: Boşlukları düzgün göster
-function formatQuestionText(text) {
-    return text ? text.replace(/___/g, "__________") : "";
-}
+function formatQuestionText(text) { return text ? text.replace(/___/g, "__________") : ""; }
 
-// --- SÜRE SAYACI (DÜZELTİLDİ) ---
 function startTimer() {
-    // Kurulumda belirlenen süreyi al, yoksa 30 yap
-    let timeLeft = window.GAME_TIMER || 30; 
-    
+    let timeLeft = window.GAME_TIMER || 30;
     document.getElementById('q-timer').innerText = timeLeft;
-    
     if(timerInterval) clearInterval(timerInterval);
-    
     timerInterval = setInterval(() => {
-        timeLeft--; 
+        timeLeft--;
         document.getElementById('q-timer').innerText = timeLeft;
-        
-        if(timeLeft <= 0) { 
-            clearInterval(timerInterval); 
-            submitAnswer(null); // Süre bitince boş cevap gönder
-        }
+        if(timeLeft <= 5) document.getElementById('q-timer').style.color = '#e74c3c';
+        if(timeLeft <= 0) { clearInterval(timerInterval); submitAnswer(null); }
     }, 1000);
 }
 
-    function submitAnswer(ans) {
-        if(timerInterval) clearInterval(timerInterval);
-        const timestamp = Date.now();
-        document.querySelectorAll('.option-btn').forEach(b => { b.classList.add('locked'); if(ans && b.innerText.startsWith(ans)) b.classList.add('selected'); });
-        document.getElementById('wait-msg').classList.remove('d-none');
-        
-        const finalAns = ans || 'X';
-        if(isHost) { myAnswer = finalAns; myTime = timestamp; checkTurnEnd(); }
-        else conn.send({ type: 'OPPONENT_ANSWER', ans: finalAns, time: timestamp });
-    }
+function submitAnswer(ans) {
+    if(timerInterval) clearInterval(timerInterval);
+    document.getElementById('q-timer').style.color = '';
+    const timestamp = Date.now();
+    document.querySelectorAll('.option-btn').forEach(b => {
+        b.classList.add('locked');
+        if(ans && b.innerText.startsWith(ans)) b.classList.add('selected');
+    });
+    document.getElementById('wait-msg').classList.remove('d-none');
+    const finalAns = ans || 'X';
+    if(isHost) { myAnswer = finalAns; myTime = timestamp; checkTurnEnd(); }
+    else conn.send({ type: 'OPPONENT_ANSWER', ans: finalAns, time: timestamp });
+}
 
-    function resolveTurn(ans, time) { p2AnswerTemp = ans; p2TimeTemp = time; checkTurnEnd(); }
+function resolveTurn(ans, time) { p2AnswerTemp = ans; p2TimeTemp = time; checkTurnEnd(); }
 
 function checkTurnEnd() {
-    if(myAnswer && p2AnswerTemp) {
-        const q = questions[currentTurn];
-        const p1Correct = (myAnswer === q.ans);
-        const p2Correct = (p2AnswerTemp === q.ans);
-        
-        // Puanlama
-        if(p1Correct) players.p1.score += 100;
-        if(p2Correct) players.p2.score += 100;
+    if(!myAnswer || !p2AnswerTemp) return;
+    
+    const q = questions[currentTurn];
+    const p1Correct = (myAnswer === q.ans);
+    const p2Correct = (p2AnswerTemp === q.ans);
 
-        // KUYRUK MANTIĞI (Queue)
-        turnQueue = [];
-        if (p1Correct && p2Correct) {
-            // İkisi de doğru: Hızlı olan önce (Süreye göre sırala)
-            if (myTime <= p2TimeTemp) turnQueue = ['p1', 'p2'];
-            else turnQueue = ['p2', 'p1'];
-        } else if (p1Correct) {
-            turnQueue = ['p1', 'p1']; // P1'e 2 hak
-        } else if (p2Correct) {
-            turnQueue = ['p2', 'p2']; // P2'ye 2 hak
-        }
+    if(p1Correct) players.p1.score += 100;
+    if(p2Correct) players.p2.score += 100;
 
-        // VERİ PAKETİ (Cevap anahtarlarını da ekledik: p1Ans, p2Ans)
-        const data = { 
-            type: 'TURN_RESULT', 
-            p1Correct, p2Correct, 
-            p1Ans: myAnswer, p2Ans: p2AnswerTemp, // <--- YENİ EKLENDİ
-            queue: turnQueue, 
-            correct: q.ans, 
-            players: players 
-        };
-        
-        conn.send(data);
-        handleTurnResult(data);
+    turnQueue = [];
+    if(p1Correct && p2Correct) {
+        turnQueue = myTime <= p2TimeTemp ? ['p1','p2'] : ['p2','p1'];
+    } else if(p1Correct) {
+        turnQueue = ['p1','p1'];
+    } else if(p2Correct) {
+        turnQueue = ['p2','p2'];
     }
+
+    const data = {
+        type: 'TURN_RESULT',
+        p1Correct, p2Correct,
+        p1Ans: myAnswer, p2Ans: p2AnswerTemp,
+        queue: turnQueue, correct: q.ans, players: players
+    };
+    conn.send(data);
+    handleTurnResult(data);
 }
 
 function handleTurnResult(data) {
-    // 1. ŞIKLARI BOYAMA İŞLEMİ
+    // Şıkları renklendir
     const btns = document.querySelectorAll('.option-btn');
     btns.forEach(btn => {
-        const key = btn.innerText.substring(0, 1); // "A) ..." kısmından A'yı al
-        
-        // Önce tüm kilitleri kaldırıp temizle (görsel olarak)
-        btn.classList.remove('selected'); 
-
-        // Doğru cevap mı?
-        if (key === data.correct) btn.classList.add('btn-correct');
-
-        // Kim neyi seçti?
+        const key = btn.innerText.substring(0, 1);
+        btn.classList.remove('selected');
+        if(key === data.correct) btn.classList.add('btn-correct');
         const p1Chose = (key === data.p1Ans);
         const p2Chose = (key === data.p2Ans);
-
-        if (p1Chose && p2Chose) btn.classList.add('btn-both');
-        else if (p1Chose) btn.classList.add('btn-p1');
-        else if (p2Chose) btn.classList.add('btn-p2');
+        if(p1Chose && p2Chose) btn.classList.add('btn-both');
+        else if(p1Chose) btn.classList.add('btn-p1');
+        else if(p2Chose) btn.classList.add('btn-p2');
     });
 
-    // 2. VERİLERİ GÜNCELLE
     players = data.players;
     turnQueue = data.queue;
+    turnLockedCities = [];
     updateScoreboard();
-    
-    turnLockedCities = []; // Yeni fetih turu için kilitleri sıfırla
 
-    // 3. 5 SANİYE BEKLE VE SONRA İLERLE
+    // Puan animasyonu
+    if(data.p1Correct) spawnFloatingScore(true, "+100 ✓");
+    if(data.p2Correct) spawnFloatingScore(false, "+100 ✓");
+
     setTimeout(() => {
         const modalEl = document.getElementById('questionModal');
-        const modalInstance = bootstrap.Modal.getInstance(modalEl);
-        if(modalInstance) modalInstance.hide();
-
+        const inst = bootstrap.Modal.getInstance(modalEl);
+        if(inst) inst.hide();
         gameState = "EXPANSION";
 
-        if (turnQueue.length === 0) {
-            showStatus("Kimse bilemedi! Yeni soru...");
-            // Eğer host isek ve kimse bilemediyse sıradaki soruya geçişi başlat
-            if(isHost) { 
-                currentTurn++; 
-                setTimeout(startNewTurn, 2000); 
-            }
+        if(turnQueue.length === 0) {
+            showGameToast("❌ Kimse bilemedi! Yeni soru geliyor...");
+            if(isHost) { currentTurn++; setTimeout(startNewTurn, 2500); }
         } else {
             updateExpansionStatus();
         }
-    }, 5000); // 5000 ms = 5 saniye bekleme
+    }, 4000);
 }
 
-    function updateExpansionStatus() {
-        const me = isHost ? 'p1' : 'p2';
-        if (turnQueue.length > 0 && turnQueue[0] === me) {
-            showStatus(`SIRA SENDE! (Kalan Hak: ${turnQueue.filter(x => x === me).length})`);
-        } else if (turnQueue.length > 0) {
-            showStatus(`Sıra rakipte (${turnQueue[0] === 'p1' ? players.p1.name : players.p2.name})...`);
-        } else {
-            showStatus("Fetih bitti, bekleniyor...");
-        }
+function updateExpansionStatus() {
+    const me = isHost ? 'p1' : 'p2';
+    if(turnQueue.length > 0 && turnQueue[0] === me) {
+        const hak = turnQueue.filter(x => x === me).length;
+        showStatus(`🗡️ SIRA SENDE! Haritadan şehir seç (${hak} hak)`);
+    } else if(turnQueue.length > 0) {
+        const name = turnQueue[0] === 'p1' ? players.p1.name : players.p2.name;
+        showStatus(`⏳ Sıra ${name}'de...`);
     }
+}
 
-    /* ================= FETİH VE SALDIRI MANTIĞI ================= */
-   function checkTurnProgress() {
-        // Bu fonksiyonu artık sadece handleData içinde 'UPDATE_MAP' geldiğinde 
-        // host olmayan durumlar için veya çok özel senkronizasyonlar için tutabiliriz.
-        // Ama ana mantığı claimCity içine taşıdık.
-        if (isHost && gameState === "EXPANSION" && turnQueue.length === 0) {
-             gameState = "WAITING";
-             currentTurn++;
-             setTimeout(startNewTurn, 5000);
-        }
+// ============================================================
+// FETİH VE SALDIRI
+// ============================================================
+function checkTurnProgress() {
+    if(isHost && gameState === "EXPANSION" && turnQueue.length === 0) {
+        gameState = "WAITING";
+        currentTurn++;
+        setTimeout(startNewTurn, 4000);
     }
+}
 
 function claimCity(plate) {
-        // Ön kontrol (Arayüzde anlık tepki için)
-        const me = isHost ? 'p1' : 'p2';
-        if (gameState !== "EXPANSION") return;
-        if (turnQueue.length === 0 || turnQueue[0] !== me) return showStatus("Sıra sende değil!");
+    const me = isHost ? 'p1' : 'p2';
+    if(gameState !== "EXPANSION") return;
+    if(turnQueue.length === 0 || turnQueue[0] !== me) return showStatus("⛔ Sıra sende değil!");
+    if(isHost) processClaim(plate, 'p1');
+    else conn.send({ type: 'CLAIM_REQUEST', plate: plate });
+}
 
-        // Eğer Host ise işlemi direkt yap, Misafir ise Host'tan talep et
-        if (isHost) {
-            processClaim(plate, 'p1');
-        } else {
-            conn.send({ type: 'CLAIM_REQUEST', plate: plate });
-        }
-    }
-
-   // --- GELİŞMİŞ FETİH MANTIĞI (HOST) ---
 function processClaim(plateInput, playerKey) {
-    const plate = parseInt(plateInput); // Kesinlikle sayıya çevir
+    const plate = parseInt(plateInput);
     const oppKey = playerKey === 'p1' ? 'p2' : 'p1';
-    
-    // 1. Sıra Kontrolü
-    if (turnQueue.length === 0 || turnQueue[0] !== playerKey) return;
+    const cityName = CITY_NAMES[plate] || ("İl " + plate);
 
-    // 2. Tur İçi Kilit Kontrolü
-    if (turnLockedCities.includes(plate)) {
-        const warning = "Bu şehir bu tur işlem gördü! Başka yer seç.";
-        if(playerKey === 'p2') conn.send({ type: 'UPDATE_MAP', players: players, msg: warning });
-        else showStatus(warning);
-        return;
+    if(turnQueue.length === 0 || turnQueue[0] !== playerKey) return;
+
+    if(turnLockedCities.includes(plate)) {
+        return sendWarning(playerKey, "⚠️ " + cityName + " bu tur zaten işlem gördü!");
     }
 
-    // 3. Komşuluk Kontrolü
-    if (!isAdjacent(plate, players[playerKey].cities)) {
-        const warning = "Sadece sınır komşusu illeri alabilirsin!";
-        if(playerKey === 'p2') conn.send({ type: 'UPDATE_MAP', players: players, msg: warning });
-        else showStatus(warning);
-        return;
+    if(!isAdjacent(plate, players[playerKey].cities)) {
+        return sendWarning(playerKey, "⚠️ Sadece komşu illeri alabilirsin!");
     }
 
     let msg = "";
     let actionSuccess = false;
     let rightsConsumed = 1;
-
-    // KALE SALDIRISI KONTROLÜ
     const oppBase = parseInt(players[oppKey].base);
-    
+
     // A) KALE SALDIRISI
-    if (oppBase === plate) {
-        const playerRights = turnQueue.filter(p => p === playerKey).length;
-        if (playerRights < 2) {
-            const warnMsg = "Kale saldırısı için 2 HAK gerekli!";
-            if(playerKey === 'p2') conn.send({ type: 'UPDATE_MAP', players: players, msg: warnMsg });
-            else showStatus(warnMsg);
-            return;
-        }
+    if(oppBase === plate) {
+        const rights = turnQueue.filter(p => p === playerKey).length;
+        if(rights < 2) return sendWarning(playerKey, "⚠️ Kale saldırısı için 2 HAK gerekli!");
         players[oppKey].hp -= 1;
         rightsConsumed = 2;
-        msg = `⚔️ KALE SALDIRISI! ${players[oppKey].name} hasar aldı!`;
-        if (players[oppKey].hp <= 0) {
+        msg = `⚔️ KALE SALDIRISI! ${players[oppKey].name}'in kalesi hasar aldı! (❤️ ${players[oppKey].hp})`;
+        if(players[oppKey].hp <= 0) {
             players[playerKey].score += 1000;
-            calculateFinalWinner("Kale Fethi");
+            calculateFinalWinner("🏰 Kale Fethi!");
             return;
         }
         actionSuccess = true;
     }
     // B) TOPRAK ÇALMA
-    // includes kontrolünde map/some kullanarak tip güvenliği sağla
-    else if (players[oppKey].cities.some(c => parseInt(c) === plate)) {
+    else if(players[oppKey].cities.some(c => parseInt(c) === plate)) {
         players[oppKey].cities = players[oppKey].cities.filter(c => parseInt(c) !== plate);
         players[oppKey].score -= 150;
         players[playerKey].cities.push(plate);
         players[playerKey].score += 150;
-        msg = `🔥 ${players[playerKey].name} toprak ÇALDI!`;
+        msg = `🔥 ${players[playerKey].name} ${cityName}'ı çaldı! (+150)`;
         actionSuccess = true;
     }
     // C) NORMAL FETİH
     else {
-        // Zaten alınmış mı kontrolü (Kendi şehrini tekrar alamasın)
-        const alreadyOwns = players[playerKey].cities.some(c => parseInt(c) === plate);
-        if(!alreadyOwns) {
+        if(!players[playerKey].cities.some(c => parseInt(c) === plate)) {
             players[playerKey].cities.push(plate);
             players[playerKey].score += 50;
-            msg = `🚩 ${players[playerKey].name} fethetti!`;
+            msg = `🚩 ${players[playerKey].name} → ${cityName} (+50)`;
             actionSuccess = true;
         }
     }
 
-    if (actionSuccess) {
+    if(actionSuccess) {
         turnLockedCities.push(plate);
-        turnQueue.shift(); 
-        if (rightsConsumed === 2) {
-            const extraIndex = turnQueue.indexOf(playerKey);
-            if (extraIndex > -1) turnQueue.splice(extraIndex, 1);
+        turnQueue.shift();
+        if(rightsConsumed === 2) {
+            const extra = turnQueue.indexOf(playerKey);
+            if(extra > -1) turnQueue.splice(extra, 1);
         }
 
-        // --- DÜZELTME: Veriyi temizleyip gönder ---
-        // Referans hatalarını önlemek için objeyi klonla
-        const cleanPlayers = JSON.parse(JSON.stringify(players));
-        
-        renderMapState();
-        conn.send({ type: 'UPDATE_MAP', players: cleanPlayers, msg: msg });
-        conn.send({ type: 'QUEUE_UPDATE', queue: turnQueue });
-        
-        updateExpansionStatus();
-        if(msg) showStatus(msg);
+        // HER İKİ TARAFI GÜNCELLE
+        broadcastState(msg);
 
-        // Bitiş Kontrolü: 81 İl
+        // Bitiş kontrolü
         const totalOwned = players.p1.cities.length + players.p2.cities.length;
-        if (totalOwned >= 81) {
-            calculateFinalWinner("Tüm İller Fethedildi!");
-            return;
-        }
+        if(totalOwned >= 81) { calculateFinalWinner("Tüm İller Fethedildi!"); return; }
 
-        if (turnQueue.length === 0) {
+        if(turnQueue.length === 0) {
             gameState = "WAITING";
-            showStatus("Tur bitti! Yeni soru geliyor...");
+            showGameToast("Tur bitti! Yeni soru geliyor...");
             currentTurn++;
             setTimeout(startNewTurn, 4000);
         }
     }
 }
+
 function isAdjacent(targetPlate, myCities) {
-    if (myCities.length === 0) return false;
-    const targetNeighbors = NEIGHBORS[parseInt(targetPlate)] || [];
-    return targetNeighbors.some(n => myCities.some(c => parseInt(c) === parseInt(n)));
+    if(!myCities || myCities.length === 0) return false;
+    const neighbors = NEIGHBORS[parseInt(targetPlate)] || [];
+    return neighbors.some(n => myCities.some(c => parseInt(c) === parseInt(n)));
 }
 
-    function syncMap(msg) {
-        renderMapState();
-        conn.send({ type: 'UPDATE_MAP', players: players, msg: msg });
-        if(msg) showStatus(msg);
-        if(isHost) checkTurnProgress();
-    }
+// ============================================================
+// BROADCAST / SYNC FONKSİYONLARI
+// ============================================================
+function broadcastState(message) {
+    renderMapState();
+    updateScoreboard();
+    updateExpansionStatus();
+    if(message) showGameToast(message);
 
-    /* ================= HARİTA YÜKLEME (ORİJİNAL - TEMİZLİK ODAKLI) ================= */
+    const cleanData = JSON.parse(JSON.stringify(players));
+    conn.send({
+        type: 'UPDATE_MAP',
+        players: cleanData,
+        queue: [...turnQueue],
+        lockedCities: [...turnLockedCities],
+        msg: message
+    });
+}
+
+function sendWarning(targetPlayer, text) {
+    if(targetPlayer === 'p1') {
+        showStatus(text);
+    } else {
+        conn.send({ type: 'UPDATE_MAP', players: JSON.parse(JSON.stringify(players)), msg: text });
+    }
+}
+
+function syncMap(msg) {
+    broadcastState(msg);
+}
+
+// ============================================================
+// HARİTA YÜKLEME VE BOYAMA (INLINE STYLE - GARANTİLİ)
+// ============================================================
 async function loadSvgMap() {
     const wrapper = document.getElementById('map-container');
     const resp = await fetch(SVG_URL);
     wrapper.innerHTML = await resp.text();
-    
+
     const svg = wrapper.querySelector('svg');
-    svg.removeAttribute('width'); 
-    svg.removeAttribute('height'); 
-    svg.style.width='100%'; 
-    svg.style.height='100%';
-    
-    // İkon katmanı oluştur
-    const grp = document.createElementNS("http://www.w3.org/2000/svg", "g"); 
-    grp.id = "icon-layer"; 
-    svg.appendChild(grp);
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
+    svg.style.width = '100%';
+    svg.style.height = '100%';
+
+    // Katmanlar oluştur
+    const iconGrp = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    iconGrp.id = "icon-layer";
+    svg.appendChild(iconGrp);
+
+    const labelGrp = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    labelGrp.id = "label-layer";
+    svg.appendChild(labelGrp);
 
     svg.querySelectorAll('path').forEach(p => {
-        let id = p.getAttribute('id') || p.parentElement.getAttribute('id');
-        
+        let id = p.getAttribute('id') || (p.parentElement ? p.parentElement.getAttribute('id') : null);
         if(id && id.startsWith('TR')) {
-            const pl = parseInt(id.replace('TR','')); // TR01 -> 1
-            p.setAttribute('id', `city-${pl}`); 
-            
-            // --- KRİTİK NOKTA: MOBİLDE ÇALIŞMASI İÇİN STİLLERİ SİL ---
-            p.removeAttribute('fill'); 
-            p.removeAttribute('style'); 
-            // ---------------------------------------------------------
-            
+            const pl = parseInt(id.replace('TR',''));
+            p.setAttribute('id', `city-${pl}`);
+            p.removeAttribute('fill');
+            p.removeAttribute('style');
             p.onclick = (e) => { e.stopPropagation(); onCityClick(pl); };
+
+            // Şehir ismi etiketi ekle
+            try {
+                const b = p.getBBox();
+                if(b.width > 0) {
+                    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    txt.setAttribute("x", b.x + b.width/2);
+                    txt.setAttribute("y", b.y + b.height/2 + 3);
+                    txt.setAttribute("class", "city-label");
+                    txt.setAttribute("id", `label-${pl}`);
+                    txt.textContent = CITY_NAMES[pl] || "";
+                    labelGrp.appendChild(txt);
+                }
+            } catch(e) {}
         }
     });
 }
 
-        // --- HARİTA BOYAMA (GÜVENLİ VERSİYON) ---
-        function renderMapState() {
-          if (!svgReady) { pendingMapRender = true; return; }
-            // 1. Temizlik
-            document.querySelectorAll('path').forEach(p => {
-                p.classList.remove('owned-p1', 'owned-p2');
-            });
-            
-            const iconLayer = document.getElementById('icon-layer');
-            if(iconLayer) iconLayer.innerHTML = '';
-        
-            // 2. Boyama (Veri yoksa hata verme)
-            if (players && players.p1 && players.p1.cities) {
-                players.p1.cities.forEach(c => markCity(c, 'p1'));
-            }
-            if (players && players.p2 && players.p2.cities) {
-                players.p2.cities.forEach(c => markCity(c, 'p2'));
-            }
-        
-            updateScoreboard();
-        }
-        
-        function markCity(c, pid) {
-            // GELEN VERİYİ ZORLA SAYIYA ÇEVİR
-            const cityId = parseInt(c); 
-            if (isNaN(cityId)) return; // Hatalı veri varsa dur
-        
-            const el = document.getElementById(`city-${cityId}`);
-            
-            if(el) {
-                // Sınıfı Ekle
-                el.classList.add(pid === 'p1' ? 'owned-p1' : 'owned-p2');
-                
-                // İkon Kontrolü (Base ID'yi de sayıya çevirerek kıyasla)
-                const baseId = parseInt(players[pid].base);
-                const isBase = (baseId === cityId);
-                
-                const icon = isBase ? ICONS.CASTLE : (pid === 'p1' ? ICONS.HOST_SOLDIER : ICONS.GUEST_SOLDIER);
-                drawIcon(cityId, icon);
-            }
-        }
+function renderMapState() {
+    if(!svgReady) { pendingMapRender = true; return; }
 
-            function sendSyncToGuest(message) {
-        renderMapState();
-        updateExpansionStatus();
-        if(message) showStatus(message);
-        const cleanData = JSON.parse(JSON.stringify(players));
-        conn.send({ 
-            type: 'UPDATE_MAP', 
-            players: cleanData, 
-            queue: turnQueue,
-            lockedCities: turnLockedCities,
-            msg: message 
-        });
+    // 1. TÜM PATHLARI TEMİZLE (inline style ile)
+    document.querySelectorAll('[id^="city-"]').forEach(p => {
+        if(p.tagName === 'path') {
+            p.style.fill = '#ecf0f1';
+            p.style.stroke = '#95a5a6';
+            p.style.strokeWidth = '1px';
+        }
+    });
+
+    // Label'ları sıfırla
+    document.querySelectorAll('.city-label').forEach(lbl => {
+        lbl.classList.remove('city-label-owned');
+    });
+
+    const iconLayer = document.getElementById('icon-layer');
+    if(iconLayer) iconLayer.innerHTML = '';
+
+    // 2. P1 şehirlerini boya
+    if(players && players.p1 && players.p1.cities) {
+        players.p1.cities.forEach(c => paintCity(parseInt(c), '#3498db', '#fff', 'p1'));
     }
-    function drawIcon(c, url) {
-        const p = document.getElementById(`city-${c}`);
-        const layer = document.getElementById('icon-layer');
-        if(!p || !layer) return;
+    // 3. P2 şehirlerini boya
+    if(players && players.p2 && players.p2.cities) {
+        players.p2.cities.forEach(c => paintCity(parseInt(c), '#e74c3c', '#fff', 'p2'));
+    }
+
+    updateScoreboard();
+}
+
+function paintCity(id, fillColor, strokeColor, pid) {
+    const el = document.getElementById(`city-${id}`);
+    if(!el) return;
+
+    // INLINE STYLE ile boya (en güvenilir yöntem)
+    el.style.fill = fillColor;
+    el.style.stroke = strokeColor;
+    el.style.strokeWidth = '1.5px';
+
+    // Label'ı beyaz yap
+    const label = document.getElementById(`label-${id}`);
+    if(label) label.classList.add('city-label-owned');
+
+    // İkon çiz
+    const baseId = parseInt(players[pid].base);
+    const icon = (baseId === id) ? ICONS.CASTLE : (pid === 'p1' ? ICONS.HOST_SOLDIER : ICONS.GUEST_SOLDIER);
+    drawIcon(id, icon);
+}
+
+function drawIcon(c, url) {
+    const p = document.getElementById(`city-${c}`);
+    const layer = document.getElementById('icon-layer');
+    if(!p || !layer) return;
+    try {
         const b = p.getBBox();
         const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
         img.setAttributeNS(null, "href", url);
-        img.setAttribute("x", b.x+b.width/2-ICON_SIZE/2); img.setAttribute("y", b.y+b.height/2-ICON_SIZE/2);
-        img.setAttribute("width", ICON_SIZE); img.setAttribute("height", ICON_SIZE); img.classList.add("map-icon");
+        img.setAttribute("x", b.x + b.width/2 - ICON_SIZE/2);
+        img.setAttribute("y", b.y + b.height/2 - ICON_SIZE/2);
+        img.setAttribute("width", ICON_SIZE);
+        img.setAttribute("height", ICON_SIZE);
+        img.classList.add("map-icon");
         layer.appendChild(img);
-    }
+    } catch(e) {}
+}
 
-    function onCityClick(plate) {
-        if(gameState === "BASE_SELECT") {
-            const me = isHost ? 'p1' : 'p2';
-            const opp = isHost ? 'p2' : 'p1';
-            if(players[me].base || players[opp].base === plate) return;
-            players[me].base = plate; players[me].cities.push(plate);
-            if(isHost) { syncMap("Mavi kale kurdu!"); checkGameStart(); }
-            else { 
-                // Sadece kendi verimizi gönder, Host'un verisini EZMEMELİYİZ
-                conn.send({ 
-                    type: 'GUEST_BASE_SELECT', 
-                    plate: plate, 
-                    p2Name: players.p2.name 
-                }); 
-                renderMapState(); 
-            }
-        }
-        else if(gameState === "EXPANSION") claimCity(plate);
-    }
-
-    function checkGameStart() {
-        if(players.p1.base && players.p2.base) { gameState = "PLAYING"; setTimeout(startNewTurn, 1000); }
-    }
-
-function updateScoreboard() {
-        // İsimleri Güncelle
-        document.getElementById('p1-name').innerText = players.p1.name;
-        document.getElementById('p2-name').innerText = players.p2.name;
-
-        // Skorları Güncelle
-        document.getElementById('p1-score').innerText = players.p1.score;
-        document.getElementById('p1-cities').innerText = players.p1.cities.length;
-        document.getElementById('p1-hp').innerText = players.p1.hp;
+// ============================================================
+// ŞEHİR TIKLAMA
+// ============================================================
+function onCityClick(plate) {
+    if(gameState === "BASE_SELECT") {
+        const me = isHost ? 'p1' : 'p2';
+        const opp = isHost ? 'p2' : 'p1';
+        if(players[me].base) return showStatus("Zaten kale kurdun!");
+        if(parseInt(players[opp].base) === plate) return showStatus("Rakibin kalesi burada!");
         
-        document.getElementById('p2-score').innerText = players.p2.score;
-        document.getElementById('p2-cities').innerText = players.p2.cities.length;
-        document.getElementById('p2-hp').innerText = players.p2.hp;
-    }
-    
-    function showStatus(msg) {
-        const el = document.getElementById('status-bar'); el.innerText = msg; el.style.display = 'block';
-    }
+        players[me].base = plate;
+        players[me].cities.push(plate);
+        const cityName = CITY_NAMES[plate] || plate;
 
+        if(isHost) {
+            broadcastState("🏰 " + players.p1.name + " kalesini kurdu: " + cityName);
+            checkGameStart();
+        } else {
+            conn.send({ type: 'GUEST_BASE_SELECT', plate: plate, p2Name: players.p2.name });
+            renderMapState();
+            showGameToast("🏰 Kalen: " + cityName + " — Rakip bekleniyor...");
+        }
+    }
+    else if(gameState === "EXPANSION") {
+        claimCity(plate);
+    }
+}
+
+function checkGameStart() {
+    if(players.p1.base && players.p2.base) {
+        gameState = "PLAYING";
+        showGameToast("⚔️ SAVAŞ BAŞLIYOR!");
+        setTimeout(startNewTurn, 2000);
+    }
+}
+
+// ============================================================
+// SKOR VE UI
+// ============================================================
+function updateScoreboard() {
+    document.getElementById('p1-name').innerText = players.p1.name || "Mavi";
+    document.getElementById('p2-name').innerText = players.p2.name || "Kırmızı";
+    
+    const p1s = document.getElementById('p1-score');
+    const p2s = document.getElementById('p2-score');
+    const oldP1 = parseInt(p1s.innerText) || 0;
+    const oldP2 = parseInt(p2s.innerText) || 0;
+    
+    p1s.innerText = players.p1.score;
+    document.getElementById('p1-cities').innerText = players.p1.cities.length;
+    document.getElementById('p1-hp').innerText = players.p1.hp;
+
+    p2s.innerText = players.p2.score;
+    document.getElementById('p2-cities').innerText = players.p2.cities.length;
+    document.getElementById('p2-hp').innerText = players.p2.hp;
+
+    // Puan değiştiyse flash animasyonu
+    if(players.p1.score !== oldP1) { p1s.classList.add('score-highlight'); setTimeout(() => p1s.classList.remove('score-highlight'), 600); }
+    if(players.p2.score !== oldP2) { p2s.classList.add('score-highlight'); setTimeout(() => p2s.classList.remove('score-highlight'), 600); }
+}
+
+function showStatus(msg) {
+    const el = document.getElementById('status-bar');
+    el.innerText = msg;
+    el.style.display = 'block';
+}
+
+// ============================================================
+// GÖRSEL EFEKTLER
+// ============================================================
+
+// Uçan puan animasyonu (harita üzerinde)
+function spawnFloatingScore(isP1, text) {
+    const container = document.getElementById('map-container');
+    if(!container) return;
+
+    const el = document.createElement('div');
+    el.className = 'float-score';
+    el.innerText = text;
+    el.style.color = isP1 ? '#3498db' : '#e74c3c';
+
+    // Player card pozisyonuna yakın yerleştir
+    if(isP1) { el.style.left = '15%'; el.style.top = '20%'; }
+    else { el.style.right = '15%'; el.style.top = '20%'; }
+
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 2500);
+}
+
+// Oyun bilgilendirme toast'u (harita ortasında belirir kaybolur)
+function showGameToast(msg) {
+    const container = document.getElementById('screen-game') || document.body;
+    
+    // Eski toast'ları temizle
+    container.querySelectorAll('.game-toast').forEach(t => t.remove());
+
+    const toast = document.createElement('div');
+    toast.className = 'game-toast';
+    toast.innerText = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+    
+    // Status bar'ı da güncelle
+    showStatus(msg);
+}
+
+// Şehir fethedilince uçan puan (harita üzerinde şehrin yerinde)
+function spawnCityScore(plate, text, color) {
+    const el = document.getElementById(`city-${plate}`);
+    const container = document.getElementById('map-container');
+    if(!el || !container) return;
+
+    try {
+        const bbox = el.getBoundingClientRect();
+        const cbox = container.getBoundingClientRect();
+
+        const score = document.createElement('div');
+        score.className = 'float-score';
+        score.innerText = text;
+        score.style.color = color;
+        score.style.left = (bbox.left - cbox.left + bbox.width/2) + 'px';
+        score.style.top = (bbox.top - cbox.top) + 'px';
+        container.appendChild(score);
+        setTimeout(() => score.remove(), 2500);
+    } catch(e) {}
+}
+
+// ============================================================
+// OYUN BİTİŞİ
+// ============================================================
 function calculateFinalWinner(reason) {
-    let winner = "Berabere", p1 = players.p1.score, p2 = players.p2.score;
-    if(p1 > p2) winner = players.p1.name;
-    else if(p2 > p1) winner = players.p2.name;
-    
-    const scores = formatScores();
-    
-    // Önce karşı tarafa bildir
-    conn.send({ type: 'GAME_OVER', winner: winner, reason: reason, scores: scores });
-    
-    // Sonra kendi ekranında bitir
+    let winner = "Berabere";
+    if(players.p1.score > players.p2.score) winner = players.p1.name;
+    else if(players.p2.score > players.p1.score) winner = players.p2.name;
+    const scores = `${players.p1.name}: ${players.p1.score} (${players.p1.cities.length} il) — ${players.p2.name}: ${players.p2.score} (${players.p2.cities.length} il)`;
+    conn.send({ type: 'GAME_OVER', winner, reason, scores });
     endGame(winner, reason, scores);
 }
 
-    function formatScores() { return `${players.p1.name}: ${players.p1.score} - ${players.p2.name}: ${players.p2.score}`; }
+function endGame(winner, reason, scores) {
+    if(timerInterval) clearInterval(timerInterval);
+    document.getElementById('winner-name').innerText = "👑 " + winner;
+    document.getElementById('winner-reason').innerText = reason;
+    document.getElementById('winner-score-info').innerText = scores;
+    new bootstrap.Modal(document.getElementById('resultModal')).show();
+}
 
-    function endGame(winner, reason, scores) {
-        document.getElementById('winner-name').innerText = "Kazanan: " + winner;
-        document.getElementById('winner-reason').innerText = reason;
-        document.getElementById('winner-score-info').innerText = scores;
-        new bootstrap.Modal(document.getElementById('resultModal')).show();
-    }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
