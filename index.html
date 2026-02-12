@@ -7772,8 +7772,6 @@ function generateVocabQuestions() {
             questionText = `<strong>"${item.tr}"</strong> kelimesinin İngilizce karşılığı nedir?`;
             correctAns = item.en;
         }
-
-        let distractors = [];
                // Sabit seed ile çeldirici seç (index bazlı)
         let tempPool = ydsVocabDB.filter(w => w.en !== item.en);
         let shuffled = seededShuffle([...tempPool], index + 42);
