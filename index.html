@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YDS Master - Akademik Yabancı Dil Sınavı Hazırlık Sistemi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-card: #1a2332;
+            --text-primary: #e8edf5;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-cyan: #06b6d4;
+            --accent-teal: #14b8a6;
+            --accent-blue: #3b82f6;
+            --border-color: #2d3a4f;
+            --correct: #10b981;
+            --wrong: #ef4444;
+            --vocab-accent: #f59e0b;
+            --exam-accent: #8b5cf6;
+            --ai-accent: #ec4899;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f1f5f9;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--bg-primary);
+            overflow: hidden;
+        }
+
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            top: -25%;
+            left: -25%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 40% 60%, rgba(20, 184, 166, 0.05) 0%, transparent 50%);
+            animation: meshMove 25s ease-in-out infinite;
+        }
+
+        @keyframes meshMove {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(2%, 3%) rotate(1deg); }
+            50% { transform: translate(-1%, 2%) rotate(-1deg); }
+            75% { transform: translate(1%, -2%) rotate(0.5deg); }
+        }
+
+        /* Grid Pattern Overlay */
+        .grid-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.03;
+            background-image: 
+                linear-gradient(var(--accent-cyan) 1px, transparent 1px),
+                linear-gradient(90deg, var(--accent-cyan) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* Floating Particles */
+        .particle {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        /* Header */
+        .main-header {
+            background: linear-gradient(180deg, var(--bg-secondary), transparent);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .badge-yds {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-item {
+            padding: 0.875rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(6, 182, 212, 0.08);
+            color: var(--text-primary);
+            border-color: rgba(6, 182, 212, 0.2);
+        }
+
+        .sidebar-item.active {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(20, 184, 166, 0.1));
+            color: var(--accent-cyan);
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+
+        .sidebar-mistakes {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .sidebar-mistakes:hover {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .sidebar-ai {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(168, 85, 247, 0.05));
+            border: 1px solid rgba(236, 72, 153, 0.2);
+            color: #f472b6;
+        }
+
+        .sidebar-vocab {
+            border-left: 3px solid var(--vocab-accent);
+        }
+
+        .sidebar-exam {
+            border-left: 3px solid var(--exam-accent);
+        }
+
+        /* Cards */
+        .question-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-teal));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .question-card:hover::before {
+            opacity: 1;
+        }
+
+        .question-card:hover {
+            border-color: rgba(6, 182, 212, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(6, 182, 212, 0.1);
+        }
+
+        /* Option Buttons */
+        .option-btn {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            background: var(--bg-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            border-color: var(--accent-cyan);
+            background: rgba(6, 182, 212, 0.08);
+            transform: translateX(4px);
+        }
+
+        .option-btn:hover:not(.disabled) .opt-circle {
+            background: var(--accent-cyan);
+            color: white;
+            border-color: var(--accent-cyan);
+        }
+
+        .opt-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 1rem;
+            border: 2px solid var(--border-color);
+            color: var(--text-secondary);
+            transition: all 0.25s ease;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .opt-text {
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Correct/Wrong States */
+        .opt-correct {
+            border-color: var(--correct) !important;
+            background: rgba(16, 185, 129, 0.1) !important;
+        }
+
+        .opt-correct .opt-circle {
+            background: var(--correct) !important;
+            border-color: var(--correct) !important;
+            color: white !important;
+        }
+
+        .opt-wrong {
+            border-color: var(--wrong) !important;
+            background: rgba(239, 68, 68, 0.1) !important;
+        }
+
+        .opt-wrong .opt-circle {
+            background: var(--wrong) !important;
+            border-color: var(--wrong) !important;
+            color: white !important;
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        /* Tip Box */
+        .tip-box {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(20, 184, 166, 0.05));
+            border-left: 4px solid var(--accent-cyan);
+            padding: 1rem 1.25rem;
+            border-radius: 0 8px 8px 0;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        /* Floating Buttons */
+        .floating-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-teal));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
+            z-index: 90;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(6, 182, 212, 0.5);
+        }
+
+        .scroll-btn {
+            bottom: 6rem;
+            right: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--accent-cyan);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Progress Bar */
+        .progress-ring {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent-cyan) var(--progress, 0%), var(--border-color) 0%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-ring-inner {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+
+        /* VS Mode */
+        .vs-container {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        /* Modal */
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            max-width: 500px;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        .animate-pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-cyan);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100%;
+                z-index: 200;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 199;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+            }
+
+            .sidebar-overlay.open {
+                opacity: 1;
+                pointer-events: auto;
+            }
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 15, 26, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 1rem 1.5rem;
+            background: var(--correct);
+            color: white;
+            border-radius: 8px;
+            z-index: 1000;
+            transform: translateX(calc(100% + 2rem));
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg"></div>
+    <div class="grid-pattern"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast -->
+    <div id="goalToast" class="toast">
+        <div class="flex items-center gap-3">
+            <i class="bi bi-trophy-fill text-xl"></i>
+            <span id="goalToastBody" class="font-medium"></span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="flex min-h-screen">
+        <!-- Mobile Overlay -->
+        <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar w-72 flex-shrink-0 flex flex-col">
+            <!-- Logo -->
+            <div class="p-5 border-b border-[var(--border-color)]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center">
+                        <i class="bi bi-book-half text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="logo-text">YDS Master</div>
+                        <div class="text-xs text-[var(--text-muted)]">Akademik Hazırlık</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu -->
+            <nav id="sidebar-menu" class="flex-1 p-4 overflow-y-auto">
+                <!-- Dynamic content -->
+            </nav>
+
+            <!-- Settings -->
+            <div class="p-4 border-t border-[var(--border-color)]">
+                <div class="flex gap-2">
+                    <button onclick="openSettings()" class="flex-1 py-2.5 px-3 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] text-sm font-medium text-[var(--text-secondary)] hover:border-[var(--accent-cyan)] hover:text-[var(--accent-cyan)] transition-all">
+                        <i class="bi bi-gear mr-1.5"></i> API
+                    </button>
+                    <button onclick="toggleTheme()" class="py-2.5 px-3 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--accent-cyan)] hover:text-[var(--accent-cyan)] transition-all">
+                        <i class="bi bi-moon-stars" id="themeIcon"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col min-w-0">
+            <!-- Header -->
+            <header class="main-header py-4 px-6">
+                <div class="flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--accent-cyan)] hover:border-[var(--accent-cyan)]">
+                            <i class="bi bi-list text-xl"></i>
+                        </button>
+                        <div>
+                            <h1 id="active-section-title" class="text-xl font-semibold">Prepositions</h1>
+                            <p class="text-sm text-[var(--text-muted)]">YDS Hazırlık Testi</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div id="progress-badge" class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--bg-card)] border border-[var(--border-color)]">
+                            <div class="progress-ring" style="--progress: 0%">
+                                <div class="progress-ring-inner" id="progressPercent">0%</div>
+                            </div>
+                            <span class="text-sm text-[var(--text-secondary)]" id="progressText">0 / 0</span>
+                        </div>
+                        <button onclick="goToFirstUnsolved()" class="py-2 px-4 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-sm font-medium hover:opacity-90 transition-opacity">
+                            <i class="bi bi-skip-forward-fill mr-1.5"></i> İlk Çözülmeyen
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Questions Area -->
+            <div id="questions-area" class="flex-1 p-6 max-w-4xl mx-auto w-full">
+                <!-- Dynamic content -->
+            </div>
+
+            <!-- VS Mode Area (Hidden by default) -->
+            <div id="vs-area" class="hidden flex-1 p-6">
+                <!-- VS Mode content -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Buttons -->
+    <button onclick="openDailyGoals()" class="floating-btn" title="Günlük Hedefler">
+        <i class="bi bi-bullseye"></i>
+    </button>
+    <button onclick="scrollToTop()" class="floating-btn scroll-btn" title="Yukarı Çık">
+        <i class="bi bi-arrow-up"></i>
+    </button>
+
+    <!-- Settings Modal -->
+    <div id="apiModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0" onclick="closeModal('apiModal')"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="modal-content w-full p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold">Gemini API Ayarları</h3>
+                    <button onclick="closeModal('apiModal')" class="p-2 rounded-lg hover:bg-[var(--bg-secondary)] text-[var(--text-muted)]">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">API Anahtarı</label>
+                        <input type="password" id="apiKeyInput" placeholder="AIza..." class="w-full px-4 py-3 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-primary)] focus:border-[var(--accent-cyan)] focus:outline-none transition-colors">
+                    </div>
+                    <p class="text-sm text-[var(--text-muted)]">
+                        <i class="bi bi-info-circle mr-1"></i>
+                        Gemini API anahtarınızı <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[var(--accent-cyan)] hover:underline">Google AI Studio</a>'dan ücretsiz alabilirsiniz.
+                    </p>
+                    <button onclick="saveApiKey()" class="w-full py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-medium hover:opacity-90 transition-opacity">
+                        Kaydet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Goals Modal -->
+    <div id="goalModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0" onclick="closeModal('goalModal')"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="modal-content w-full p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold flex items-center gap-2">
+                        <i class="bi bi-bullseye text-[var(--accent-cyan)]"></i>
+                        Günlük Hedefler
+                    </h3>
+                    <button onclick="closeModal('goalModal')" class="p-2 rounded-lg hover:bg-[var(--bg-secondary)] text-[var(--text-muted)]">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <p id="goal-date-display" class="text-sm text-[var(--text-muted)] mb-4"></p>
+                <div id="goal-list-container" class="space-y-3 mb-6">
+                    <!-- Dynamic content -->
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="saveUserGoals()" class="flex-1 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-medium hover:opacity-90 transition-opacity">
+                        Hedefleri Kaydet
+                    </button>
+                    <button onclick="resetDailyProgressManual()" class="py-3 px-4 rounded-lg border border-[var(--border-color)] text-[var(--text-secondary)] hover:border-red-500 hover:text-red-400 transition-colors">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =====================================================
+        // DATA LAYER
+        // =====================================================
+        
+        let allQuestions = [];
+        let generatedQuestions = [];
+        let wrongBank = [];
+        let progressData = {};
+        let userApiKey = "";
+        let renderLimit = 50;
+        let currentSectionKey = null;
+
+        // Sections Configuration
+        const sections = [
+            { key: "sec1", title: "Prepositions & Collocations", start: 1, end: 70 },
+            { key: "sec2", title: "Conjunctions & Linkers", start: 71, end: 130 },
+            { key: "sec3", title: "Relative Clauses", start: 131, end: 190 },
+            { key: "sec4", title: "Tense & Modals", start: 191, end: 250 },
+            { key: "secVocab", title: "YDS Akademik Kelimeler", start: 1000, end: 2999 },
+            { key: "secExamPrep", title: "Cikmis Prepositions (Son 10 Yil)", start: 3000, end: 3200 },
+            { key: "secExamConj", title: "Cikmis Baglaclar (Son 10 Yil)", start: 3201, end: 3500 },
+            { key: "secExamTense", title: "Cikmis Tense/Modals (Son 10 Yil)", start: 3501, end: 3800 },
+            { key: "secExamVocab", title: "Cikmis Kelime (Son 10 Yil)", start: 3801, end: 4200 }
+        ];
+
+        // Daily Goals Configuration
+        const defaultGoals = {
+            date: new Date().toLocaleDateString(),
+            targets: { prep: 20, conj: 20, rel: 20, tense: 20, vocab: 50, examVocab: 20 },
+            current: { prep: 0, conj: 0, rel: 0, tense: 0, vocab: 0, examVocab: 0 },
+            solvedIds: []
+        };
+
+        let dailyData = JSON.parse(localStorage.getItem('yds_daily_goals')) || JSON.parse(JSON.stringify(defaultGoals));
+
+        // Vocabulary Database
+        const ydsVocabDB = [
+            { en: "Abandon", tr: "Terk etmek, vazgecmek" },
+            { en: "Abolition", tr: "Yururlukten kaldirma, iptal" },
+            { en: "Abrupt", tr: "Ani, beklenmedik" },
+            { en: "Absence", tr: "Yokluk, bulunmama" },
+            { en: "Abstention", tr: "Cekimser kalma, sakinma" },
+            { en: "Abundant", tr: "Bol, bereketli" },
+            { en: "Abundantly", tr: "Bolca, fazlasiyla" },
+            { en: "Accelerate", tr: "Hizlandirmak" },
+            { en: "Acceleration", tr: "Hizlanma, ivme" },
+            { en: "Accessible", tr: "Erisilebilir, ulasilabilir" },
+            { en: "Accompany", tr: "Eslik etmek" },
+            { en: "Accomplished", tr: "Basarili, yetenekli" },
+            { en: "Accomplishment", tr: "Basari, kazanim" },
+            { en: "Account for", tr: "Olusturmak, aciklamak" },
+            { en: "Accumulate", tr: "Birikmek, toplamak" },
+            { en: "Accuracy", tr: "Dogruluk, kesinlik" },
+            { en: "Accurately", tr: "Tam/dogru bir sekilde" },
+            { en: "Achieve", tr: "Basmak, elde etmek" },
+            { en: "Acknowledge", tr: "Kabul etmek, tanimak" },
+            { en: "Acquire", tr: "Edinmek, kazanmak" },
+            { en: "Acquisition", tr: "Edinim, kazanimm" },
+            { en: "Adapt", tr: "Uyum saglamak" },
+            { en: "Adaptable", tr: "Uyarlanabilir, esnek" },
+            { en: "Addiction", tr: "Bagimlilik" },
+            { en: "Additional", tr: "Ek, ilave" },
+            { en: "Adequate", tr: "Yeterli" },
+            { en: "Adequately", tr: "Yeterli bir sekilde" },
+            { en: "Adherence", tr: "Baglilik, riayet" },
+            { en: "Adjustment", tr: "Ayarlama, duzeltme" },
+            { en: "Administer", tr: "Yonetmek, idare etmek" },
+            { en: "Admire", tr: "Hayran olmak" },
+            { en: "Admirably", tr: "Hayranlik uyandiracak sekilde" },
+            { en: "Admit", tr: "Kabul etmek, itiraf etmek" },
+            { en: "Adopt", tr: "Benimsemek, evlat edinmek" },
+            { en: "Adoption", tr: "Evlat edinme, benimseme" },
+            { en: "Advancement", tr: "Ilerleme, gelisme" },
+            { en: "Advent", tr: "Gelis, ortaya cikis" },
+            { en: "Adverse", tr: "Olumsuz, kotu, ters" },
+            { en: "Adversely", tr: "Olumsuz bir sekilde" },
+            { en: "Adversity", tr: "Zorluk, sikinti" },
+            { en: "Advocate", tr: "Savunmak, desteklemek" },
+            { en: "Affluent", tr: "Zengin, varlikli" },
+            { en: "Aggravate", tr: "Giderek kotulesmek" },
+            { en: "Alienate", tr: "Yabancilastirmak" },
+            { en: "Align with", tr: "Uyum saglamak" },
+            { en: "Allegedly", tr: "Iddia edildigine gore" },
+            { en: "Alleviate", tr: "Hafifletmek, dindirmek" },
+            { en: "Alleviation", tr: "Hafifleme, yatistirma" },
+            { en: "Allocate", tr: "Ayirmak, tahsis etmek" },
+            { en: "Allocation", tr: "Tahsisat, paylastirma" },
+            { en: "Alter", tr: "Degistirmek" },
+            { en: "Alteration", tr: "Degisiklik, tadilat" },
+            { en: "Alternatively", tr: "Alternatif olarak" },
+            { en: "Ambiguous", tr: "Belirsiz, muglak" },
+            { en: "Ambiguously", tr: "Belirsiz bir sekilde" },
+            { en: "Amend", tr: "Degisiklik yapmak" },
+            { en: "Amount to", tr: "Tutmak, anlamina gelmek" },
+            { en: "Ample", tr: "Bol, cok" },
+            { en: "Annually", tr: "Yillik olarak" },
+            { en: "Anticipate", tr: "Ummak, beklemek" },
+            { en: "Appalling", tr: "Korkunc, dehset verici" },
+            { en: "Apparent", tr: "Acik, bariz" },
+            { en: "Appear", tr: "Gorunmek, ortaya cikmak" },
+            { en: "Application", tr: "Uygulama, basvuru" },
+            { en: "Appreciate", tr: "Takdir etmek" },
+            { en: "Appreciation", tr: "Takdir, deger bilme" },
+            { en: "Approach", tr: "Yaklasim, ele alis" },
+            { en: "Appropriate", tr: "Uygun, yerinde" },
+            { en: "Appropriately", tr: "Uygun bir sekilde" },
+            { en: "Approve", tr: "Onaylamak" },
+            { en: "Approximate", tr: "Yakinlak" },
+            { en: "Approximately", tr: "Yakinlak olarak" },
+            { en: "Arbitrary", tr: "Keyfi, rastgele" },
+            { en: "Arbitrarily", tr: "Keyfi olarak" },
+            { en: "Ardently", tr: "Atesli bir sekilde" },
+            { en: "Arguably", tr: "Muhtemelen" },
+            { en: "Arise", tr: "Ortaya cikmak" },
+            { en: "Artificial", tr: "Yapay, suni" },
+            { en: "Aspiration", tr: "Ozlem, buyuk amac" },
+            { en: "Assert", tr: "Ileri surmek, iddia etmek" },
+            { en: "Assertion", tr: "Iddia, sav" },
+            { en: "Assess", tr: "Degerlendirmek" },
+            { en: "Assist", tr: "Yardim etmek" },
+            { en: "Associate", tr: "Iliskilendirmek" },
+            { en: "Association", tr: "Iliski, dernek" },
+            { en: "Assume", tr: "Varsaymak, ustlenmek" },
+            { en: "Assumption", tr: "Varsayim" },
+            { en: "Assurance", tr: "Guvence, teminat" },
+            { en: "Assure", tr: "Guvence vermek" },
+            { en: "Astonishing", tr: "Sasirtici" },
+            { en: "Attach", tr: "Eklemek, ilistirmek" },
+            { en: "Attain", tr: "Elde etmek, ulasmak" },
+            { en: "Attempt", tr: "Girisimde bulunmak" },
+            { en: "Attribute", tr: "Atfetmek, baglamak" },
+            { en: "Availability", tr: "Mevcut olma" },
+            { en: "Available", tr: "Mevcut, musait" },
+            { en: "Avert", tr: "Onlemek, kacinmak" },
+            { en: "Avoid", tr: "Kacinmak, sakinmak" },
+            { en: "Awareness", tr: "Farkindalik" }
+        ];
+
+        // Raw Questions Text (abbreviated for demo)
+        const rawQuestionsText = `
+Section: Prepositions & Collocations (1-70)
+1) She insisted ___ paying for the damage.
+   A) at
+   B) to
+   C) for
+   D) with
+   E) on
+TIP: Kalip -> insist on + V-ing.
+
+2) The committee approved ___ the proposal after revisions.
+   A) with
+   B) for
+   C) to
+   D) on
+   E) of
+TIP: Kalip -> approve of + noun/V-ing.
+
+3) His success largely depends ___ how well he manages time.
+   A) to
+   B) for
+   C) upon
+   D) in
+   E) with
+TIP: Kalip -> depend on/upon.
+
+4) The new policy applies ___ all employees.
+   A) with
+   B) on
+   C) for
+   D) in
+   E) to
+TIP: apply to (uygulanmak).
+
+5) I'm not accustomed ___ driving in heavy traffic.
+   A) on
+   B) to
+   C) at
+   D) with
+   E) for
+TIP: be accustomed to + V-ing.
+
+6) The scientist is best known ___ her work on energy.
+   A) with
+   B) about
+   C) to
+   D) at
+   E) for
+TIP: be known/famous for.
+
+7) They blamed the accident ___ human error.
+   A) with
+   B) for
+   C) at
+   D) to
+   E) on
+TIP: blame X on Y.
+
+8) He was charged ___ fraud.
+   A) about
+   B) to
+   C) for
+   D) of
+   E) with
+TIP: charge with + suc.
+
+9) This textbook is intended ___ students.
+   A) at
+   B) for
+   C) to
+   D) with
+   E) about
+TIP: intended for + hedef.
+
+10) She apologized ___ not informing us earlier.
+   A) with
+   B) for
+   C) at
+   D) to
+   E) about
+TIP: apologize for + V-ing.
+`;
+
+        const rawAnswersText = `
+1:E 2:E 3:C 4:E 5:B 6:E 7:E 8:D 9:B 10:B
+`;
+
+        // =====================================================
+        // INITIALIZATION
+        // =====================================================
+
+        window.onload = function() {
+            // Load theme
+            if (localStorage.getItem('yds_theme') === 'light') {
+                document.body.removeAttribute('data-theme');
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+            }
+            
+            // Load API key
+            userApiKey = localStorage.getItem('yds_gemini_key') || "";
+            
+            // Load all data
+            loadData();
+        };
+
+        function loadData() {
+            // Load progress
+            if (localStorage.getItem('yds_progress')) {
+                progressData = JSON.parse(localStorage.getItem('yds_progress'));
+            }
+            
+            // Load mistakes
+            if (localStorage.getItem('yds_mistakes')) {
+                wrongBank = JSON.parse(localStorage.getItem('yds_mistakes'));
+            }
+            
+            // Load generated questions
+            if (localStorage.getItem('yds_generated')) {
+                generatedQuestions = JSON.parse(localStorage.getItem('yds_generated'));
+            }
+
+            // Parse questions
+            allQuestions = parseRawData(rawQuestionsText, rawAnswersText, 0);
+            
+            // Add vocabulary questions
+            const vocabQuestions = generateVocabQuestions();
+            allQuestions = allQuestions.concat(vocabQuestions);
+
+            // Render menu and show first section
+            renderMenu();
+            showSection('sec1');
+        }
+
+        // =====================================================
+        // PARSING FUNCTIONS
+        // =====================================================
+
+        function parseRawData(qText, aText, offset) {
+            const questions = [];
+            const answerMap = {};
+            const ansRegex = /(\d+)\s*[:\-\u2013]\s*([A-E])/g;
+            let match;
+            
+            while ((match = ansRegex.exec(aText)) !== null) {
+                answerMap[match[1]] = match[2];
+            }
+
+            const lines = qText.split('\n');
+            let currentQ = null;
+
+            lines.forEach(line => {
+                line = line.trim();
+                if (!line) return;
+
+                if (/^\d+[\.\)\-]/.test(line)) {
+                    if (currentQ) {
+                        currentQ.correctAnswer = answerMap[currentQ.localId];
+                        if (currentQ.correctAnswer) questions.push(currentQ);
+                    }
+
+                    const qNum = parseInt(line.match(/^\d+/)[0]);
+                    currentQ = {
+                        id: offset + qNum,
+                        localId: qNum,
+                        text: line.replace(/^\d+[\.\)\-]\s*/, '').trim(),
+                        options: {}
+                    };
+                } else if (currentQ) {
+                    if (line.startsWith('A)')) currentQ.options.A = line.substring(2).trim();
+                    else if (line.startsWith('B)')) currentQ.options.B = line.substring(2).trim();
+                    else if (line.startsWith('C)')) currentQ.options.C = line.substring(2).trim();
+                    else if (line.startsWith('D)')) currentQ.options.D = line.substring(2).trim();
+                    else if (line.startsWith('E)')) currentQ.options.E = line.substring(2).trim();
+                }
+            });
+
+            if (currentQ) {
+                currentQ.correctAnswer = answerMap[currentQ.localId];
+                if (currentQ.correctAnswer) questions.push(currentQ);
+            }
+
+            return questions;
+        }
+
+        function generateVocabQuestions() {
+            const questions = [];
+            const total = ydsVocabDB.length;
+
+            ydsVocabDB.forEach((item, index) => {
+                const isEnToTr = index < total / 2;
+                let questionText, correctAns;
+
+                if (isEnToTr) {
+                    questionText = `"${item.en}" kelimesinin Turkce karsiligi nedir?`;
+                    correctAns = item.tr;
+                } else {
+                    questionText = `"${item.tr}" kelimesinin Ingilizce karsiligi nedir?`;
+                    correctAns = item.en;
+                }
+
+                // Generate distractors
+                const distractors = [];
+                while (distractors.length < 4) {
+                    const rand = ydsVocabDB[Math.floor(Math.random() * total)];
+                    if (rand.en !== item.en) {
+                        const opt = isEnToTr ? rand.tr : rand.en;
+                        if (!distractors.includes(opt)) distractors.push(opt);
+                    }
+                }
+
+                const optionsArr = [...distractors, correctAns].sort(() => Math.random() - 0.5);
+                const options = {
+                    A: optionsArr[0],
+                    B: optionsArr[1],
+                    C: optionsArr[2],
+                    D: optionsArr[3],
+                    E: optionsArr[4]
+                };
+
+                questions.push({
+                    id: 1000 + index,
+                    text: questionText,
+                    options: options,
+                    correctAnswer: Object.keys(options).find(k => options[k] === correctAns),
+                    isVocab: true
+                });
+            });
+
+            return questions;
+        }
+
+        // =====================================================
+        // UI RENDERING
+        // =====================================================
+
+        function renderMenu() {
+            const menu = document.getElementById('sidebar-menu');
+            menu.innerHTML = '';
+
+            // Mistakes button
+            const mistakesBtn = document.createElement('div');
+            mistakesBtn.className = 'sidebar-item sidebar-mistakes';
+            mistakesBtn.id = 'menu-mistakes';
+            mistakesBtn.innerHTML = `
+                <span><i class="bi bi-exclamation-octagon-fill mr-2"></i> Yanlislarim</span>
+                <span class="text-xs bg-red-500/20 px-2 py-0.5 rounded">${wrongBank.length}</span>
+            `;
+            mistakesBtn.onclick = () => showMistakes();
+            menu.appendChild(mistakesBtn);
+
+            // AI button
+            const aiBtn = document.createElement('div');
+            aiBtn.className = 'sidebar-item sidebar-ai';
+            aiBtn.id = 'menu-ai';
+            aiBtn.innerHTML = `
+                <span><i class="bi bi-stars mr-2"></i> Yapay Zeka</span>
+                <span class="text-xs bg-pink-500/20 px-2 py-0.5 rounded">${generatedQuestions.length}</span>
+            `;
+            aiBtn.onclick = () => showAiGenerated();
+            menu.appendChild(aiBtn);
+
+            // Divider
+            menu.appendChild(document.createElement('hr'));
+
+            // Section buttons
+            sections.forEach(sec => {
+                const div = document.createElement('div');
+                div.className = 'sidebar-item';
+                if (sec.key === 'secVocab') div.classList.add('sidebar-vocab');
+                if (sec.key.startsWith('secExam')) div.classList.add('sidebar-exam');
+                div.id = `menu-${sec.key}`;
+                div.innerHTML = `<span>${sec.title}</span>`;
+                div.onclick = () => showSection(sec.key);
+                menu.appendChild(div);
+            });
+        }
+
+        function showSection(key) {
+            currentSectionKey = key;
+            renderLimit = 50;
+            
+            // Update active menu
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+            const activeEl = document.getElementById(`menu-${key}`);
+            if (activeEl) activeEl.classList.add('active');
+
+            // Update header
+            const secData = sections.find(s => s.key === key);
+            document.getElementById('active-section-title').innerText = secData.title;
+
+            // Filter questions
+            const filtered = allQuestions.filter(q => q.id >= secData.start && q.id <= secData.end);
+            
+            // Render
+            renderQuestions(filtered);
+            updateProgressBadge(filtered);
+        }
+
+        function showMistakes() {
+            currentSectionKey = 'mistakes';
+            renderLimit = 50;
+            
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('menu-mistakes').classList.add('active');
+            document.getElementById('active-section-title').innerText = 'Yanlis Cevapladigim Sorular';
+
+            const mistakeQuestions = allQuestions.filter(q => wrongBank.includes(q.id));
+            const aiMistakes = generatedQuestions.filter(q => wrongBank.includes(q.id));
+            const combined = [...mistakeQuestions, ...aiMistakes];
+
+            if (combined.length === 0) {
+                document.getElementById('questions-area').innerHTML = `
+                    <div class="text-center py-20 text-[var(--text-muted)]">
+                        <i class="bi bi-emoji-smile text-5xl mb-4"></i>
+                        <p class="text-lg">Henue yanlis sorunuz yok!</p>
+                    </div>
+                `;
+                document.getElementById('progress-badge').classList.add('hidden');
+            } else {
+                renderQuestions(combined);
+                document.getElementById('progress-badge').classList.remove('hidden');
+            }
+        }
+
+        function showAiGenerated() {
+            currentSectionKey = 'ai';
+            renderLimit = 50;
+
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('menu-ai').classList.add('active');
+            document.getElementById('active-section-title').innerText = 'Senin Icin Olusturulanlar';
+
+            if (generatedQuestions.length === 0) {
+                document.getElementById('questions-area').innerHTML = `
+                    <div class="text-center py-20 text-[var(--text-muted)]">
+                        <i class="bi bi-robot text-5xl mb-4"></i>
+                        <p class="text-lg">Henuue yapay zeka ile soru uretmediniz.</p>
+                    </div>
+                `;
+            } else {
+                renderQuestions([...generatedQuestions].reverse());
+            }
+        }
+
+        function renderQuestions(qList) {
+            const area = document.getElementById('questions-area');
+            area.innerHTML = '';
+
+            const visible = qList.slice(0, renderLimit);
+
+            visible.forEach((q, idx) => {
+                const saved = progressData[q.id];
+                const status = currentSectionKey === 'mistakes' ? null : saved;
+
+                // Badge styling
+                let badgeStyle = '';
+                let borderLeft = '';
+                if (q.isVocab) {
+                    badgeStyle = `background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1)); color: #fbbf24;`;
+                    borderLeft = 'border-left: 3px solid #f59e0b;';
+                } else if (q.id >= 3000) {
+                    badgeStyle = `background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.1)); color: #a78bfa;`;
+                    borderLeft = 'border-left: 3px solid #8b5cf6;';
+                } else {
+                    badgeStyle = `background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(6, 182, 212, 0.1)); color: #22d3ee;`;
+                }
+
+                // Options HTML
+                let optsHTML = '';
+                ['A', 'B', 'C', 'D', 'E'].forEach(opt => {
+                    let rowClass = '';
+                    if (status) {
+                        if (opt === q.correctAnswer) rowClass = 'opt-correct disabled';
+                        else if (status === 'wrong' && progressData[q.id + '_selected'] === opt) rowClass = 'opt-wrong disabled';
+                        else rowClass = 'disabled';
+                    }
+                    
+                    optsHTML += `
+                        <div class="option-btn ${rowClass}" onclick="checkAnswer(${q.id}, '${opt}', '${q.correctAnswer}')">
+                            <div class="opt-circle">${opt}</div>
+                            <div class="opt-text">${q.options[opt] || '---'}</div>
+                        </div>
+                    `;
+                });
+
+                // Feedback HTML
+                let feedbackHTML = '';
+                if (status === 'correct') {
+                    feedbackHTML = `<div class="text-emerald-400 font-medium mt-3"><i class="bi bi-check-circle-fill mr-1"></i> Dogru!</div>`;
+                } else if (status === 'wrong') {
+                    feedbackHTML = `<div class="text-red-400 font-medium mt-3"><i class="bi bi-x-circle-fill mr-1"></i> Yanlis. Cevap: ${q.correctAnswer}</div>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'question-card mb-6 animate-fade-in-up';
+                card.id = `card-${q.id}`;
+                card.style.cssText = borderLeft;
+                card.style.animationDelay = `${Math.min(idx * 0.05, 0.5)}s`;
+
+                card.innerHTML = `
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-medium px-2 py-1 rounded" style="${badgeStyle}">
+                                    ${q.isVocab ? 'Kelime' : q.id >= 3000 ? 'Cikmis' : 'Soru'} #${idx + 1}
+                                </span>
+                                ${status ? (status === 'correct' ? '<span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded">Cozuldu</span>' : '<span class="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded">Hatali</span>') : ''}
+                            </div>
+                            ${!q.isVocab ? `
+                            <div class="flex gap-1.5">
+                                <button onclick="generateAiQuestions(${q.id})" class="text-xs px-2.5 py-1.5 rounded border border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--accent-cyan)] hover:text-[var(--accent-cyan)] transition-colors" title="Benzer Soru Uret">
+                                    <i class="bi bi-stars"></i>
+                                </button>
+                                <button onclick="getAiAnalysis(${q.id})" class="text-xs px-2.5 py-1.5 rounded border border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--accent-cyan)] hover:text-[var(--accent-cyan)] transition-colors" title="Analiz">
+                                    <i class="bi bi-translate"></i>
+                                </button>
+                            </div>
+                            ` : ''}
+                        </div>
+                        <p class="text-lg leading-relaxed mb-4">${q.text.replace(/___/g, '<span class="inline-block w-16 h-0.5 bg-[var(--accent-cyan)] mx-0.5 align-middle"></span>')}</p>
+                        <div id="opts-${q.id}">${optsHTML}</div>
+                        <div id="feedback-${q.id}">${feedbackHTML}</div>
+                        <div id="tip-${q.id}" class="tip-box hidden"></div>
+                    </div>
+                `;
+
+                area.appendChild(card);
+            });
+
+            // Load more button
+            if (qList.length > renderLimit) {
+                const remaining = qList.length - renderLimit;
+                area.innerHTML += `
+                    <div class="text-center py-8">
+                        <button onclick="loadMoreQuestions()" class="px-6 py-3 rounded-lg bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-secondary)] font-medium hover:border-[var(--accent-cyan)] hover:text-[var(--accent-cyan)] transition-all">
+                            <i class="bi bi-arrow-down mr-2"></i>
+                            Sonraki 50 Soruyu Goster (+${remaining})
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function updateProgressBadge(qList) {
+            const badge = document.getElementById('progress-badge');
+            if (!qList || qList.length === 0) {
+                badge.classList.add('hidden');
+                return;
+            }
+
+            const solved = qList.filter(q => progressData[q.id] === 'correct').length;
+            const percent = Math.round((solved / qList.length) * 100);
+
+            badge.classList.remove('hidden');
+            document.querySelector('.progress-ring').style.setProperty('--progress', `${percent}%`);
+            document.getElementById('progressPercent').innerText = `${percent}%`;
+            document.getElementById('progressText').innerText = `${solved} / ${qList.length}`;
+        }
+
+        // =====================================================
+        // ANSWER CHECKING
+        // =====================================================
+
+        function checkAnswer(qId, selected, correct) {
+            const optsContainer = document.getElementById(`opts-${qId}`);
+            const feedbackDiv = document.getElementById(`feedback-${qId}`);
+
+            // Disable all options
+            optsContainer.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.add('disabled');
+                const opt = btn.querySelector('.opt-circle').innerText;
+                if (opt === correct) btn.classList.add('opt-correct');
+                else if (opt === selected && selected !== correct) btn.classList.add('opt-wrong');
+            });
+
+            if (selected === correct) {
+                feedbackDiv.innerHTML = `<div class="text-emerald-400 font-medium mt-3"><i class="bi bi-check-circle-fill mr-1"></i> Dogru!</div>`;
+                
+                // Remove from wrong bank if present
+                if (wrongBank.includes(qId)) {
+                    wrongBank = wrongBank.filter(id => id !== qId);
+                    localStorage.setItem('yds_mistakes', JSON.stringify(wrongBank));
+                    renderMenu();
+                }
+                
+                progressData[qId] = 'correct';
+            } else {
+                feedbackDiv.innerHTML = `<div class="text-red-400 font-medium mt-3"><i class="bi bi-x-circle-fill mr-1"></i> Yanlis. Cevap: ${correct}</div>`;
+                
+                if (!wrongBank.includes(qId)) {
+                    wrongBank.push(qId);
+                    localStorage.setItem('yds_mistakes', JSON.stringify(wrongBank));
+                    renderMenu();
+                }
+                
+                progressData[qId] = 'wrong';
+                progressData[qId + '_selected'] = selected;
+            }
+
+            localStorage.setItem('yds_progress', JSON.stringify(progressData));
+
+            // Update section progress
+            if (currentSectionKey && currentSectionKey !== 'mistakes' && currentSectionKey !== 'ai') {
+                const secData = sections.find(s => s.key === currentSectionKey);
+                if (secData) {
+                    const filtered = allQuestions.filter(q => q.id >= secData.start && q.id <= secData.end);
+                    updateProgressBadge(filtered);
+                }
+            }
+
+            trackDailyProgress(qId);
+        }
+
+        // =====================================================
+        // DAILY GOALS
+        // =====================================================
+
+        function checkDateAndReset() {
+            const today = new Date().toLocaleDateString();
+            if (dailyData.date !== today) {
+                dailyData.date = today;
+                dailyData.current = { prep: 0, conj: 0, rel: 0, tense: 0, vocab: 0, examVocab: 0 };
+                dailyData.solvedIds = [];
+                localStorage.setItem('yds_daily_goals', JSON.stringify(dailyData));
+            }
+            document.getElementById('goal-date-display').innerText = `Tarih: ${today}`;
+        }
+
+        function openDailyGoals() {
+            checkDateAndReset();
+            
+            const container = document.getElementById('goal-list-container');
+            container.innerHTML = '';
+
+            const categories = [
+                { key: 'prep', title: 'Prepositions', color: '#06b6d4' },
+                { key: 'conj', title: 'Conjunctions', color: '#8b5cf6' },
+                { key: 'rel', title: 'Relative Clauses', color: '#f59e0b' },
+                { key: 'tense', title: 'Tense & Modals', color: '#ef4444' },
+                { key: 'vocab', title: 'YDS Kelimeler', color: '#10b981' },
+                { key: 'examVocab', title: 'Cikmis Kelime', color: '#3b82f6' }
+            ];
+
+            categories.forEach(cat => {
+                const current = dailyData.current[cat.key];
+                const target = dailyData.targets[cat.key];
+                const percent = Math.min(100, Math.round((current / target) * 100));
+
+                container.innerHTML += `
+                    <div class="p-3 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)]">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium" style="color: ${cat.color}">${cat.title}</span>
+                            <span class="text-xs px-2 py-0.5 rounded ${percent >= 100 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[var(--bg-card)] text-[var(--text-muted)]'}">${current} / ${target}</span>
+                        </div>
+                        <div class="h-1.5 bg-[var(--bg-card)] rounded-full overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-500" style="width: ${percent}%; background: ${cat.color}; opacity: ${percent >= 100 ? 1 : 0.7}"></div>
+                        </div>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="text-xs text-[var(--text-muted)]">Hedef:</span>
+                            <input type="number" value="${target}" min="1" class="w-16 px-2 py-1 text-sm rounded bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] focus:border-[var(--accent-cyan)] focus:outline-none" id="goal-input-${cat.key}">
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('goalModal').classList.remove('hidden');
+        }
+
+        function saveUserGoals() {
+            ['prep', 'conj', 'rel', 'tense', 'vocab', 'examVocab'].forEach(key => {
+                const val = parseInt(document.getElementById(`goal-input-${key}`).value);
+                if (val > 0) dailyData.targets[key] = val;
+            });
+            localStorage.setItem('yds_daily_goals', JSON.stringify(dailyData));
+            closeModal('goalModal');
+            showToast('Hedefler guncellendi!');
+        }
+
+        function resetDailyProgressManual() {
+            if (!confirm('Bugunku ilerlemeniz sifirlanacak. Onayliyor musunuz?')) return;
+            dailyData.current = { prep: 0, conj: 0, rel: 0, tense: 0, vocab: 0, examVocab: 0 };
+            dailyData.solvedIds = [];
+            localStorage.setItem('yds_daily_goals', JSON.stringify(dailyData));
+            openDailyGoals();
+        }
+
+        function trackDailyProgress(qId) {
+            checkDateAndReset();
+            
+            if (currentSectionKey === 'mistakes' || currentSectionKey === 'ai') return;
+            if (dailyData.solvedIds.includes(qId)) return;
+
+            let category = null;
+            let catTitle = '';
+
+            if ((qId >= 1 && qId <= 70) || (qId >= 3000 && qId <= 3200)) {
+                category = 'prep';
+            } else if ((qId >= 71 && qId <= 130) || (qId >= 3201 && qId <= 3500)) {
+                category = 'conj';
+            } else if (qId >= 131 && qId <= 190) {
+                category = 'rel';
+            } else if ((qId >= 191 && qId <= 250) || (qId >= 3501 && qId <= 3800)) {
+                category = 'tense';
+            } else if (qId >= 1000 && qId <= 2999) {
+                category = 'vocab';
+            } else if (qId >= 3801 && qId <= 4200) {
+                category = 'examVocab';
+            }
+
+            if (category) {
+                dailyData.current[category]++;
+                dailyData.solvedIds.push(qId);
+                localStorage.setItem('yds_daily_goals', JSON.stringify(dailyData));
+
+                if (dailyData.current[category] === dailyData.targets[category]) {
+                    showGoalCelebration(dailyData.targets[category] === dailyData.current[category] ? 
+                        categories.find(c => c.key === category)?.title || category : category);
+                }
+            }
+        }
+
+        function showGoalCelebration(title) {
+            document.getElementById('goalToastBody').innerText = `Tebrikler! "${title}" hedefini tamamladin!`;
+            document.getElementById('goalToast').classList.add('show');
+            setTimeout(() => {
+                document.getElementById('goalToast').classList.remove('show');
+            }, 4000);
+        }
+
+        // =====================================================
+        // AI FUNCTIONS
+        // =====================================================
+
+        function openSettings() {
+            document.getElementById('apiKeyInput').value = userApiKey;
+            document.getElementById('apiModal').classList.remove('hidden');
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (key.length > 20) {
+                userApiKey = key;
+                localStorage.setItem('yds_gemini_key', userApiKey);
+                closeModal('apiModal');
+                showToast('API anahtari kaydedildi!');
+            } else {
+                showToast('Gecerli bir anahtar giriniz.');
+            }
+        }
+
+        async function getAiAnalysis(qId) {
+            if (!userApiKey) {
+                showToast('API anahtari eksik!');
+                openSettings();
+                return;
+            }
+
+            const q = allQuestions.find(i => i.id === qId) || generatedQuestions.find(i => i.id === qId);
+            if (!q) return;
+
+            if (q.aiAnalysisData) {
+                showTipBox(qId, 'Analiz & Ceviri', q.aiAnalysisData);
+                return;
+            }
+
+            showLoading(qId, 'Analiz yapiliyor...');
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${userApiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `Sen uzman bir YDS ogretmenisin. Bu soruyu analiz et:
+                                
+Soru: "${q.text}"
+Siklar: A) ${q.options.A}, B) ${q.options.B}, C) ${q.options.C}, D) ${q.options.D}, E) ${q.options.E}
+Dogru: ${q.correctAnswer}
+
+Kisaca acikla:
+1. Turkce cevirisi
+2. Neden dogru?
+3. Kisa ipucu`
+                            }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error.message);
+                if (!data.candidates?.[0]?.content) throw new Error('Yanit alinamadi');
+
+                q.aiAnalysisData = data.candidates[0].content.parts[0].text.replace(/\n/g, '<br>');
+                showTipBox(qId, 'Analiz & Ceviri', q.aiAnalysisData);
+            } catch (e) {
+                showError(qId, e.message);
+            }
+        }
+
+        async function generateAiQuestions(sourceId) {
+            if (!userApiKey) {
+                showToast('API anahtari eksik!');
+                openSettings();
+                return;
+            }
+
+            const sourceQ = allQuestions.find(q => q.id === sourceId) || generatedQuestions.find(q => q.id === sourceId);
+            if (!sourceQ) return;
+
+            showLoadingOverlay();
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${userApiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `YDS icin 3 benzer soru olustur. JSON formatinda:
+                                
+Orijinal Soru: "${sourceQ.text}"
+Dogru Cevap: ${sourceQ.correctAnswer}
+
+Kurallar:
+- Ayni gramer yapisini kullani
+- JSON dizisi formatinda
+- Her soru icin: text, options (A-E), correctAnswer, tip`
+                            }]
+                        }],
+                        generationConfig: { response_mime_type: 'application/json' }
+                    })
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error.message);
+
+                const newQuestions = JSON.parse(data.candidates[0].content.parts[0].text);
+                
+                newQuestions.forEach((nq, i) => {
+                    generatedQuestions.push({
+                        id: Date.now() + i,
+                        text: nq.text,
+                        options: nq.options,
+                        correctAnswer: nq.correctAnswer,
+                        tip: nq.tip + ' (AI)',
+                        isAi: true
+                    });
+                });
+
+                localStorage.setItem('yds_generated', JSON.stringify(generatedQuestions));
+                renderMenu();
+                showToast(`${newQuestions.length} yeni soru uretildi!`);
+
+            } catch (e) {
+                showToast('Hata: ' + e.message);
+            } finally {
+                hideLoadingOverlay();
+            }
+        }
+
+        // =====================================================
+        // UTILITY FUNCTIONS
+        // =====================================================
+
+        function showTipBox(qId, title, content) {
+            const box = document.getElementById(`tip-${qId}`);
+            if (box) {
+                box.innerHTML = `<strong class="text-[var(--accent-cyan)]"><i class="bi bi-lightbulb mr-1"></i> ${title}:</strong><br><br>${content}`;
+                box.classList.remove('hidden');
+            }
+        }
+
+        function showLoading(qId, msg) {
+            const box = document.getElementById(`tip-${qId}`);
+            if (box) {
+                box.innerHTML = `<div class="flex items-center gap-2"><div class="w-4 h-4 border-2 border-[var(--accent-cyan)] border-t-transparent rounded-full animate-spin"></div><span>${msg}</span></div>`;
+                box.classList.remove('hidden');
+            }
+        }
+
+        function showError(qId, msg) {
+            const box = document.getElementById(`tip-${qId}`);
+            if (box) {
+                box.innerHTML = `<span class="text-red-400">Hata: ${msg}</span>`;
+                box.classList.remove('hidden');
+            }
+        }
+
+        function goToFirstUnsolved() {
+            let list = [];
+            
+            if (currentSectionKey === 'mistakes') {
+                list = allQuestions.filter(q => wrongBank.includes(q.id)).concat(
+                    generatedQuestions.filter(q => wrongBank.includes(q.id))
+                );
+            } else if (currentSectionKey === 'ai') {
+                list = [...generatedQuestions].reverse();
+            } else {
+                const secData = sections.find(s => s.key === currentSectionKey);
+                if (secData) {
+                    list = allQuestions.filter(q => q.id >= secData.start && q.id <= secData.end);
+                }
+            }
+
+            if (!list.length) {
+                showToast('Bu bolumde soru yok!');
+                return;
+            }
+
+            let targetIndex = list.findIndex(q => !progressData[q.id]);
+            if (targetIndex === -1) targetIndex = list.length - 1;
+
+            const target = list[targetIndex];
+            
+            if (renderLimit <= targetIndex + 5) {
+                renderLimit = targetIndex + 25;
+            }
+
+            renderQuestions(list);
+
+            setTimeout(() => {
+                const el = document.getElementById(`card-${target.id}`);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.style.boxShadow = '0 0 0 2px var(--accent-cyan)';
+                    setTimeout(() => el.style.boxShadow = '', 2000);
+                }
+            }, 100);
+        }
+
+        function loadMoreQuestions() {
+            renderLimit += 50;
+            
+            let list = [];
+            if (currentSectionKey === 'mistakes') {
+                list = allQuestions.filter(q => wrongBank.includes(q.id));
+            } else if (currentSectionKey === 'ai') {
+                list = [...generatedQuestions].reverse();
+            } else {
+                const secData = sections.find(s => s.key === currentSectionKey);
+                if (secData) {
+                    list = allQuestions.filter(q => q.id >= secData.start && q.id <= secData.end);
+                }
+            }
+
+            if (list.length) renderQuestions(list);
+        }
+
+        function toggleTheme() {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            localStorage.setItem('yds_theme', isDark ? 'light' : 'dark');
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function showLoadingOverlay() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoadingOverlay() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        function showToast(msg) {
+            document.getElementById('goalToastBody').innerText = msg;
+            document.getElementById('goalToast').classList.add('show');
+            setTimeout(() => document.getElementById('goalToast').classList.remove('show'), 3000);
+        }
+
+        // Initialize particles
+        function createParticles() {
+            const bg = document.querySelector('.animated-bg');
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.cssText = `
+                    width: ${2 + Math.random() * 3}px;
+                    height: ${2 + Math.random() * 3}px;
+                    background: var(--accent-cyan);
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    animation: float ${15 + Math.random() * 10}s ease-in-out infinite;
+                    animation-delay: ${-Math.random() * 10}s;
+                `;
+                bg.appendChild(particle);
+            }
+
+            // Add float keyframes
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes float {
+                    0%, 100% { transform: translate(0, 0); }
+                    25% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px); }
+                    50% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px); }
+                    75% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Run on load
+        setTimeout(createParticles, 500);
+        setTimeout(hideLoadingOverlay, 800);
+    </script>
+</body>
+</html>
