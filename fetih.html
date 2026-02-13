@@ -8484,6 +8484,10 @@ async function loadSvgMap() {
 }
 
 function renderAll() {
+    // --- BURAYI EKLE (BAŞLANGIÇ) ---
+    document.getElementById('p1-name').innerText = players.p1.name;
+    document.getElementById('p2-name').innerText = players.p2.name;
+    // --- BURAYI EKLE (BİTİŞ) ---
     // 1. Skorlar
     document.getElementById('p1-gold').innerText = players.p1.gold;
     document.getElementById('p2-gold').innerText = players.p2.gold;
@@ -8538,7 +8542,7 @@ function drawIconGroup(loc, list, owner) {
     
     const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     g.innerHTML = `
-        <image href="${icon}" x="${b.x+b.width/2-20+off}" y="${b.y+b.height/2-20}" width="40" height="40" class="map-icon"/>
+        <image href="${icon}" x="${b.x+b.width/2-20+off}" y="${b.y+b.height/2-20}" width="50" height="50" class="map-icon"/>
         <circle cx="${b.x+b.width/2+14+off}" cy="${b.y+b.height/2+14}" r="8" fill="red" stroke="white" stroke-width="1.5"/>
         <text x="${b.x+b.width/2+14+off}" y="${b.y+b.height/2+17}" class="unit-badge" text-anchor="middle" font-size="11" fill="white">${total}</text>
     `;
