@@ -7770,23 +7770,46 @@ function joinGame() {
     if(peer) peer.destroy();
     
     const peerId = 'yds-fetih-' + room;
+    document.getElementById('lobby-status').innerHTML = '<span class="text-info">⏳ Bağlanılıyor...</span>';
     
     peer = new Peer(null, { 
         debug: 1, config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }, serialization: 'json' 
     });
 
     peer.on('open', () => { 
-        conn = peer.connect(peerId, { serialization: 'json' }); 
+        conn = peer.connect(peerId, { serialization: 'json', reliable: true }); 
         isHost = false; 
         players.p2.name = name; 
-        setupConnection(); 
+        
+        conn.on('open', () => {
+            conn.send({ type: 'JOIN', p2Name: players.p2.name });
+            document.getElementById('lobby-status').innerHTML = '<span class="text-success">✅ Bağlandı!</span>';
+        });
+        
+        conn.on('data', handleData);
+        
+        conn.on('error', (err) => {
+            document.getElementById('lobby-status').innerHTML = '<span class="text-danger">❌ Bağlantı hatası: ' + err + '</span>';
+        });
+    });
+
+    peer.on('error', (err) => {
+        if(err.type === 'peer-unavailable') {
+            document.getElementById('lobby-status').innerHTML = '<span class="text-danger">❌ Oda bulunamadı! Host\'un odayı açtığından emin ol.</span>';
+        } else {
+            document.getElementById('lobby-status').innerHTML = '<span class="text-danger">❌ Hata: ' + err.type + '</span>';
+        }
     });
 }
 
 function setupConnection() {
     conn.on('data', handleData);
     conn.on('open', () => {
-        conn.send(isHost ? { type: 'INIT', p1Name: players.p1.name } : { type: 'JOIN', p2Name: players.p2.name });
+        if(isHost) conn.send({ type: 'INIT', p1Name: players.p1.name });
+    });
+    conn.on('error', (err) => {
+        console.error('Bağlantı hatası:', err);
+        document.getElementById('lobby-status').innerHTML = '<span class="text-danger">❌ Bağlantı koptu!</span>';
     });
 }
 
