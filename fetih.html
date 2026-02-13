@@ -7695,24 +7695,40 @@ let players = {
 // ============================================================
 // PEERJS BAĞLANTI
 // ============================================================
+// HOST İÇİN (createGame fonksiyonu içi)
 function createGame() {
     const room = document.getElementById('room-id').value.trim();
     const name = document.getElementById('player-name').value.trim() || "Mavi";
     if(!room) return alert("Oda ismi girin!");
     if(peer) peer.destroy();
-    peer = new Peer(room, { debug: 1 });
+    
+    // DEĞİŞEN KISIM BURASI: { serialization: 'json' } EKLENDİ
+    peer = new Peer(room, { 
+        debug: 1,
+        config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] },
+        serialization: 'json' 
+    });
+    
     peer.on('open', () => { isHost = true; players.p1.name = name; document.getElementById('lobby-status').innerHTML = '<span class="text-success">✅ Oda Açıldı! Rakip bekleniyor...</span>'; });
     peer.on('error', e => alert(e.type === 'unavailable-id' ? "Oda ismi dolu!" : "Hata: " + e.type));
     peer.on('connection', c => { conn = c; setupConnection(); });
 }
 
+// MİSAFİR İÇİN (joinGame fonksiyonu içi)
 function joinGame() {
     const room = document.getElementById('room-id').value.trim();
     const name = document.getElementById('player-name').value.trim() || "Kırmızı";
     if(!room) return alert("Oda ismi girin!");
     if(peer) peer.destroy();
-    peer = new Peer();
-    peer.on('open', () => { conn = peer.connect(room); isHost = false; players.p2.name = name; setupConnection(); });
+    
+    // DEĞİŞEN KISIM BURASI: { serialization: 'json' } EKLENDİ
+    peer = new Peer(null, { 
+        debug: 1, 
+        config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] },
+        serialization: 'json' 
+    });
+
+    peer.on('open', () => { conn = peer.connect(room, { serialization: 'json' }); isHost = false; players.p2.name = name; setupConnection(); });
     peer.on('error', e => alert("Bağlantı hatası: " + e.type));
 }
 
@@ -7749,10 +7765,10 @@ function handleData(data) {
             if(data.queue) turnQueue = data.queue;
             if(data.lockedCities) turnLockedCities = data.lockedCities;
             if(data.msg) showGameToast(data.msg);
-            renderMapState();
-            setTimeout(renderMapState, 200);
-            setTimeout(renderMapState, 600);
-            setTimeout(renderMapState, 1200);
+            
+            // ESKİ SETTIMEOUT'LARI SİLİN, SADECE BUNU KULLANIN:
+            renderMapState(); 
+            
             updateExpansionStatus();
             if(data.gameOver) return endGame(data.winner, data.reason, data.scores);
             if(isHost) checkTurnProgress();
