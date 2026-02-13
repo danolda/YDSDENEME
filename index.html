@@ -8739,8 +8739,15 @@ function showGoalCelebration(categoryTitle) {
     }
 }
 
-// --- 2. GÜNCELLENMİŞ CEVAP KONTROLÜ (KONFETİ KALDIRILDI) ---
+/* ================= CEVAP KONTROLÜ (TEKRAR TIKLAMA ENGELLİ) ================= */
 window.checkAnswer = function(qId, selectedOpt) {
+    // --- KORUMA KALKANI: Eğer soru daha önce çözüldüyse HİÇBİR ŞEY YAPMA ---
+    if (progressData[qId]) {
+        console.log("Bu soru zaten çözüldü.");
+        return; 
+    }
+    // -----------------------------------------------------------------------
+
     // Soruyu bul
     let q = allQuestions.find(i => i.id === qId) || generatedQuestions.find(i => i.id === qId);
     if(!q) return;
@@ -8749,10 +8756,10 @@ window.checkAnswer = function(qId, selectedOpt) {
     const feedbackDiv = document.getElementById(`feedback-${qId}`);
     const tipDiv = document.getElementById(`tip-${qId}`);
     
-    // Şıkları kilitle
+    // Şıkları kilitle ve boya
     const rows = container.querySelectorAll('.option-row');
     rows.forEach(row => {
-        row.classList.add('disabled-opts'); 
+        row.classList.add('disabled-opts'); // Görsel olarak da tıkla namaz yap
         const btnText = row.querySelector('.btn-circle').innerText;
         if (btnText === q.correctAnswer) row.classList.add('opt-correct');
         else if (btnText === selectedOpt && selectedOpt !== q.correctAnswer) row.classList.add('opt-wrong');
@@ -8764,14 +8771,12 @@ window.checkAnswer = function(qId, selectedOpt) {
         feedbackDiv.innerHTML = `<div class="mt-2 text-success fw-bold"><i class="bi bi-check-circle"></i> Doğru!</div>`;
         if(!q.aiExplanation && tipDiv) tipDiv.style.display = 'none';
         
-        // Puanlama (Normal Soruysa)
-        if (!q.isAi) { 
+        // Puanlama
+        if (!q.isAi) {
             let points = 0;
-            if (progressData[qId] !== 'correct') {
-                if (currentSectionKey === 'mistakes') points = 50; 
-                else points = 100;
-                addScorePoints(points); 
-            }
+            if (currentSectionKey === 'mistakes') points = 50;
+            else points = 100;
+            addScorePoints(points);
         }
 
         if (wrongBank.includes(qId)) {
@@ -8780,10 +8785,7 @@ window.checkAnswer = function(qId, selectedOpt) {
             const badge = document.querySelector('#menu-mistakes .badge');
             if(badge) badge.innerText = wrongBank.length;
         }
-        progressData[qId] = 'correct';
-
-        // --- DİKKAT: Konfeti kodu buradan SİLİNDİ ---
-        // Sadece günlük hedef takibini çağırıyoruz, eğer hedef tamamlanırsa K.O. oradan tetiklenecek.
+        progressData[qId] = 'correct'; // Kaydet
 
     } else {
         feedbackDiv.innerHTML = `<div class="mt-2 text-danger fw-bold"><i class="bi bi-x-circle"></i> Yanlış. Cevap: ${q.correctAnswer}</div>`;
@@ -8795,16 +8797,16 @@ window.checkAnswer = function(qId, selectedOpt) {
             const badge = document.querySelector('#menu-mistakes .badge');
             if(badge) badge.innerText = wrongBank.length;
         }
-        progressData[qId] = 'wrong';
+        progressData[qId] = 'wrong'; // Kaydet
         progressData[qId + '_selected'] = selectedOpt;
     }
 
     localStorage.setItem('yds_progress', JSON.stringify(progressData));
     
-    // Hedef kontrolü (Bu fonksiyon içinde K.O. tetiklenir)
+    // Hedef kontrolü
     if(typeof trackDailyProgress === "function") trackDailyProgress(qId);
 };
-
+    
 function goToFirstUnsolved() {
     if (!currentSectionKey) { alert("Lütfen bölüm seçiniz."); return; }
 
@@ -9614,7 +9616,104 @@ document.addEventListener('hidden.bs.modal', function () {
     document.body.style.overflow = 'auto';
     document.body.style.paddingRight = '0';
 });
-    
+/* ================= AI METİN DÜZELTİCİ VE GÜNCELLENMİŞ AI FONKSİYONLARI ================= */
+
+// Markdown yıldızlarını HTML kalın yazısına çeviren fonksiyon
+function formatAiOutput(text) {
+    if (!text) return "";
+    return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-warning">$1</strong>') // **yazı** -> Sarı ve Kalın
+        .replace(/\*(.*?)\*/g, '<em>$1</em>') // *yazı* -> İtalik
+        .replace(/\n/g, '<br>'); // Satır sonlarını HTML'e uyarla
+}
+
+// 1. KELİME ÖRNEK CÜMLE (GÜNCELLENMİŞ)
+async function getAiVocabExample(questionId) {
+    if(!userApiKey) { alert("API Anahtarı eksik! Ayarlardan ekleyin."); openSettings(); return; }
+
+    let q = allQuestions.find(i => i.id === questionId);
+    if(!q) return;
+
+    if(q.aiVocabData) {
+        showTipBox(q.id, "Örnek Cümle & Çeviri", "bi-chat-quote-fill", q.aiVocabData);
+        return;
+    }
+
+    showLoading(q.id, "Örnek cümle hazırlanıyor...");
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${userApiKey}`;
+    const prompt = `
+        Sen bir YDS İngilizce öğretmenisin. Aşağıdaki kelime sorusu verilerini analiz et.
+        SORU: "${q.text}"
+        CEVAP: "${q.options[q.correctAnswer]}"
+        GÖREV: Bu sorudaki hedef akademik kelimeyi bul, onunla YDS seviyesinde İngilizce cümle kur ve Türkçeye çevir.
+        ÇIKTI FORMATI: Kelimeyi **bu şekilde yıldız içine al** ki kalın görünsün.
+    `;
+
+    try {
+        const rawData = await callGemini(url, prompt);
+        q.aiVocabData = formatAiOutput(rawData); // FORMATLAMA BURADA YAPILIYOR
+        showTipBox(q.id, "Örnek Cümle & Çeviri", "bi-chat-quote-fill", q.aiVocabData);
+    } catch (e) { showError(q.id, e.message); }
+}
+
+// 2. ANALİZ VE ÇEVİRİ (GÜNCELLENMİŞ)
+async function getAiAnalysis(questionId) {
+    if(!userApiKey) { alert("API Anahtarı eksik!"); openSettings(); return; }
+
+    let q = allQuestions.find(i => i.id === questionId) || generatedQuestions.find(i => i.id === questionId);
+    if(!q) return;
+
+    if(q.aiAnalysisData) {
+        showTipBox(q.id, "Analiz & Çeviri", "bi-translate", q.aiAnalysisData);
+        return;
+    }
+
+    showLoading(q.id, "Analiz yapılıyor...");
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${userApiKey}`;
+    const prompt = `
+        Soru: "${q.text}"
+        Şıklar: A) ${q.options.A}, B) ${q.options.B}, C) ${q.options.C}, D) ${q.options.D}, E) ${q.options.E}
+        Doğru Cevap: ${q.correctAnswer}
+        GÖREV: 1) Soruyu Türkçeye çevir. 2) Doğru cevabı açıkla. 3) Yanlış şıkları kısaca açıkla.
+        ÖNEMLİ: Önemli yerleri **yıldızlar içine alarak** vurgula.
+    `;
+
+    try {
+        const rawData = await callGemini(url, prompt);
+        q.aiAnalysisData = formatAiOutput(rawData); // FORMATLAMA BURADA YAPILIYOR
+        showTipBox(q.id, "Analiz & Çeviri", "bi-translate", q.aiAnalysisData);
+    } catch (e) { showError(q.id, e.message); }
+}
+
+// 3. TÜYO (GÜNCELLENMİŞ)
+async function getAiTip(questionId) {
+    if(!userApiKey) { alert("API Anahtarı eksik!"); openSettings(); return; }
+
+    let q = allQuestions.find(i => i.id === questionId) || generatedQuestions.find(i => i.id === questionId);
+    if(!q) return;
+
+    if(q.aiTipData) {
+        showTipBox(q.id, "Altın Tüyo", "bi-stars", q.aiTipData);
+        return;
+    }
+
+    showLoading(q.id, "Tüyo hazırlanıyor...");
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${userApiKey}`;
+    const prompt = `
+        Soru: "${q.text}"
+        Cevap: ${q.correctAnswer}
+        GÖREV: Sadece kısa bir sınav tüyosu ver. İpucu kelimeleri **kalın** yaz.
+    `;
+
+    try {
+        const rawData = await callGemini(url, prompt);
+        q.aiTipData = formatAiOutput(rawData); // FORMATLAMA BURADA YAPILIYOR
+        showTipBox(q.id, "Altın Tüyo", "bi-stars", q.aiTipData);
+    } catch (e) { showError(q.id, e.message); }
+}    
 </script>
     
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
