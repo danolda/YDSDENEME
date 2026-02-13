@@ -235,6 +235,52 @@
 
     @keyframes slideDown { from {top: -50px;} to {top: 20px;} }
     @keyframes fadeOut { from {opacity: 1;} to {opacity: 0;} }
+
+        /* --- ŞIKLAR İÇİN DARK MODE DÜZELTMESİ (EN ALTA EKLE) --- */
+
+    /* 1. Şık Kutusu ve Metin Rengi */
+    [data-theme="dark"] .option-row {
+        background-color: #1e293b !important; /* Koyu Gri Arkaplan */
+        border-color: #475569 !important;      /* Gri Çerçeve */
+    }
+
+    /* 2. Şıkkın İçindeki Yazı (Kesin Beyaz) */
+    [data-theme="dark"] .option-row .option-text,
+    [data-theme="dark"] .option-row div {
+        color: #ffffff !important;
+        font-weight: 500;
+    }
+
+    /* 3. Şıkkın Üzerine Gelince (Hover) */
+    [data-theme="dark"] .option-row:hover:not(.disabled-opts) {
+        background-color: #334155 !important; /* Biraz daha açık gri */
+        border-color: #94a3b8 !important;
+    }
+
+    /* 4. Harf Yuvarlağı (A, B, C...) */
+    [data-theme="dark"] .btn-circle {
+        background-color: #0f172a !important; /* Çok koyu lacivert */
+        border-color: #64748b !important;
+        color: #e2e8f0 !important; /* Harf rengi beyazımsı */
+    }
+
+    /* 5. Doğru Cevap (Koyu Modda Yeşil) */
+    [data-theme="dark"] .opt-correct {
+        background-color: rgba(6, 95, 70, 0.6) !important; /* Koyu Yeşil Transparan */
+        border-color: #10b981 !important;
+    }
+    [data-theme="dark"] .opt-correct .option-text {
+        color: #6ee7b7 !important; /* Açık Yeşil Yazı */
+    }
+
+    /* 6. Yanlış Cevap (Koyu Modda Kırmızı) */
+    [data-theme="dark"] .opt-wrong {
+        background-color: rgba(127, 29, 29, 0.6) !important; /* Koyu Kırmızı Transparan */
+        border-color: #ef4444 !important;
+    }
+    [data-theme="dark"] .opt-wrong .option-text {
+        color: #fca5a5 !important; /* Açık Kırmızı Yazı */
+    }
 </style>
 </style>
 </head>
