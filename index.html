@@ -454,7 +454,9 @@
         <a href="hatirlatici.html" class="btn btn-outline-warning btn-sm" target="_blank">
             <i class="bi bi-alarm-fill"></i> Hatırlatıcı
         </a>
-            
+            <a href="fetih.html" class="btn btn-outline-danger btn-sm" target="_blank">
+            <i class="bi bi-shield-shaded"></i> Fetih
+        </a>
             <!-- MEVCUT BUTONLAR -->
             <button class="btn btn-primary btn-sm mx-1" onclick="openSettings()">
                 <i class="bi bi-gear-fill"></i> API
@@ -8741,8 +8743,8 @@ function showGoalCelebration(categoryTitle) {
 
 /* ================= CEVAP KONTROLÜ (TEKRAR TIKLAMA ENGELLİ) ================= */
 window.checkAnswer = function(qId, selectedOpt) {
-    // --- KORUMA KALKANI: Eğer soru daha önce çözüldüyse HİÇBİR ŞEY YAPMA ---
-    if (progressData[qId]) {
+    // YANLIŞLARIM bölümünde tekrar cevaplanabilir olmalı
+    if (progressData[qId] && currentSectionKey !== 'mistakes') {
         console.log("Bu soru zaten çözüldü.");
         return; 
     }
@@ -8797,7 +8799,15 @@ window.checkAnswer = function(qId, selectedOpt) {
             const badge = document.querySelector('#menu-mistakes .badge');
             if(badge) badge.innerText = wrongBank.length;
         }
-        progressData[qId] = 'wrong'; // Kaydet
+        
+        // Hatırlatıcıya ayrı listeye de gönder
+        let srsBank = JSON.parse(localStorage.getItem('yds_srs_bank')) || [];
+        if (!srsBank.includes(qId)) {
+            srsBank.push(qId);
+            localStorage.setItem('yds_srs_bank', JSON.stringify(srsBank));
+        }
+        
+        progressData[qId] = 'wrong';
         progressData[qId + '_selected'] = selectedOpt;
     }
 
