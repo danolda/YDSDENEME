@@ -7982,26 +7982,25 @@ function distributeRewards(p1Ok, p2Ok, t1, t2) {
     if(p1Ok && p2Ok) {
         if(t1 < t2) { 
             players.p1.gold += 250; players.p2.gold += 200; 
-            turnQueue = ['p1', 'p2']; // Mavi Hızlı -> Önce Mavi, Sonra Kırmızı
-            msg="Mavi Hızlı! (+250)"; 
+            turnQueue = ['p1', 'p2'];
+            msg=players.p1.name + " Hızlı! (+250)"; 
         } else { 
             players.p2.gold += 250; players.p1.gold += 200; 
-            turnQueue = ['p2', 'p1']; // Kırmızı Hızlı -> Önce Kırmızı, Sonra Mavi
-            msg="Kırmızı Hızlı! (+250)"; 
+            turnQueue = ['p2', 'p1'];
+            msg=players.p2.name + " Hızlı! (+250)"; 
         }
     } else if(p1Ok) {
         players.p1.gold += 500; 
-        turnQueue = ['p1', 'p2']; // Sadece Mavi bildi -> Mavi başlar
-        msg="Mavi Bildi! (+500)";
+        turnQueue = ['p1', 'p2'];
+        msg=players.p1.name + " Bildi! (+500)";
     } else if(p2Ok) {
         players.p2.gold += 500; 
-        turnQueue = ['p2', 'p1']; // Sadece Kırmızı bildi -> Kırmızı başlar
-        msg="Kırmızı Bildi! (+500)";
+        turnQueue = ['p2', 'p1'];
+        msg=players.p2.name + " Bildi! (+500)";
     } else {
-        // Kimse bilemedi, rastgele biri başlar
         const rnd = Math.random() > 0.5 ? 'p1' : 'p2';
         turnQueue = (rnd === 'p1') ? ['p1', 'p2'] : ['p2', 'p1'];
-        msg="Kimse bilemedi! Sıra: " + (rnd==='p1'?"Mavi":"Kırmızı");
+        msg="Kimse bilemedi! Sıra: " + players[rnd].name;
     }
 
     // Hareket haklarını sıfırla (Her iki oyuncu için)
