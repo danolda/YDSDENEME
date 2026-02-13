@@ -46,12 +46,12 @@
         }
         @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        #status-bar {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.8); padding: 10px 30px; border-radius: 30px;
-            font-size: 1.2rem; font-weight: bold; border: 1px solid white;
-            z-index: 100; display: none; white-space: nowrap; pointer-events: none;
-        }
+            #status-bar {
+        position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+        background: rgba(0,0,0,0.8); padding: 8px 20px; border-radius: 20px;
+        font-size: 1rem; font-weight: bold; border: 1px solid white;
+        z-index: 400; display: none; white-space: nowrap; pointer-events: none;
+    }
         
         .map-icon { pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); transition: all 0.3s; }
         .unit-badge {
@@ -70,13 +70,30 @@
         .city-label-owned { fill: white; stroke: black; stroke-width: 2.5px; opacity: 1; font-weight: 800; }
 
         /* Savaş Efektleri */
-        .game-toast {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9); color: white; padding: 20px; border-radius: 15px;
-            border: 2px solid var(--gold); z-index: 300; pointer-events: none;
-            animation: toastPop 2.5s forwards; font-size: 1.5rem; text-align: center;
-        }
-        @keyframes toastPop { 0% { opacity: 0; transform: translate(-50%, -40%); } 20% { opacity: 1; transform: translate(-50%, -50%); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -60%); } }
+            .game-toast {
+        position: fixed; 
+        top: 15px; 
+        left: 50%; 
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.85); 
+        color: white; 
+        padding: 10px 25px; 
+        border-radius: 8px;
+        border: 1px solid var(--gold); 
+        z-index: 500; 
+        pointer-events: none;
+        animation: toastSlide 2.5s forwards; 
+        font-size: 1rem; 
+        text-align: center;
+        white-space: nowrap;
+        max-width: 90vw;
+    }
+    @keyframes toastSlide { 
+        0% { opacity: 0; transform: translateX(-50%) translateY(-20px); } 
+        15% { opacity: 1; transform: translateX(-50%) translateY(0); } 
+        75% { opacity: 1; } 
+        100% { opacity: 0; transform: translateX(-50%) translateY(-10px); } 
+    }
 
         .unit-select-card {
             border: 2px solid #555; border-radius: 8px; padding: 10px; margin-bottom: 10px;
@@ -168,6 +185,38 @@
 #screen-setup {
     background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.9)),
                 url('https://images.unsplash.com/photo-1562753619-0e854da5e034?w=1920&q=80') center/cover no-repeat;
+}
+        /* --- TELEFONDA YATAY MOD ZORLAMA --- */
+@media (max-width: 900px) and (orientation: portrait) {
+    #screen-game::before {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.95);
+        z-index: 9999;
+    }
+    #screen-game::after {
+        content: '📱↻ Telefonunu Yan Çevir!';
+        position: fixed;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        color: #f1c40f;
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-align: center;
+        z-index: 10000;
+        letter-spacing: 1px;
+        white-space: nowrap;
+    }
+}
+
+/* Yatay moddayken haritayı tam ekran yap */
+@media (max-width: 900px) and (orientation: landscape) {
+    #map-container { height: 100vh !important; }
+    .game-header { transform: scale(0.75); transform-origin: top center; }
+    .player-card { min-width: 160px !important; padding: 6px 10px !important; }
+    .player-card h4 { font-size: 0.9rem !important; }
+    .stat-box { font-size: 0.75rem !important; margin-bottom: 2px !important; }
 }
         
     </style>
@@ -8403,9 +8452,9 @@ function drawIconGroup(loc, list, owner) {
     
     const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     g.innerHTML = `
-        <image href="${icon}" x="${b.x+b.width/2-15+off}" y="${b.y+b.height/2-15}" width="30" height="30" class="map-icon"/>
-        <circle cx="${b.x+b.width/2+10+off}" cy="${b.y+b.height/2+10}" r="6" fill="red" stroke="white"/>
-        <text x="${b.x+b.width/2+10+off}" y="${b.y+b.height/2+12}" class="unit-badge" text-anchor="middle" font-size="9" fill="white">${total}</text>
+        <image href="${icon}" x="${b.x+b.width/2-20+off}" y="${b.y+b.height/2-20}" width="40" height="40" class="map-icon"/>
+        <circle cx="${b.x+b.width/2+14+off}" cy="${b.y+b.height/2+14}" r="8" fill="red" stroke="white" stroke-width="1.5"/>
+        <text x="${b.x+b.width/2+14+off}" y="${b.y+b.height/2+17}" class="unit-badge" text-anchor="middle" font-size="11" fill="white">${total}</text>
     `;
     document.getElementById('icon-layer').appendChild(g);
 }
@@ -8416,10 +8465,10 @@ function drawCastle(loc, owner) {
     const b = p.getBBox();
     const g = document.createElementNS("http://www.w3.org/2000/svg", "image");
     g.setAttribute("href", "./castle.svg");
-    g.setAttribute("x", b.x + b.width/2 - 20);
-    g.setAttribute("y", b.y + b.height/2 - 25); // Biraz daha yukarı
-    g.setAttribute("width", 40);
-    g.setAttribute("height", 40);
+    g.setAttribute("x", b.x + b.width/2 - 28);
+    g.setAttribute("y", b.y + b.height/2 - 32);
+    g.setAttribute("width", 56);
+    g.setAttribute("height", 56);
     g.style.pointerEvents = "none";
     document.getElementById('icon-layer').appendChild(g);
 }
