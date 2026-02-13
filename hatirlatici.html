@@ -7393,7 +7393,7 @@ const rawExamVocabA = `1-C 2-D 3-A 4-A 5-E 6-B 7-E 8-E 9-B 10-A 11-C 12-D 13-C 1
 
     let allQuestions = [];
     let generatedQuestions = [];
-    let wrongBank = JSON.parse(localStorage.getItem('yds_mistakes')) || [];
+    let wrongBank = JSON.parse(localStorage.getItem('yds_srs_bank')) || [];
     let srsSchedule = JSON.parse(localStorage.getItem('yds_srs_schedule')) || {};
     
     // Varsayılan 7 gün, kullanıcı değiştirirse kaydeder
@@ -7418,7 +7418,7 @@ document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
         console.log("Sekme aktifleşti, veriler güncelleniyor...");
         // Ayarları tekrar yükle (başka sekmede değişmiş olabilir)
-        wrongBank = JSON.parse(localStorage.getItem('yds_mistakes')) || [];
+        wrongBank = JSON.parse(localStorage.getItem('yds_srs_bank')) || [];
         userReminderDays = parseInt(localStorage.getItem('yds_reminder_days')) || 7;
         
         // Fonksiyonları tekrar çalıştır
@@ -7562,7 +7562,7 @@ document.addEventListener("visibilitychange", () => {
 // --- SENKRONİZASYON (GÜNCELLENMİŞ) ---
 function syncWithMainApp() {
     // KRİTİK DÜZELTME: Veriyi hafızadan (RAM) değil, Depodan (LocalStorage) taze çek
-    wrongBank = JSON.parse(localStorage.getItem('yds_mistakes')) || [];
+    wrongBank = JSON.parse(localStorage.getItem('yds_srs_bank')) || [];
     
     const now = Date.now();
     let changed = false;
@@ -7688,7 +7688,7 @@ function syncWithMainApp() {
             // 2. Ana Yanlış Listesinden (wrongBank) sil
             // Filter kullanarak ID'si eşleşmeyenleri (yani diğerlerini) tutuyoruz.
             wrongBank = wrongBank.filter(id => id != qId);
-            localStorage.setItem('yds_mistakes', JSON.stringify(wrongBank));
+            localStorage.setItem('yds_srs_bank', JSON.stringify(wrongBank));
 
             // Sayaçları anlık güncelle (Görsel düzeltme)
             let dueCountEl = document.getElementById('due-count');
