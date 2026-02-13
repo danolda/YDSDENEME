@@ -281,8 +281,97 @@
     [data-theme="dark"] .opt-wrong .option-text {
         color: #fca5a5 !important; /* Açık Kırmızı Yazı */
     }
+
+        /* --- K.O. EFEKTİ (HARDCORE STYLE) --- */
+    #ko-overlay {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        font-size: 12rem; /* Kocaman yazı */
+        font-weight: 900;
+        color: #ef4444; /* Kan kırmızısı */
+        text-shadow: 
+            8px 8px 0px #000, 
+            -2px -2px 0 #fff; /* Sert gölge ve kenar */
+        font-family: 'Arial Black', 'Impact', sans-serif;
+        z-index: 10000;
+        pointer-events: none;
+        letter-spacing: -10px;
+        white-space: nowrap;
+    }
+
+    /* Vuruş Animasyonu */
+    .ko-anim {
+        animation: 
+            ko-stamp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.5) forwards, 
+            ko-shake 0.2s ease-in-out 0.3s,
+            ko-fade 0.5s ease-in 2.5s forwards; /* 2.5 sn ekranda kalır */
+    }
+
+    @keyframes ko-stamp {
+        0% { transform: translate(-50%, -50%) scale(5); opacity: 0; }
+        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    @keyframes ko-shake {
+        0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+        25% { transform: translate(-52%, -48%) rotate(-5deg); }
+        75% { transform: translate(-48%, -52%) rotate(5deg); }
+    }
+
+    @keyframes ko-fade {
+        to { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+    }
+      /* --- MOBİL NAVBAR DÜZENLEMESİ (TAŞMA SORUNU İÇİN) --- */
+    @media (max-width: 768px) {
+        /* Navbar içeriğini sığdır */
+        .navbar .container-fluid {
+            flex-direction: column; /* Alt alta diz */
+            align-items: center;
+            padding: 5px;
+        }
+        
+        .navbar-brand {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        /* Buton grubunu düzenle */
+        .navbar .d-flex {
+            flex-wrap: wrap;       /* Sığmazsa aşağı kaydır */
+            justify-content: center;
+            gap: 5px !important;
+            width: 100%;
+        }
+
+        /* Butonları küçült */
+        .navbar .btn {
+            font-size: 0.75rem;
+            padding: 6px 10px;
+            margin: 2px 0; /* Aralarına mesafe koy */
+        }
+        
+        /* Gereksiz ikonları mobilde gizle, sadece yazı kalsın veya tam tersi */
+        /* Burada her şeyi sığdırmak için paddingi kıstık */
+    }
+
+    /* --- MODAL VE GÖLGE SORUNU (SCROLL KİLİDİ FIX) --- */
+    /* Modalları en üste taşı (Bizim butonların z-index'i 99999 olduğu için modal altta kalıyordu) */
+    .modal-backdrop {
+        z-index: 100000 !important; /* Butonların üstüne çık */
+    }
+    .modal {
+        z-index: 100001 !important; /* Backdrop'un üstüne çık */
+    }
+
+    /* Eğer modal kapanırken takılırsa body'i zorla aç */
+    body.modal-open-fix {
+        overflow: auto !important;
+        padding-right: 0 !important;
+    }  
 </style>
-</style>
+
 </head>
 <body>
 
@@ -8622,33 +8711,48 @@ function renderQuestions(qList) {
         }
     }
 
-    // TEBRİK MESAJINI GÖSTEREN FONKSİYON
-    function showGoalCelebration(categoryTitle) {
-        const toastEl = document.getElementById('goalToast');
-        const toastBody = document.getElementById('goalToastBody');
-        
-        toastBody.innerText = `Harika! Bugünkü "${categoryTitle}" hedefini tamamladın. Başka bir bölüme geçebilirsin! 🚀`;
-        
-        const toast = new bootstrap.Toast(toastEl, { delay: 5000 }); // 5 saniye durur
-        toast.show();
-        
-        // Kutlama sesi efekti (Opsiyonel - browser izin verirse)
-        // const audio = new Audio('https://actions.google.com/sounds/v1/cartoon/clank_car_crash.ogg');
-        // audio.play().catch(e => {}); 
-    }
+// --- 1. GÜNCELLENMİŞ HEDEF KUTLAMASI (K.O. EFEKTİ BURADA) ---
+function showGoalCelebration(categoryTitle) {
+    // A) K.O. Efektini Başlat
+    const koEl = document.getElementById('ko-overlay');
+    const audio = document.getElementById('ko-audio');
     
-function checkAnswer(qId, selectedOpt) {
-    let q = allQuestions.find(i => i.id === qId) || generatedQuestions.find(i => i.id === questionId);
-    if(!q) q = generatedQuestions.find(i => i.id === qId);
+    // Animasyonu sıfırla ve başlat
+    koEl.classList.remove('d-none', 'ko-anim');
+    void koEl.offsetWidth; // CSS Reflow tetikle (Animasyonu resetlemek için)
+    koEl.classList.add('ko-anim');
+    koEl.classList.remove('d-none');
+
+    // Sesi Çal
+    if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(e => console.log("Tarayıcı ses izni vermedi, etkileşim lazım."));
+    }
+
+    // B) Toast Bildirimi (Yanda bilgi olarak kalsın)
+    const toastEl = document.getElementById('goalToast');
+    const toastBody = document.getElementById('goalToastBody');
+    if(toastEl && toastBody) {
+        toastBody.innerText = `GÖREV TAMAMLANDI: ${categoryTitle} ✅`;
+        const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+        toast.show();
+    }
+}
+
+// --- 2. GÜNCELLENMİŞ CEVAP KONTROLÜ (KONFETİ KALDIRILDI) ---
+window.checkAnswer = function(qId, selectedOpt) {
+    // Soruyu bul
+    let q = allQuestions.find(i => i.id === qId) || generatedQuestions.find(i => i.id === qId);
     if(!q) return;
 
     const container = document.getElementById(`opts-${qId}`);
     const feedbackDiv = document.getElementById(`feedback-${qId}`);
     const tipDiv = document.getElementById(`tip-${qId}`);
     
+    // Şıkları kilitle
     const rows = container.querySelectorAll('.option-row');
     rows.forEach(row => {
-        row.classList.add('disabled-opts');
+        row.classList.add('disabled-opts'); 
         const btnText = row.querySelector('.btn-circle').innerText;
         if (btnText === q.correctAnswer) row.classList.add('opt-correct');
         else if (btnText === selectedOpt && selectedOpt !== q.correctAnswer) row.classList.add('opt-wrong');
@@ -8659,64 +8763,47 @@ function checkAnswer(qId, selectedOpt) {
     if (isCorrect) {
         feedbackDiv.innerHTML = `<div class="mt-2 text-success fw-bold"><i class="bi bi-check-circle"></i> Doğru!</div>`;
         if(!q.aiExplanation && tipDiv) tipDiv.style.display = 'none';
-
-        confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#58cc02', '#1cb0f6', '#ffc800'] // Duolingo renkleri
-    });
         
+        // Puanlama (Normal Soruysa)
+        if (!q.isAi) { 
+            let points = 0;
+            if (progressData[qId] !== 'correct') {
+                if (currentSectionKey === 'mistakes') points = 50; 
+                else points = 100;
+                addScorePoints(points); 
+            }
+        }
+
         if (wrongBank.includes(qId)) {
             wrongBank = wrongBank.filter(id => id !== qId);
             localStorage.setItem('yds_mistakes', JSON.stringify(wrongBank));
-            renderMenu(); 
+            const badge = document.querySelector('#menu-mistakes .badge');
+            if(badge) badge.innerText = wrongBank.length;
         }
         progressData[qId] = 'correct';
 
-        // --- YENİ EKLENEN KISIM: PUANLAMA ---
-        if (!q.isAi) { // Yapay Zeka soruları hariç
-            // Eğer daha önce çözülmemişse puan ver
-            if (progressData[qId] !== 'correct') {
-                if (currentSectionKey === 'mistakes') {
-                    addScorePoints(50); // Yanlışlardan: 50 Puan
-                } else {
-                    addScorePoints(100); // Normal Bölümden: 100 Puan
-                }
-            }
-        }
-        // -------------------------------------
-    } 
-    
-    else {
+        // --- DİKKAT: Konfeti kodu buradan SİLİNDİ ---
+        // Sadece günlük hedef takibini çağırıyoruz, eğer hedef tamamlanırsa K.O. oradan tetiklenecek.
+
+    } else {
         feedbackDiv.innerHTML = `<div class="mt-2 text-danger fw-bold"><i class="bi bi-x-circle"></i> Yanlış. Cevap: ${q.correctAnswer}</div>`;
-        
-        if(tipDiv) {
-            if (!q.isExam || (q.isExam && q.aiExplanation)) tipDiv.style.display = 'block';
-        }
+        if(tipDiv && (!q.isExam || (q.isExam && q.aiExplanation))) tipDiv.style.display = 'block';
 
         if (!wrongBank.includes(qId)) {
             wrongBank.push(qId);
             localStorage.setItem('yds_mistakes', JSON.stringify(wrongBank));
-            renderMenu();
+            const badge = document.querySelector('#menu-mistakes .badge');
+            if(badge) badge.innerText = wrongBank.length;
         }
         progressData[qId] = 'wrong';
         progressData[qId + '_selected'] = selectedOpt;
     }
 
     localStorage.setItem('yds_progress', JSON.stringify(progressData));
-    // Progress bar güncellemeyi atlıyoruz, performans için.
     
-    // --- YENİ EKLENEN SATIR ---
-        trackDailyProgress(qId); // Günlük hedef takibini güncelle
-        // --------------------------
-
-        if (currentSectionKey !== 'mistakes') {
-            // ... (varsa diğer kodlar)
-        }
-
-
-}
+    // Hedef kontrolü (Bu fonksiyon içinde K.O. tetiklenir)
+    if(typeof trackDailyProgress === "function") trackDailyProgress(qId);
+};
 
 function goToFirstUnsolved() {
     if (!currentSectionKey) { alert("Lütfen bölüm seçiniz."); return; }
@@ -9515,7 +9602,18 @@ function endGame() {
         winTitle.className = "display-4 fw-bold mb-3 text-warning";
     }
 }
+/* ================= MODAL KAPATMA HATASI DÜZELTİCİ ================= */
+// Tüm modallar kapandığında çalışır
+document.addEventListener('hidden.bs.modal', function () {
+    // 1. Gölgeyi (backdrop) zorla sil
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(bd => bd.remove());
 
+    // 2. Sayfanın kaydırılabilirliğini geri getir
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = 'auto';
+    document.body.style.paddingRight = '0';
+});
     
 </script>
     
@@ -9542,6 +9640,9 @@ function endGame() {
 <button class="scroll-top-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'});" title="Yukarı Çık">
     <i class="bi bi-arrow-up"></i>
 </button>
+    <!-- K.O. EFEKTİ İÇİN ELEMENTLER -->
+<div id="ko-overlay" class="d-none">K.O.</div>
+<audio id="ko-audio" src="ko.mp3" preload="auto"></audio>
     
 </body>
 </html>
