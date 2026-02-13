@@ -55,10 +55,20 @@
     }
         
         .map-icon { pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); transition: all 0.3s; }
+        .army-badge { transition: fill 0.15s; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5)); }
+        .army-badge:hover { fill: #f39c12 !important; }
         .unit-badge {
             font-size: 10px; font-weight: bold; fill: white; text-anchor: middle;
             paint-order: stroke; stroke: black; stroke-width: 3px;
         }
+        /* Soru blur efekti */
+        .q-blurred { filter: blur(8px); user-select: none; pointer-events: none; transition: filter 0.3s; }
+        .q-ready-overlay {
+            position: absolute; top:0; left:0; right:0; bottom:0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.4); z-index: 10; border-radius: 8px;
+        }
+        .q-ready-overlay .spinner-border { width: 2rem; height: 2rem; }
 
         .modal-content { background: #2c3e50; color: white; border: 1px solid #555; }
         .option-btn { width: 100%; text-align: left; padding: 15px; margin-bottom: 8px; background: #34495e; color: white; border: 1px solid #7f8c8d; }
@@ -348,16 +358,23 @@
 <!-- 5. SORU MODALI -->
 <div class="modal fade" id="questionModal" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
+        <div class="modal-content" style="position:relative;">
             <div class="modal-header border-0 pb-0">
                 <span class="badge bg-warning text-dark fs-6" id="q-counter">Soru 1</span>
                 <span class="badge bg-danger fs-5 ms-auto" id="q-timer">30</span>
             </div>
-            <div class="modal-body p-4">
+            <div class="modal-body p-4" id="q-body-wrapper">
                 <h4 class="text-center mb-4 lh-base" id="q-text">Soru metni...</h4>
                 <div id="q-options"></div>
                 <div id="wait-msg" class="text-center mt-3 text-info d-none">
                     <div class="spinner-border spinner-border-sm"></div> Rakip bekleniyor...
+                </div>
+            </div>
+            <!-- Hazır bekleme overlay -->
+            <div id="q-ready-overlay" class="q-ready-overlay d-none">
+                <div class="text-center text-white">
+                    <div class="spinner-border text-warning mb-2"></div>
+                    <div class="fw-bold" id="q-ready-text">Rakip yükleniyor...</div>
                 </div>
             </div>
         </div>
@@ -7695,24 +7712,26 @@ const UNIT_TYPES = {
     cav: { name: "Atlı",   cost: 300, power: 2, speed: 2, iconP1: './hostsoldier.svg',        iconP2: './questsoldier.svg' }
 };
 
-// Şehir Komşulukları (Aynı)
+// Şehir Komşulukları (SVG haritasından çıkarıldı, düzeltildi)
 const NEIGHBORS = {
-    1:[33,51,38,46,80,31],2:[46,44,21,63,27],3:[26,42,32,20,64,43],4:[25,36,76,65,13,49],5:[60,19,55],
-    6:[14,26,42,68,40,71,18],7:[48,15,32,42,70,33],8:[53,25,61,28],9:[35,45,20,48],10:[17,35,45,43,16],
-    11:[54,16,43,26,14],12:[62,24,25,49,21,23],13:[49,4,65,56,72,21],14:[81,54,11,26,6,18,37,78,67],
-    15:[48,9,20,3,32,7],16:[77,41,54,11,43,10],17:[22,59,10],18:[37,19,6,14,71],19:[57,55,5,66,71,18,37],
-    20:[9,45,64,3,15,48],21:[63,2,44,12,13,72,47],22:[59,39,17],23:[44,24,62,12,21],24:[58,28,29,61,12,62,23],
-    25:[8,61,24,12,49,4,36,75],26:[11,14,6,42,3,43],27:[31,80,46,2,63,79],28:[52,58,24,29,61],
-    29:[28,24,61],30:[65,73],31:[1,80,27],32:[7,15,3,42],33:[7,70,42,51,1],34:[59,41],35:[10,45,9],
-    36:[75,25,4,76],37:[74,67,14,18,19,57],38:[58,66,50,51,1,46],39:[22,59],40:[71,18,6,68,50,66],
-    41:[34,59,16,54],42:[7,32,3,26,6,68,51,33,70],43:[10,16,11,26,3,64,45],44:[58,24,23,21,2,46,38],
-    45:[35,10,43,64,20,9],46:[38,44,2,27,80,1],47:[63,21,72,73],48:[9,20,15,7],49:[4,25,12,13,21,72],
-    50:[40,71,6,68,51,38,66],51:[38,1,33,42,68,50],52:[55,60,58,28,24],53:[8,25,61],54:[41,16,11,14,81],
-    55:[57,19,5,60,52],56:[13,65,30,73,47,72],57:[37,19,55],58:[28,52,60,66,38,46,44,23,24],
-    59:[22,39,34,17,10],60:[55,5,19,66,58,52],61:[53,25,29,28],62:[24,12,23],63:[27,2,21,47],
-    64:[43,3,20,45],65:[4,13,56,30,73],66:[19,6,40,50,38,58,60],67:[81,14,37,74],68:[42,6,40,50,51],
-    69:[29,24,25,61],70:[7,42,33],71:[18,6,40,66,19],72:[21,13,56,47,49],73:[47,56,30,65],74:[67,37],
-    75:[36,25,8],76:[36,4],77:[34,41,16],78:[74,37,18,14,67],79:[27,63],80:[1,46,27],81:[54,14,67]
+    1:[31,33,38,46,51,80],2:[21,27,44,46,63],3:[15,20,26,32,42,43,64],4:[13,25,36,49,65,76],
+    5:[19,55,60,66],6:[14,18,26,40,42,68,71],7:[15,32,33,42,48,70],8:[25,53,75],
+    9:[20,35,45,48],10:[16,17,35,43,45],11:[14,16,26,43,54],12:[21,23,24,25,49,62],
+    13:[4,49,56,65,72],14:[6,11,18,26,54,67,78,81],15:[3,7,20,32,48],16:[10,11,41,43,54,77],
+    17:[10,22,59],18:[6,14,19,37,71,78],19:[5,18,37,55,57,66,71],20:[3,9,15,45,48,64],
+    21:[2,12,23,44,47,49,63,72],22:[17,39,59],23:[12,21,24,44,62],24:[12,23,25,28,29,44,58,62,69],
+    25:[4,8,12,24,36,49,53,69,75],26:[3,6,11,14,42,43],27:[2,31,46,63,79,80],28:[24,29,52,58,61],
+    29:[24,28,61,69],30:[65,73],31:[1,27,80],32:[3,7,15,42],33:[1,7,42,51,70],34:[41,59],
+    35:[9,10,45],36:[4,25,75,76],37:[18,19,57,74,78],38:[1,46,50,51,58,66],39:[22,59],
+    40:[6,50,66,68,71],41:[16,34,54,77],42:[3,6,7,26,32,33,51,68,70],43:[3,10,11,16,26,45,64],
+    44:[2,21,23,24,46,58],45:[9,10,20,35,43,64],46:[1,2,27,38,44,58,80],47:[21,63,72,73],
+    48:[7,9,15,20],49:[4,12,13,21,25,72],50:[38,40,51,66,68],51:[1,33,38,42,50,68],
+    52:[28,55,58,60],53:[8,25,61],54:[11,14,16,41,81],55:[5,19,52,57,60],56:[13,65,72,73],
+    57:[19,37,55],58:[24,28,38,44,46,52,60,66],59:[17,22,34,39],60:[5,52,55,58,66],
+    61:[28,29,53,69],62:[12,23,24],63:[2,21,27,47],64:[3,20,43,45],65:[4,13,30,56,73],
+    66:[5,19,38,40,50,58,60,71],67:[14,74,78,81],68:[6,40,42,50,51],69:[24,25,29,61],
+    70:[7,33,42],71:[6,18,19,40,66],72:[13,21,47,49,56],73:[30,47,56,65],74:[37,67,78],
+    75:[8,25,36],76:[4,36],77:[16,41],78:[14,18,37,67,74],79:[27],80:[1,27,31,46],81:[14,54,67]
 };
 const CITY_NAMES = {
     1:"Adana",2:"Adıyaman",3:"Afyon",4:"Ağrı",5:"Amasya",6:"Ankara",7:"Antalya",8:"Artvin",9:"Aydın",
@@ -7905,8 +7924,19 @@ function handleData(data) {
        case 'GUEST_TURN_ENDED': 
             if(isHost) nextTurnStep();
             break;     
-        case 'NEW_TURN': showQuestion(data.question, data.turnIndex); break;
-        case 'OPPONENT_ANSWER': if(isHost) resolveQuestion(data.ans, data.time); break;
+        case 'NEW_TURN': showQuestionBlurred(data.question, data.turnIndex); break;
+        case 'QUESTION_READY': 
+            // Guest hazır sinyali → Host'a geldi → Herkese BAŞLA gönder
+            if(isHost) { 
+                conn.send({ type: 'QUESTION_GO' }); 
+                unblurAndStart(); 
+            } 
+            break;
+        case 'QUESTION_GO': 
+            // Host'tan "BAŞLA" sinyali → Guest'te blur kaldır, süre başlat
+            if(!isHost) unblurAndStart(); 
+            break;
+        case 'OPPONENT_ANSWER': if(isHost) resolveQuestion(data.ans); break;
         case 'TURN_RESULT': handleTurnResult(data); break;
         case 'GUEST_BASE_SELECT': if(isHost) { players.p2.base = data.plate; players.p2.cities.push(data.plate); createUnit('p2','inf',data.plate,10); checkGameStart(); } break;
     }
@@ -7926,18 +7956,31 @@ function startFetihMatch() {
     const qCount = parseInt(document.getElementById('vs-q-count-input').value) || 40;
 
     let pool = [];
+    let categoryPools = [];
     checkboxes.forEach(chk => {
         const sec = sections.find(s => s.key === chk.value);
         if(!sec) return;
         const timerVal = parseInt(document.getElementById(`timer-${sec.key}`).value) || 30;
         const secQuestions = allQuestions.filter(q => q.id >= sec.start && q.id <= sec.end);
-        // Her soruya kendi kategorisinin süresini ekle
         secQuestions.forEach(q => q.timer = timerVal);
-        pool = pool.concat(secQuestions);
+        // Kategori içinde karıştır
+        secQuestions.sort(() => 0.5 - Math.random());
+        categoryPools.push(secQuestions);
+    });
+    
+    // Her kategoriden eşit sayıda soru al
+    const perCat = Math.floor(qCount / categoryPools.length);
+    let remainder = qCount % categoryPools.length;
+    
+    categoryPools.forEach(catQ => {
+        const take = Math.min(perCat + (remainder > 0 ? 1 : 0), catQ.length);
+        if(remainder > 0) remainder--;
+        pool = pool.concat(catQ.slice(0, take));
     });
     
     if(pool.length < qCount) return alert("Yetersiz soru!");
-    const shuffled = pool.sort(() => 0.5 - Math.random()).slice(0, qCount);
+    // Son karıştırma (kategoriler arası sıra rastgele olsun)
+    const shuffled = pool.sort(() => 0.5 - Math.random());
 
     const data = { type: 'START_GAME_DATA', questions: shuffled };
     conn.send(data);
@@ -7962,16 +8005,25 @@ function startGameUI() {
 // 5. OYUN DÖNGÜSÜ
 // =========================================================================
 let myAnswer = null, myTime = 0, p2AnswerTemp = null, p2TimeTemp = 0;
+let questionReady = false; // Soru hazır mı?
+let answerArrivalOrder = 0; // Kim önce cevapladı (host tarafında sayaç)
 
 function startNewTurn() {
     if(currentTurn >= gameQuestions.length) return alert("Oyun Bitti!");
     myAnswer = null; p2AnswerTemp = null;
+    myTime = 0; p2TimeTemp = 0;
+    answerArrivalOrder = 0;
+    questionReady = false;
     const q = gameQuestions[currentTurn];
     conn.send({ type: 'NEW_TURN', question: q, turnIndex: currentTurn });
-    showQuestion(q, currentTurn);
+    // Host kendi sorusunu blurlu gösterir
+    showQuestionBlurred(q, currentTurn);
 }
 
-function showQuestion(q, idx) {
+// Soru blurlu gösterilir, rakip bekle
+function showQuestionBlurred(q, idx) {
+    currentTurn = idx; // Guest tarafında da soru indexini güncelle (timer için kritik!)
+    questionReady = false;
     const modal = new bootstrap.Modal(document.getElementById('questionModal'));
     document.getElementById('q-text').innerText = q.text;
     document.getElementById('q-counter').innerText = `Soru ${idx+1}`;
@@ -7982,7 +8034,36 @@ function showQuestion(q, idx) {
     });
     document.getElementById('q-options').innerHTML = html;
     document.getElementById('wait-msg').classList.add('d-none');
+    
+    // Blur uygula - soru görünür ama okunamaz
+    document.getElementById('q-body-wrapper').classList.add('q-blurred');
+    document.getElementById('q-ready-overlay').classList.remove('d-none');
+    document.getElementById('q-timer').innerText = '-';
+    
+    if(isHost) {
+        document.getElementById('q-ready-text').innerText = 'Rakip yükleniyor...';
+    } else {
+        document.getElementById('q-ready-text').innerText = 'Hazırlanıyor...';
+    }
+    
     modal.show();
+    
+    // Hazır sinyali gönder
+    if(!isHost) {
+        // Guest → Host'a "ben hazırım" gönder
+        conn.send({ type: 'QUESTION_READY' });
+    }
+}
+
+// Blur kaldır ve süreyi başlat (iki tarafta da aynı anda çağrılır)
+function unblurAndStart() {
+    questionReady = true;
+    
+    // Blur kaldır
+    document.getElementById('q-body-wrapper').classList.remove('q-blurred');
+    document.getElementById('q-ready-overlay').classList.add('d-none');
+    
+    // Süreyi başlat
     startTimer();
 }
 
@@ -8000,19 +8081,31 @@ function startTimer() {
 }
 
 function submitAnswer(ans) {
+    if(!questionReady) return; // Henüz blur kalkmadıysa cevap verme
     if(timerInterval) clearInterval(timerInterval);
-    const now = Date.now();
     document.querySelectorAll('.option-btn').forEach(b => {
         b.classList.add('locked');
         if(b.innerText.startsWith(ans)) b.classList.add('selected');
     });
     document.getElementById('wait-msg').classList.remove('d-none');
     
-    if(isHost) { myAnswer = ans; myTime = now; checkAllAnswers(); }
-    else conn.send({ type: 'OPPONENT_ANSWER', ans: ans, time: now });
+    if(isHost) { 
+        // Host cevapladı → sıra numarası ver
+        answerArrivalOrder++;
+        myAnswer = ans; 
+        myTime = answerArrivalOrder; // 1=ilk, 2=ikinci
+        checkAllAnswers(); 
+    }
+    else conn.send({ type: 'OPPONENT_ANSWER', ans: ans });
 }
 
-function resolveQuestion(ans, time) { p2AnswerTemp = ans; p2TimeTemp = time; checkAllAnswers(); }
+// Guest'in cevabı host'a ulaştığında
+function resolveQuestion(ans) { 
+    answerArrivalOrder++;
+    p2AnswerTemp = ans; 
+    p2TimeTemp = answerArrivalOrder; // 1=ilk, 2=ikinci
+    checkAllAnswers(); 
+}
 
 function checkAllAnswers() {
     if(!myAnswer || !p2AnswerTemp) return;
@@ -8176,14 +8269,13 @@ function onMapClick(plate) {
             checkGameStart(); 
             broadcastState("Mavi Kale Kurdu!");
         } else {
-            // Misafir sadece seçimini gönderir, birlik oluşturmaz
             conn.send({ type: 'GUEST_BASE_SELECT', plate }); 
             showGameToast("Rakip Bekleniyor...");
         }
         return;
     }
     
-    // Hedef Seçimi (Hareket Modu)
+    // Hedef Seçimi (Modal'dan Hareket Modu)
     if((gameState === "ACTION_P1_MOVE" && me === 'p1') || (gameState === "ACTION_P2_MOVE" && me === 'p2')) {
         const count = parseInt(document.getElementById('move-slider').value);
         moveUnitCommand(selectedUnitId, plate, count);
@@ -8192,7 +8284,7 @@ function onMapClick(plate) {
         return;
     }
     
-    // Detay Görüntüleme
+    // Şehre tıklama → Her zaman modal aç (asker olsa da olmasa da)
     if(players[me].cities.includes(plate) || units.some(u => u.loc === plate && u.owner === me)) {
         renderCityModal(plate);
         new bootstrap.Modal(document.getElementById('unitModal')).show();
@@ -8511,6 +8603,11 @@ function renderAll() {
     // 3. Asker İkonları
     const layer = document.getElementById('icon-layer');
     if(layer) {
+        // Önceki drag handler'ları temizle
+        if(window._dragCleanups) {
+            window._dragCleanups.forEach(fn => fn());
+            window._dragCleanups = [];
+        }
         layer.innerHTML = "";
         // Grupla
         const counts = {};
@@ -8539,14 +8636,237 @@ function drawIconGroup(loc, list, owner) {
     if(!p) return;
     const b = p.getBBox();
     const off = (owner==='p1') ? -10 : 10;
+    const me = isHost ? 'p1' : 'p2';
+    const isMyUnit = (owner === me);
+    
+    const cx = b.x+b.width/2+14+off;
+    const cy = b.y+b.height/2+14;
     
     const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    g.innerHTML = `
-        <image href="${icon}" x="${b.x+b.width/2-20+off}" y="${b.y+b.height/2-20}" width="50" height="50" class="map-icon"/>
-        <circle cx="${b.x+b.width/2+14+off}" cy="${b.y+b.height/2+14}" r="8" fill="red" stroke="white" stroke-width="1.5"/>
-        <text x="${b.x+b.width/2+14+off}" y="${b.y+b.height/2+17}" class="unit-badge" text-anchor="middle" font-size="11" fill="white">${total}</text>
-    `;
+    
+    // Asker ikonu (pointer-events: none)
+    const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    img.setAttribute("href", icon);
+    img.setAttribute("x", b.x+b.width/2-20+off);
+    img.setAttribute("y", b.y+b.height/2-20);
+    img.setAttribute("width", 50);
+    img.setAttribute("height", 50);
+    img.classList.add("map-icon");
+    g.appendChild(img);
+    
+    // Görünmez büyük hit area (tutmayı kolaylaştırır)
+    if(isMyUnit && players[me].active) {
+        const hitArea = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        hitArea.setAttribute("cx", cx);
+        hitArea.setAttribute("cy", cy);
+        hitArea.setAttribute("r", "20");
+        hitArea.setAttribute("fill", "transparent");
+        hitArea.style.cursor = "grab";
+        hitArea.classList.add("army-hitarea");
+        g.appendChild(hitArea);
+    }
+    
+    // Görünür yuvarlak badge
+    const badge = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    badge.setAttribute("cx", cx);
+    badge.setAttribute("cy", cy);
+    badge.setAttribute("r", "13");
+    badge.setAttribute("fill", isMyUnit ? '#e67e22' : 'red');
+    badge.setAttribute("stroke", "white");
+    badge.setAttribute("stroke-width", "2");
+    badge.classList.add("army-badge");
+    badge.style.pointerEvents = "none"; // Tıklama hitArea'dan gelecek
+    g.appendChild(badge);
+    
+    // Sayı metni
+    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    txt.setAttribute("x", cx);
+    txt.setAttribute("y", cy + 4);
+    txt.classList.add("unit-badge");
+    txt.setAttribute("text-anchor", "middle");
+    txt.setAttribute("font-size", "13");
+    txt.setAttribute("fill", "white");
+    txt.style.pointerEvents = "none";
+    txt.textContent = total;
+    g.appendChild(txt);
+    
+    // Drag sistemi (sadece kendi birliğin için, aktifken)
+    if(isMyUnit && players[me].active) {
+        const hitArea = g.querySelector('.army-hitarea');
+        let isDragging = false;
+        let dragStarted = false;
+        let startX, startY;
+        const svg = document.querySelector('#map-container svg');
+        let ghost = null;
+        let dragLine = null;
+        
+        function getSVGPoint(evt) {
+            const pt = svg.createSVGPoint();
+            const touch = evt.touches ? evt.touches[0] : evt;
+            pt.x = touch.clientX;
+            pt.y = touch.clientY;
+            return pt.matrixTransform(svg.getScreenCTM().inverse());
+        }
+        
+        function onDragStart(evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            isDragging = true;
+            dragStarted = false;
+            const svgP = getSVGPoint(evt);
+            startX = svgP.x;
+            startY = svgP.y;
+            hitArea.style.cursor = 'grabbing';
+        }
+        
+        function onDragMove(evt) {
+            if(!isDragging) return;
+            evt.preventDefault();
+            const svgP = getSVGPoint(evt);
+            const dx = svgP.x - startX;
+            const dy = svgP.y - startY;
+            if(!dragStarted && Math.sqrt(dx*dx + dy*dy) > 8) {
+                dragStarted = true;
+                ghost = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                ghost.setAttribute("r", "13");
+                ghost.setAttribute("fill", "rgba(230,126,34,0.6)");
+                ghost.setAttribute("stroke", "#f1c40f");
+                ghost.setAttribute("stroke-width", "2");
+                ghost.setAttribute("stroke-dasharray", "4");
+                ghost.style.pointerEvents = "none";
+                svg.appendChild(ghost);
+                dragLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                dragLine.setAttribute("x1", cx); dragLine.setAttribute("y1", cy);
+                dragLine.setAttribute("stroke", "#f1c40f"); dragLine.setAttribute("stroke-width", "2");
+                dragLine.setAttribute("stroke-dasharray", "6"); dragLine.style.pointerEvents = "none";
+                svg.appendChild(dragLine);
+            }
+            if(dragStarted && ghost) {
+                ghost.setAttribute("cx", svgP.x);
+                ghost.setAttribute("cy", svgP.y);
+                dragLine.setAttribute("x2", svgP.x);
+                dragLine.setAttribute("y2", svgP.y);
+                highlightDragTarget(svgP, parseInt(loc), list[0].type);
+            }
+        }
+        
+        function onDragEnd(evt) {
+            if(!isDragging) return;
+            isDragging = false;
+            hitArea.style.cursor = 'grab';
+            
+            if(dragStarted) {
+                const svgP = getSVGPoint(evt.changedTouches ? evt.changedTouches[0] : evt);
+                const targetCity = findCityAtPoint(svgP.x, svgP.y);
+                clearDragHighlights();
+                if(ghost) { ghost.remove(); ghost = null; }
+                if(dragLine) { dragLine.remove(); dragLine = null; }
+                
+                if(targetCity && targetCity !== parseInt(loc)) {
+                    quickMoveArmy(parseInt(loc), targetCity, owner, total);
+                }
+            } else {
+                // Kısa tıklama → modal aç
+                if(ghost) { ghost.remove(); ghost = null; }
+                if(dragLine) { dragLine.remove(); dragLine = null; }
+                renderCityModal(parseInt(loc));
+                new bootstrap.Modal(document.getElementById('unitModal')).show();
+            }
+        }
+        
+        hitArea.addEventListener('mousedown', onDragStart);
+        hitArea.addEventListener('touchstart', onDragStart, {passive: false});
+        window.addEventListener('mousemove', onDragMove);
+        window.addEventListener('touchmove', onDragMove, {passive: false});
+        window.addEventListener('mouseup', onDragEnd);
+        window.addEventListener('touchend', onDragEnd);
+        
+        if(!window._dragCleanups) window._dragCleanups = [];
+        window._dragCleanups.push(() => {
+            window.removeEventListener('mousemove', onDragMove);
+            window.removeEventListener('touchmove', onDragMove);
+            window.removeEventListener('mouseup', onDragEnd);
+            window.removeEventListener('touchend', onDragEnd);
+        });
+    }
+    
     document.getElementById('icon-layer').appendChild(g);
+}
+
+// Sürükleme sırasında hedef şehri vurgula
+function highlightDragTarget(svgP, fromLoc, unitType) {
+    clearDragHighlights();
+    const reachable = getReachableCities(fromLoc, unitType);
+    reachable.forEach(cid => {
+        const path = document.getElementById(`city-${cid}`);
+        if(path) {
+            const bb = path.getBBox();
+            const pcx = bb.x + bb.width/2, pcy = bb.y + bb.height/2;
+            const dist = Math.sqrt((svgP.x-pcx)**2 + (svgP.y-pcy)**2);
+            if(dist < Math.max(bb.width, bb.height)) {
+                path.style.strokeWidth = '3px';
+                path.style.stroke = '#f1c40f';
+                path.setAttribute('data-drag-highlight', '1');
+            }
+        }
+    });
+}
+
+function clearDragHighlights() {
+    document.querySelectorAll('[data-drag-highlight]').forEach(p => {
+        p.style.strokeWidth = '1px';
+        p.style.stroke = '#95a5a6';
+        p.removeAttribute('data-drag-highlight');
+    });
+}
+
+// SVG koordinatından şehir bul
+function findCityAtPoint(x, y) {
+    let closest = null, minDist = Infinity;
+    document.querySelectorAll('path[id^="city-"]').forEach(p => {
+        const bb = p.getBBox();
+        const cx = bb.x + bb.width/2, cy = bb.y + bb.height/2;
+        const dist = Math.sqrt((x-cx)**2 + (y-cy)**2);
+        // Şehir bounding box içinde mi kontrol et
+        if(x >= bb.x && x <= bb.x+bb.width && y >= bb.y && y <= bb.y+bb.height) {
+            if(dist < minDist) { minDist = dist; closest = parseInt(p.id.split('-')[1]); }
+        }
+    });
+    // Bounding box dışındaysa en yakın şehri bul (toleranslı)
+    if(!closest) {
+        document.querySelectorAll('path[id^="city-"]').forEach(p => {
+            const bb = p.getBBox();
+            const cx = bb.x + bb.width/2, cy = bb.y + bb.height/2;
+            const dist = Math.sqrt((x-cx)**2 + (y-cy)**2);
+            if(dist < 30 && dist < minDist) { minDist = dist; closest = parseInt(p.id.split('-')[1]); }
+        });
+    }
+    return closest;
+}
+
+// Hızlı ordu taşıma (sürükle-bırak veya şehir tıklama ile)
+function quickMoveArmy(fromLoc, toLoc, owner, count) {
+    const me = isHost ? 'p1' : 'p2';
+    if(owner !== me) return;
+    
+    // Hareket edebilecek birlik bul
+    const movableUnits = units.filter(u => u.loc === fromLoc && u.owner === me && !u.moved);
+    if(movableUnits.length === 0) { showGameToast("Hareket edecek birlik yok!"); return; }
+    
+    // Tüm birliği taşı (en büyük birligi önce)
+    const unit = movableUnits.reduce((a,b) => a.count > b.count ? a : b);
+    const moveCount = Math.min(count, unit.count);
+    
+    // Menzil kontrolü
+    const reachable = getReachableCities(fromLoc, unit.type);
+    if(!reachable.includes(toLoc)) { showGameToast("Menzil dışı!"); return; }
+    
+    if(isHost) {
+        moveUnitCommand(unit.id, toLoc, moveCount, me);
+    } else {
+        conn.send({ type: 'GUEST_MOVE', uid: unit.id, target: toLoc, count: moveCount });
+    }
+    renderAll();
 }
 
 function drawCastle(loc, owner) {
