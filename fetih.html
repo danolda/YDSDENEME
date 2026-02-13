@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YDS Fetih: Tam Strateji</title>
+    <title>YDS Fetih: İmparatorluk Savaşı</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
+        /* --- CSS STİLLERİ (Yeni Tasarım) --- */
         :root {
             --bg-dark: #2c3e50;
             --map-water: #34495e;
-            --map-land: #ecf0f1;
-            --map-hover: #bdc3c7;
-            --p1-color: #3498db; /* Mavi */
-            --p2-color: #e74c3c; /* Kırmızı */
+            --p1-color: #3498db; 
+            --p2-color: #e74c3c; 
             --gold: #f1c40f;
         }
         body { background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
@@ -27,158 +26,82 @@
         }
         
         svg { width: 100%; height: 100%; display: block; }
-               path {
-    stroke: #95a5a6; 
-    stroke-width: 1px;   
-    cursor: pointer; 
-    vector-effect: non-scaling-stroke;
-}
-        /* Sahiplik sınıflarında !important kalmalı */
-        .owned-p1 { fill: #85c1e9 !important; stroke: #fff; }
-        .owned-p2 { fill: #ec7063 !important; stroke: #fff; }
+        path { stroke: #95a5a6; stroke-width: 1px; cursor: pointer; vector-effect: non-scaling-stroke; transition: fill 0.3s; }
         
         .game-header { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; z-index: 100; pointer-events: none; }
-        .player-card { background: rgba(0,0,0,0.8); border-radius: 10px; padding: 15px; min-width: 200px; border: 2px solid #555; pointer-events: auto; }
-        .p1-card { border-color: var(--p1-color); }
-        .p2-card { border-color: var(--p2-color); }
+        .player-card { 
+            background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(44,62,80,0.9)); 
+            border-radius: 12px; padding: 12px 20px; min-width: 220px; 
+            border: 2px solid #555; pointer-events: auto; backdrop-filter: blur(5px);
+        }
+        .p1-card { border-color: var(--p1-color); box-shadow: 0 0 15px rgba(52, 152, 219, 0.3); }
+        .p2-card { border-color: var(--p2-color); box-shadow: 0 0 15px rgba(231, 76, 60, 0.3); }
 
-        .modal-content { background: #2c3e50; color: white; border: 1px solid #555; }
-        .option-btn { width: 100%; text-align: left; padding: 15px; margin-bottom: 8px; background: #34495e; color: white; border: 1px solid #7f8c8d; transition: 0.2s; font-size: 1.1rem; }
-        .option-btn:hover { background: #2c3e50; border-color: white; }
-        .option-btn.selected { background: var(--gold); color: black; font-weight: bold; }
-        .locked { pointer-events: none; opacity: 0.6; }
+        .stat-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 1rem; }
+        .gold-icon { color: var(--gold); text-shadow: 0 0 5px orange; }
+
+        #turn-controls {
+            position: absolute; bottom: 20px; right: 20px; z-index: 150;
+            display: none; animation: slideIn 0.5s ease;
+        }
+        @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
         #status-bar {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.9); padding: 10px 30px; border-radius: 30px;
-            font-size: 1.2rem; font-weight: bold; border: 2px solid var(--gold);
-            z-index: 100; display: none; white-space: nowrap;
+            background: rgba(0,0,0,0.8); padding: 10px 30px; border-radius: 30px;
+            font-size: 1.2rem; font-weight: bold; border: 1px solid white;
+            z-index: 100; display: none; white-space: nowrap; pointer-events: none;
         }
         
-        .map-icon { transform-box: fill-box; transform-origin: center; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; }
-        @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .pulse-anim { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; transform: translateX(-50%) scale(1.05); } 100% { opacity: 0.8; } }
+        .map-icon { pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); transition: all 0.3s; }
+        .unit-badge {
+            font-size: 10px; font-weight: bold; fill: white; text-anchor: middle;
+            paint-order: stroke; stroke: black; stroke-width: 3px;
+        }
 
+        .modal-content { background: #2c3e50; color: white; border: 1px solid #555; }
+        .option-btn { width: 100%; text-align: left; padding: 15px; margin-bottom: 8px; background: #34495e; color: white; border: 1px solid #7f8c8d; }
+        .option-btn:hover { background: #2c3e50; border-color: white; }
+        .option-btn.selected { background: var(--gold); color: black; font-weight: bold; }
+        .locked { pointer-events: none; opacity: 0.6; }
+        
+        /* Şehir Label */
+        .city-label { font-size: 8px; fill: #2c3e50; text-anchor: middle; pointer-events: none; font-weight: 600; stroke: white; stroke-width: 2px; paint-order: stroke; opacity: 0.7; }
+        .city-label-owned { fill: white; stroke: black; stroke-width: 2.5px; opacity: 1; font-weight: 800; }
+
+        /* Savaş Efektleri */
+        .game-toast {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9); color: white; padding: 20px; border-radius: 15px;
+            border: 2px solid var(--gold); z-index: 300; pointer-events: none;
+            animation: toastPop 2.5s forwards; font-size: 1.5rem; text-align: center;
+        }
+        @keyframes toastPop { 0% { opacity: 0; transform: translate(-50%, -40%); } 20% { opacity: 1; transform: translate(-50%, -50%); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -60%); } }
+
+        .unit-select-card {
+            border: 2px solid #555; border-radius: 8px; padding: 10px; margin-bottom: 10px;
+            background: rgba(0,0,0,0.3); cursor: pointer; transition: 0.2s;
+        }
+        .unit-select-card:hover { border-color: white; background: rgba(255,255,255,0.1); }
+        .unit-select-card.active { border-color: var(--gold); background: rgba(241, 196, 15, 0.2); }
+
+        /* Soru Cevap Renkleri */
+        .btn-correct { border: 3px solid #2ecc71 !important; box-shadow: 0 0 10px #2ecc71; }
         /* --- CEVAP RENKLENDİRME --- */
 .btn-p1 { background-color: var(--p1-color) !important; color: white !important; }
 .btn-p2 { background-color: var(--p2-color) !important; color: white !important; }
-/* İkisi aynı şıkkı seçerse yarısı mavi yarısı kırmızı */
+/* İkisi aynı şıkkı seçerse */
 .btn-both { 
     background: linear-gradient(90deg, var(--p1-color) 50%, var(--p2-color) 50%) !important; 
     color: white !important; text-shadow: 1px 1px 2px black;
-}
-/* Doğru cevap yeşil çerçeve */
-.btn-correct { 
-    border: 4px solid #2ecc71 !important; 
-    box-shadow: 0 0 15px #2ecc71; 
-    transform: scale(1.02);
-}
-
-/* === UÇAN PUAN ANİMASYONU === */
-.float-score {
-    position: absolute;
-    z-index: 200;
-    font-size: 1.6rem;
-    font-weight: 900;
-    text-shadow: 0 0 8px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.5);
-    pointer-events: none;
-    animation: floatUp 2s ease-out forwards;
-    white-space: nowrap;
-}
-@keyframes floatUp {
-    0%   { opacity: 1; transform: translateY(0) scale(1); }
-    30%  { opacity: 1; transform: translateY(-30px) scale(1.3); }
-    100% { opacity: 0; transform: translateY(-90px) scale(0.8); }
-}
-
-/* === BİLGİLENDİRME TOAST === */
-.game-toast {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    z-index: 300;
-    background: rgba(0,0,0,0.92);
-    color: white;
-    padding: 18px 40px;
-    border-radius: 16px;
-    font-size: 1.3rem;
-    font-weight: bold;
-    text-align: center;
-    border: 2px solid var(--gold);
-    animation: toastPop 2.5s ease-out forwards;
-    pointer-events: none;
-    max-width: 90vw;
-}
-@keyframes toastPop {
-    0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-    15%  { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-    25%  { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-    80%  { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-    100% { transform: translate(-50%, -60%) scale(0.8); opacity: 0; }
-}
-
-/* === ŞEHİR İSİM ETİKETLERİ === */
-.city-label {
-    font-size: 7px;
-    fill: #2c3e50;
-    text-anchor: middle;
-    pointer-events: none;
-    font-weight: 600;
-    font-family: 'Segoe UI', sans-serif;
-    paint-order: stroke;
-    stroke: rgba(255,255,255,0.85);
-    stroke-width: 2.5px;
-    stroke-linejoin: round;
-}
-.city-label-owned {
-    fill: #fff;
-    stroke: rgba(0,0,0,0.6);
-    stroke-width: 2px;
-    font-weight: 700;
-}
-
-/* === GELİŞMİŞ STATUS BAR === */
-#status-bar {
-    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    background: linear-gradient(135deg, rgba(0,0,0,0.92), rgba(44,62,80,0.95));
-    padding: 12px 35px; border-radius: 30px;
-    font-size: 1.15rem; font-weight: bold;
-    border: 2px solid var(--gold);
-    z-index: 100; display: none; white-space: nowrap;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-    transition: all 0.3s;
-}
-
-/* === PLAYER CARD GELİŞMİŞ === */
-.player-card {
-    background: linear-gradient(135deg, rgba(0,0,0,0.85), rgba(30,30,30,0.9)) !important;
-    border-radius: 12px !important;
-    padding: 12px 16px !important;
-    min-width: 180px;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    transition: all 0.3s;
-    font-size: 0.9rem;
-}
-.player-card h4 { font-size: 1.1rem; margin-bottom: 4px; }
-.score-highlight {
-    animation: scoreFlash 0.5s ease;
-}
-@keyframes scoreFlash {
-    0%   { transform: scale(1); }
-    50%  { transform: scale(1.3); color: var(--gold); }
-    100% { transform: scale(1); }
 }
     </style>
 </head>
 <body>
 
-<!-- GİRİŞ EKRANI -->
+<!-- 1. GİRİŞ EKRANI -->
 <div id="screen-lobby" class="container d-flex flex-column justify-content-center align-items-center vh-100">
-    <h1 class="display-3 fw-bold text-warning mb-4"><i class="bi bi-geo-fill"></i> YDS FETİH</h1>
+    <h1 class="display-3 fw-bold text-warning mb-4"><i class="bi bi-shield-shaded"></i> YDS İMPARATORLUK</h1>
     <div class="card bg-dark p-5 shadow-lg border-secondary" style="width: 400px;">
         <input type="text" id="player-name" class="form-control mb-3 text-center fw-bold fs-5" placeholder="Komutan Adı Gir">
         <input type="text" id="room-id" class="form-control mb-3 text-center" placeholder="Oda İsmi (Örn: fetih1)">
@@ -190,7 +113,7 @@
     </div>
 </div>
 
-<!-- AYARLAR (HOST EKRANI) -->
+<!-- 2. AYARLAR EKRANI (HOST İÇİN - ESKİ DOSYADAN GELDİ) -->
 <div id="screen-setup" class="container d-flex flex-column justify-content-center align-items-center vh-100 d-none">
     <div class="card bg-dark p-4 shadow-lg border-warning" style="width: 600px; max-width: 90%;">
         <h3 class="text-warning text-center mb-4"><i class="bi bi-sliders"></i> Savaş Ayarları</h3>
@@ -198,57 +121,107 @@
         <div class="row g-3 mb-4 border-bottom border-secondary pb-3">
             <div class="col-6">
                 <label class="form-label text-white fw-bold">Tur Başı Soru:</label>
-                               <!-- SELECT yerine INPUT geldi -->
                 <input type="number" id="vs-q-count-input" class="form-control bg-secondary text-white border-0 fw-bold text-center" value="40" min="5" max="100">
-                <small class="text-muted">Min: 10, Max: 100</small>
             </div>
             <div class="col-6">
                 <label class="form-label text-white fw-bold">Süre (Saniye):</label>
-                <input type="number" id="vs-time-input" class="form-control bg-secondary text-white border-0" value="60" min="10" max="300">
+                <input type="number" id="vs-time-input" class="form-control bg-secondary text-white border-0" value="30" min="10" max="300">
             </div>
         </div>
 
-        <h5 class="text-white mb-3">Soru Kategorileri (En az 1 tane seçin)</h5>
+        <h5 class="text-white mb-3">Soru Kategorileri</h5>
         <div class="row text-start" id="vs-cat-list">
             <!-- JS ile doldurulacak -->
         </div>
         
-        <div class="alert alert-info mt-3 small">
-            <i class="bi bi-info-circle"></i> Seçilen kategorilerden rastgele sorular harmanlanacaktır.
-        </div>
-
         <button class="btn btn-warning btn-lg w-100 mt-2 fw-bold" onclick="startFetihMatch()">
             <i class="bi bi-swords"></i> SAVAŞI BAŞLAT
         </button>
     </div>
 </div>
 
-<!-- OYUN EKRANI -->
+<!-- 3. OYUN EKRANI -->
 <div id="screen-game" class="d-none">
     <div class="game-header">
+        <!-- P1 KARTI -->
         <div class="player-card p1-card">
             <h4 id="p1-name" style="color: var(--p1-color)">Mavi</h4>
-            <div><i class="bi bi-building"></i> Puan: <span id="p1-score">0</span></div>
-            <div><i class="bi bi-map-fill"></i> İl: <span id="p1-cities">0</span></div>
-            <div><i class="bi bi-heart-fill text-danger"></i> Kale Canı: <span id="p1-hp">3</span></div>
+            <div class="stat-box"><span><i class="bi bi-coin gold-icon"></i> Altın:</span> <span id="p1-gold" class="fw-bold text-warning">0</span></div>
+            <div class="stat-box"><span><i class="bi bi-building"></i> İl Sayısı:</span> <span id="p1-cities">0</span></div>
+            <div class="stat-box"><span><i class="bi bi-heart-fill text-danger"></i> Kale Canı:</span> <span id="p1-hp">100</span></div>
         </div>
+        
+        <!-- P2 KARTI -->
         <div class="player-card p2-card text-end">
             <h4 id="p2-name" style="color: var(--p2-color)">Kırmızı</h4>
-            <div><span id="p2-score">0</span> :Puan <i class="bi bi-building"></i></div>
-            <div><span id="p2-cities">0</span> :İl <i class="bi bi-map-fill"></i></div>
-            <div><span id="p2-hp">3</span> :Kale Canı <i class="bi bi-heart-fill text-danger"></i></div>
+            <div class="stat-box justify-content-end"><span id="p2-gold" class="fw-bold text-warning">0</span> <span>:Altın <i class="bi bi-coin gold-icon"></i></span></div>
+            <div class="stat-box justify-content-end"><span id="p2-cities">0</span> <span>:İl Sayısı <i class="bi bi-building"></i></span></div>
+            <div class="stat-box justify-content-end"><span id="p2-hp">100</span> <span>:Kale Canı <i class="bi bi-heart-fill text-danger"></i></span></div>
         </div>
     </div>
+
     <div id="map-container"></div>
-    <div id="status-bar" class="pulse-anim">Oyun Başlıyor...</div>
+    <div id="status-bar">Oyun Başlıyor...</div>
+    
+    <!-- TUR KONTROLLERİ (ALT SAĞ) -->
+    <div id="turn-controls">
+        <button class="btn btn-success btn-lg shadow fw-bold pulse-anim" onclick="endMyTurn()">
+            <i class="bi bi-check-circle-fill"></i> TURU BİTİR
+        </button>
+    </div>
 </div>
 
-<!-- SORU MODALI -->
+<!-- 4. ORDU YÖNETİM MODALI -->
+<div class="modal fade" id="unitModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-warning" id="city-modal-title">Şehir Yönetimi</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6 class="text-info border-bottom pb-2">Buradaki Birlikler</h6>
+                <div id="city-units-list" class="mb-3"></div>
+
+                <!-- Hareket Kontrolü -->
+                <div id="move-controls" class="d-none bg-dark p-2 rounded border border-secondary mb-3">
+                    <label class="small text-muted">Taşınacak Sayı:</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="range" class="form-range" id="move-slider" min="1" max="10" value="1" oninput="updateSliderVal(this.value)">
+                        <span id="move-val" class="badge bg-primary">1</span>
+                    </div>
+                    <button class="btn btn-sm btn-light w-100 mt-2" onclick="enableMoveMode()">
+                        <i class="bi bi-cursor-fill"></i> Hedef Seç (Harita)
+                    </button>
+                </div>
+
+                <!-- Asker Basma (Sadece Kale) -->
+                <div id="recruit-controls" class="d-none">
+                    <h6 class="text-success border-bottom pb-2">Birlik Eğit (Kalede)</h6>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-light w-50" onclick="buyUnit('inf')">
+                            <div class="small fw-bold">PİYADE</div>
+                            <div class="text-warning small">100 Altın</div>
+                            <small class="text-muted d-block">Güç: 1</small>
+                        </button>
+                        <button class="btn btn-outline-warning w-50" onclick="buyUnit('cav')">
+                            <div class="small fw-bold">ATLI</div>
+                            <div class="text-warning small">300 Altın</div>
+                            <small class="text-muted d-block">Güç: 2, Hız: 2</small>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 5. SORU MODALI -->
 <div class="modal fade" id="questionModal" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header border-0 pb-0">
-                <span class="badge bg-warning text-dark fs-6" id="q-counter">Soru 1/10</span>
+                <span class="badge bg-warning text-dark fs-6" id="q-counter">Soru 1</span>
                 <span class="badge bg-danger fs-5 ms-auto" id="q-timer">30</span>
             </div>
             <div class="modal-body p-4">
@@ -262,20 +235,20 @@
     </div>
 </div>
 
-<!-- OYUN SONU -->
+<!-- 6. SONUÇ MODALI -->
 <div class="modal fade" id="resultModal" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content text-center p-5">
             <h1 id="winner-title" class="display-1 mb-3">👑</h1>
             <h2 id="winner-name" class="fw-bold mb-3"></h2>
             <p id="winner-reason" class="lead text-muted"></p>
-            <p id="winner-score-info" class="mb-0"></p>
             <button class="btn btn-primary mt-4" onclick="location.reload()">Ana Menüye Dön</button>
         </div>
     </div>
 </div>
 
 <script>
+ let turnQueue = []; // Sıra kuyruğu
 
 /* ================= GRAMER SORULARI (RAW TEXT) ================= */
     const rawQuestionsText = `
@@ -7479,25 +7452,11 @@ const rawExamVocabA = `1-C 2-D 3-A 4-A 5-E 6-B 7-E 8-E 9-B 10-A 11-C 12-D 13-C 1
         { en: "Yield", tr: "Ürün vermek / Teslim olmak" }
     ];
 
-// ============================================================
-// ŞEHİR İSİMLERİ HARİTASI (Plaka → İsim)
-// ============================================================
-const CITY_NAMES = {
-    1:"Adana",2:"Adıyaman",3:"Afyon",4:"Ağrı",5:"Amasya",6:"Ankara",7:"Antalya",8:"Artvin",9:"Aydın",
-    10:"Balıkesir",11:"Bilecik",12:"Bingöl",13:"Bitlis",14:"Bolu",15:"Burdur",16:"Bursa",17:"Çanakkale",
-    18:"Çankırı",19:"Çorum",20:"Denizli",21:"Diyarbakır",22:"Edirne",23:"Elazığ",24:"Erzincan",25:"Erzurum",
-    26:"Eskişehir",27:"Gaziantep",28:"Giresun",29:"Gümüşhane",30:"Hakkari",31:"Hatay",32:"Isparta",
-    33:"Mersin",34:"İstanbul",35:"İzmir",36:"Kars",37:"Kastamonu",38:"Kayseri",39:"Kırklareli",40:"Kırşehir",
-    41:"Kocaeli",42:"Konya",43:"Kütahya",44:"Malatya",45:"Manisa",46:"K.Maraş",47:"Mardin",48:"Muğla",
-    49:"Muş",50:"Nevşehir",51:"Niğde",52:"Ordu",53:"Rize",54:"Sakarya",55:"Samsun",56:"Siirt",57:"Sinop",
-    58:"Sivas",59:"Tekirdağ",60:"Tokat",61:"Trabzon",62:"Tunceli",63:"Ş.Urfa",64:"Uşak",65:"Van",
-    66:"Yozgat",67:"Zonguldak",68:"Aksaray",69:"Bayburt",70:"Karaman",71:"Kırıkkale",72:"Batman",
-    73:"Şırnak",74:"Bartın",75:"Ardahan",76:"Iğdır",77:"Yalova",78:"Karabük",79:"Kilis",80:"Osmaniye",81:"Düzce"
-};
 
-// ============================================================
-// BÖLÜM TANIMLARI (Kelime bölümü EKLENDİ)
-// ============================================================
+// =========================================================================
+// 2. PARSE VE KATEGORİ AYARLARI
+// =========================================================================
+
 const sections = [
     { key: "sec1", title: "Prepositions & Collocations", start: 1, end: 70 },
     { key: "sec2", title: "Conjunctions & Linkers", start: 71, end: 130 },
@@ -7513,90 +7472,31 @@ const sections = [
 let allQuestions = [];
 let gameQuestions = [];
 
-// ============================================================
-// KELİME SORUSU ÜRETİCİ (OYUN FORMATI: {id, text, opts, correctAnswer})
-// ============================================================
-function generateVocabQuestions() {
-    const qList = [];
-    const total = ydsVocabDB.length;
-    
-    ydsVocabDB.forEach((item, index) => {
-        const isEnToTr = index < (total / 2);
-        const questionText = isEnToTr 
-            ? `"${item.en}" kelimesinin Türkçe karşılığı nedir?`
-            : `"${item.tr}" ifadesinin İngilizce karşılığı nedir?`;
-        const correctAns = isEnToTr ? item.tr : item.en;
-
-        // Sabit seed ile çeldirici seç (her yüklemede aynı)
-        let distractors = [];
-        let seed = index + 42;
-        let tempPool = ydsVocabDB.filter(w => w.en !== item.en);
-        
-        while(distractors.length < 4 && tempPool.length > 0) {
-            seed = (seed * 9301 + 49297) % 233280;
-            const rIdx = Math.floor((seed / 233280) * tempPool.length);
-            const pick = isEnToTr ? tempPool[rIdx].tr : tempPool[rIdx].en;
-            if(!distractors.includes(pick) && pick !== correctAns) {
-                distractors.push(pick);
-            }
-            tempPool.splice(rIdx, 1);
-        }
-
-        // Sabit sıralama
-        let optionsArr = [...distractors, correctAns];
-        let s2 = index + 99;
-        for(let i = optionsArr.length - 1; i > 0; i--) {
-            s2 = (s2 * 9301 + 49297) % 233280;
-            const j = Math.floor((s2 / 233280) * (i + 1));
-            [optionsArr[i], optionsArr[j]] = [optionsArr[j], optionsArr[i]];
-        }
-
-        const opts = { A: optionsArr[0], B: optionsArr[1], C: optionsArr[2], D: optionsArr[3], E: optionsArr[4] };
-        
-        qList.push({
-            id: 5000 + index,
-            text: questionText,
-            opts: opts,
-            correctAnswer: Object.keys(opts).find(k => opts[k] === correctAns) || 'A',
-            isVocab: true
-        });
-    });
-    return qList;
-}
-
-// ============================================================
-// SAYFA YÜKLEME
-// ============================================================
 window.onload = function() {
     loadAllData();
-    renderCategorySelection();
+    // Setup ekranı gelince kategorileri dolduracak
 };
 
 function loadAllData() {
     allQuestions = [];
-
-    if(typeof rawQuestionsText !== 'undefined' && typeof rawAnswersText !== 'undefined') {
-        allQuestions = allQuestions.concat(parseRawData(rawQuestionsText, rawAnswersText, 0));
-    }
-    if(typeof rawExamPrepQ !== 'undefined' && typeof rawExamPrepA !== 'undefined') {
-        allQuestions = allQuestions.concat(parseRawData(rawExamPrepQ, rawExamPrepA, 3000));
-    }
-    if(typeof rawExamConjQ !== 'undefined' && typeof rawExamConjA !== 'undefined') {
-        allQuestions = allQuestions.concat(parseRawData(rawExamConjQ, rawExamConjA, 3200));
-    }
-    if(typeof rawExamTenseQ !== 'undefined' && typeof rawExamTenseA !== 'undefined') {
-        allQuestions = allQuestions.concat(parseRawData(rawExamTenseQ, rawExamTenseA, 3500));
-    }
-    if(typeof rawExamVocabQ !== 'undefined' && typeof rawExamVocabA !== 'undefined') {
-        allQuestions = allQuestions.concat(parseRawData(rawExamVocabQ, rawExamVocabA, 3800));
-    }
-    // KELİME SORULARI
-    allQuestions = allQuestions.concat(generateVocabQuestions());
     
-    console.log("Toplam Yüklenen Soru:", allQuestions.length);
+    // Eski metin bazlı soruları yükle
+    if(typeof rawQuestionsText !== 'undefined') allQuestions = allQuestions.concat(parseRawData(rawQuestionsText, rawAnswersText, 0));
+    if(typeof rawExamPrepQ !== 'undefined') allQuestions = allQuestions.concat(parseRawData(rawExamPrepQ, rawExamPrepA, 3000));
+    if(typeof rawExamConjQ !== 'undefined') allQuestions = allQuestions.concat(parseRawData(rawExamConjQ, rawExamConjA, 3200));
+    if(typeof rawExamTenseQ !== 'undefined') allQuestions = allQuestions.concat(parseRawData(rawExamTenseQ, rawExamTenseA, 3500));
+    if(typeof rawExamVocabQ !== 'undefined') allQuestions = allQuestions.concat(parseRawData(rawExamVocabQ, rawExamVocabA, 3800));
+
+    // YENİ: Kelime sorularını üret ve ekle
+    if(typeof ydsVocabDB !== 'undefined') {
+        allQuestions = allQuestions.concat(generateVocabQuestions());
+    }
+    
+    console.log("Toplam Soru:", allQuestions.length);
 }
 
 function parseRawData(qText, aText, offset) {
+    // Senin eski dosyadaki parser fonksiyonunun aynısı
     const questions = [];
     const answerMap = {};
     const ansRegex = /(\d+)\s*[:\-\u2013]\s*([A-E])/g;
@@ -7650,13 +7550,16 @@ function renderCategorySelection() {
     });
 }
 
-// ============================================================
-// AYARLAR & SABITLER
-// ============================================================
-const ICON_SIZE = 55;
+// =========================================================================
+// 3. OYUN SABİTLERİ VE DEĞİŞKENLERİ
+// =========================================================================
 const SVG_URL = './tr.svg';
-const ICONS = { CASTLE: './castle.svg', HOST_SOLDIER: './hostsoldier.svg', GUEST_SOLDIER: './questsoldier.svg' };
+const UNIT_TYPES = {
+    inf: { name: "Piyade", cost: 100, power: 1, speed: 1, iconP1: './hostregularsoldier.svg', iconP2: './questregularsoldier.svg' },
+    cav: { name: "Atlı",   cost: 300, power: 2, speed: 2, iconP1: './hostsoldier.svg',        iconP2: './questsoldier.svg' }
+};
 
+// Şehir Komşulukları (Aynı)
 const NEIGHBORS = {
     1:[33,51,38,46,80,31],2:[46,44,21,63,27],3:[26,42,32,20,64,43],4:[25,36,76,65,13,49],5:[60,19,55],
     6:[14,26,42,68,40,71,18],7:[48,15,32,42,70,33],8:[53,25,61,28],9:[35,45,20,48],10:[17,35,45,43,16],
@@ -7675,61 +7578,60 @@ const NEIGHBORS = {
     69:[29,24,25,61],70:[7,42,33],71:[18,6,40,66,19],72:[21,13,56,47,49],73:[47,56,30,65],74:[67,37],
     75:[36,25,8],76:[36,4],77:[34,41,16],78:[74,37,18,14,67],79:[27,63],80:[1,46,27],81:[54,14,67]
 };
-
-// ============================================================
-// OYUN DEĞİŞKENLERİ
-// ============================================================
-let peer = null, conn = null, isHost = false, gameState = "LOBBY";
-let currentTurn = 0, timerInterval = null;
-let turnQueue = [];
-let turnLockedCities = [];
-let questions = [];
-let svgReady = false;
-let pendingMapRender = false;
-
-let players = {
-    p1: { name: "", base: null, cities: [], score: 0, hp: 3, id: 'p1', time: 0 },
-    p2: { name: "", base: null, cities: [], score: 0, hp: 3, id: 'p2', time: 0 }
+const CITY_NAMES = {
+    1:"Adana",2:"Adıyaman",3:"Afyon",4:"Ağrı",5:"Amasya",6:"Ankara",7:"Antalya",8:"Artvin",9:"Aydın",
+    10:"Balıkesir",11:"Bilecik",12:"Bingöl",13:"Bitlis",14:"Bolu",15:"Burdur",16:"Bursa",17:"Çanakkale",
+    18:"Çankırı",19:"Çorum",20:"Denizli",21:"Diyarbakır",22:"Edirne",23:"Elazığ",24:"Erzincan",25:"Erzurum",
+    26:"Eskişehir",27:"Gaziantep",28:"Giresun",29:"Gümüşhane",30:"Hakkari",31:"Hatay",32:"Isparta",
+    33:"Mersin",34:"İstanbul",35:"İzmir",36:"Kars",37:"Kastamonu",38:"Kayseri",39:"Kırklareli",40:"Kırşehir",
+    41:"Kocaeli",42:"Konya",43:"Kütahya",44:"Malatya",45:"Manisa",46:"K.Maraş",47:"Mardin",48:"Muğla",
+    49:"Muş",50:"Nevşehir",51:"Niğde",52:"Ordu",53:"Rize",54:"Sakarya",55:"Samsun",56:"Siirt",57:"Sinop",
+    58:"Sivas",59:"Tekirdağ",60:"Tokat",61:"Trabzon",62:"Tunceli",63:"Ş.Urfa",64:"Uşak",65:"Van",
+    66:"Yozgat",67:"Zonguldak",68:"Aksaray",69:"Bayburt",70:"Karaman",71:"Kırıkkale",72:"Batman",
+    73:"Şırnak",74:"Bartın",75:"Ardahan",76:"Iğdır",77:"Yalova",78:"Karabük",79:"Kilis",80:"Osmaniye",81:"Düzce"
 };
 
-// ============================================================
-// PEERJS BAĞLANTI
-// ============================================================
-// HOST İÇİN (createGame fonksiyonu içi)
+let peer = null, conn = null, isHost = false;
+let currentTurn = 0, timerInterval = null;
+let gameState = "LOBBY"; // LOBBY, BASE_SELECT, QUESTION, ACTION_P1, ACTION_P2, RESOLVE
+let unitIdCounter = 1;
+let selectedUnitId = null;
+
+let players = {
+    p1: { name: "", base: null, gold: 0, hp: 100, cities: [], active: false, id:'p1' },
+    p2: { name: "", base: null, gold: 0, hp: 100, cities: [], active: false, id:'p2' }
+};
+
+let units = []; // { id, owner, type, loc, count, moved }
+
+// =========================================================================
+// 4. BAĞLANTI & KURULUM
+// =========================================================================
 function createGame() {
     const room = document.getElementById('room-id').value.trim();
     const name = document.getElementById('player-name').value.trim() || "Mavi";
     if(!room) return alert("Oda ismi girin!");
     if(peer) peer.destroy();
     
-    // DEĞİŞEN KISIM BURASI: { serialization: 'json' } EKLENDİ
     peer = new Peer(room, { 
-        debug: 1,
-        config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] },
-        serialization: 'json' 
+        debug: 1, config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }, serialization: 'json' 
     });
     
     peer.on('open', () => { isHost = true; players.p1.name = name; document.getElementById('lobby-status').innerHTML = '<span class="text-success">✅ Oda Açıldı! Rakip bekleniyor...</span>'; });
-    peer.on('error', e => alert(e.type === 'unavailable-id' ? "Oda ismi dolu!" : "Hata: " + e.type));
     peer.on('connection', c => { conn = c; setupConnection(); });
 }
 
-// MİSAFİR İÇİN (joinGame fonksiyonu içi)
 function joinGame() {
     const room = document.getElementById('room-id').value.trim();
     const name = document.getElementById('player-name').value.trim() || "Kırmızı";
     if(!room) return alert("Oda ismi girin!");
     if(peer) peer.destroy();
     
-    // DEĞİŞEN KISIM BURASI: { serialization: 'json' } EKLENDİ
     peer = new Peer(null, { 
-        debug: 1, 
-        config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] },
-        serialization: 'json' 
+        debug: 1, config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }, serialization: 'json' 
     });
 
     peer.on('open', () => { conn = peer.connect(room, { serialization: 'json' }); isHost = false; players.p2.name = name; setupConnection(); });
-    peer.on('error', e => alert("Bağlantı hatası: " + e.type));
 }
 
 function setupConnection() {
@@ -7737,686 +7639,821 @@ function setupConnection() {
     conn.on('open', () => {
         conn.send(isHost ? { type: 'INIT', p1Name: players.p1.name } : { type: 'JOIN', p2Name: players.p2.name });
     });
-    if(conn.open) conn.send(isHost ? { type: 'INIT', p1Name: players.p1.name } : { type: 'JOIN', p2Name: players.p2.name });
 }
 
-// ============================================================
-// VERİ İŞLEME (DÜZELTİLMİŞ)
-// ============================================================
+// Veri İşleme
 function handleData(data) {
     switch(data.type) {
-        case 'INIT':
-            players.p1.name = data.p1Name;
-            document.getElementById('lobby-status').innerHTML = '<span class="text-success">✅ Bağlandı!</span>';
+        case 'INIT': players.p1.name = data.p1Name; document.getElementById('lobby-status').innerHTML = '<span class="text-success">✅ Bağlandı!</span>'; break;
+        case 'JOIN': players.p2.name = data.p2Name; goToSetup(); break;
+        case 'START_GAME_DATA': 
+            gameQuestions = data.questions; 
+            window.GAME_TIMER = data.timer;
+            startGameUI(); 
             break;
-
-        case 'JOIN':
-            players.p2.name = data.p2Name;
-            goToSetup();
-            break;
-
-        case 'START_GAME_DATA':
-            players = data.players;
-            startGameUI(data.questions, data.timer);
-            break;
-
-        case 'UPDATE_MAP':
-            if(data.players) players = data.players;
-            if(data.queue) turnQueue = data.queue;
-            if(data.lockedCities) turnLockedCities = data.lockedCities;
-            if(data.msg) showGameToast(data.msg);
-            
-            // ESKİ SETTIMEOUT'LARI SİLİN, SADECE BUNU KULLANIN:
-            renderMapState(); 
-            
-            updateExpansionStatus();
-            if(data.gameOver) return endGame(data.winner, data.reason, data.scores);
-            if(isHost) checkTurnProgress();
-            if(isHost && gameState === "BASE_SELECT") checkGameStart();
-            break;
-
-        case 'GUEST_BASE_SELECT':
-            if(isHost) {
-                const plate = parseInt(data.plate);
-                if(!players.p2.base && players.p1.base !== plate) {
-                    players.p2.base = plate;
-                    players.p2.cities.push(plate);
-                    players.p2.name = data.p2Name || players.p2.name;
-                    broadcastState("🏰 " + players.p2.name + " kalesini kurdu: " + (CITY_NAMES[plate] || plate));
-                    checkGameStart();
-                }
+        case 'UPDATE_MAP': 
+            // Sadece HOST'tan gelen UPDATE_MAP kabul edilir (guest olarak dinle)
+            if(!isHost) {
+                players = data.players; 
+                units = data.units; 
+                unitIdCounter = data.unitIdCounter || unitIdCounter; // ID sayacını senkronla
+                gameState = data.gameState;
+                if(data.msg) showGameToast(data.msg);
+                renderAll(); 
             }
             break;
-
-        case 'CLAIM_REQUEST':
-            if(isHost) processClaim(data.plate, 'p2');
+        case 'GUEST_MOVE':
+            // Misafirin hareket komutu - sadece host işler
+            if(isHost) {
+                moveUnitCommand(data.uid, data.target, data.count, 'p2');
+            }
             break;
-
-        case 'NEW_TURN':
-            currentTurn = data.turnIndex;
-            showQuestion(data.question);
+        case 'GUEST_BUY':
+            // Misafirin asker satın alma komutu - sadece host işler
+            if(isHost) {
+                executeBuyUnit('p2', data.unitType);
+            }
             break;
-
-        case 'OPPONENT_ANSWER':
-            if(isHost) resolveTurn(data.ans, data.time);
-            break;
-
-        case 'TURN_RESULT':
-            handleTurnResult(data);
-            break;
-
-        case 'QUEUE_UPDATE':
-            turnQueue = data.queue;
-            updateExpansionStatus();
-            break;
-
-        case 'GAME_OVER':
-            endGame(data.winner, data.reason, data.scores);
-            break;
+       case 'GUEST_TURN_ENDED': 
+            if(isHost) nextTurnStep();
+            break;     
+        case 'NEW_TURN': showQuestion(data.question, data.turnIndex); break;
+        case 'OPPONENT_ANSWER': if(isHost) resolveQuestion(data.ans, data.time); break;
+        case 'TURN_RESULT': handleTurnResult(data); break;
+        case 'GUEST_BASE_SELECT': if(isHost) { players.p2.base = data.plate; players.p2.cities.push(data.plate); createUnit('p2','inf',data.plate,10); checkGameStart(); } break;
     }
 }
 
-// ============================================================
-// OYUN BAŞLATMA
-// ============================================================
 function goToSetup() {
     document.getElementById('screen-lobby').classList.add('d-none');
     document.getElementById('screen-setup').classList.remove('d-none');
-    renderCategorySelection(); // Güncel soru sayılarıyla
+    renderCategorySelection();
 }
 
+// Host oyunu başlatır
 function startFetihMatch() {
     const checkboxes = document.querySelectorAll('.vs-cat-check:checked');
-    if(checkboxes.length < 1) return alert("En az 1 kategori seçin!");
-
-    const qCount = Math.max(10, Math.min(100, parseInt(document.getElementById('vs-q-count-input').value) || 40));
-    const timeLimit = Math.max(10, Math.min(300, parseInt(document.getElementById('vs-time-input').value) || 60));
-    window.GAME_TIMER = timeLimit;
+    if(checkboxes.length < 1) return alert("Kategori seç!");
+    
+    const qCount = parseInt(document.getElementById('vs-q-count-input').value) || 40;
+    const timeLimit = parseInt(document.getElementById('vs-time-input').value) || 30;
 
     let pool = [];
     checkboxes.forEach(chk => {
         const sec = sections.find(s => s.key === chk.value);
-        if(sec) {
-            pool = pool.concat(allQuestions.filter(q => q.id >= sec.start && q.id <= sec.end));
-        }
+        if(sec) pool = pool.concat(allQuestions.filter(q => q.id >= sec.start && q.id <= sec.end));
     });
+    
+    if(pool.length < qCount) return alert("Yetersiz soru!");
+    const shuffled = pool.sort(() => 0.5 - Math.random()).slice(0, qCount);
 
-    if(pool.length < 10) return alert("Seçili kategorilerde yeterli soru yok! (" + pool.length + " soru bulundu)");
-
-    // Karıştır ve seç
-    const shuffled = pool.sort(() => 0.5 - Math.random());
-    gameQuestions = shuffled.slice(0, Math.min(qCount, shuffled.length));
-
-    const formatted = gameQuestions.map(q => ({
-        q: q.text,
-        opts: q.opts,
-        ans: q.correctAnswer || "A"
-    }));
-
-    conn.send({ type: 'START_GAME_DATA', questions: formatted, timer: timeLimit, players: players });
-    startGameUI(formatted, timeLimit);
+    const data = { type: 'START_GAME_DATA', questions: shuffled, timer: timeLimit };
+    conn.send(data);
+    
+    gameQuestions = shuffled;
+    window.GAME_TIMER = timeLimit;
+    startGameUI();
 }
 
-function startGameUI(loadedQuestions, loadedTimer) {
-    if(loadedQuestions) {
-        questions = loadedQuestions;
-        window.GAME_TIMER = loadedTimer || 30;
-    }
-    document.getElementById('screen-lobby').classList.add('d-none');
+function startGameUI() {
     document.getElementById('screen-setup').classList.add('d-none');
+    document.getElementById('screen-lobby').classList.add('d-none');
     document.getElementById('screen-game').classList.remove('d-none');
-
-    svgReady = false;
-    pendingMapRender = false;
-
+    
     loadSvgMap().then(() => {
-        svgReady = true;
-        updateScoreboard();
-        showGameToast("🏰 KALE ŞEHRİNİ SEÇ!");
-        showStatus("Haritada bir şehir tıkla → Kalen olacak");
         gameState = "BASE_SELECT";
-        if(pendingMapRender) { pendingMapRender = false; renderMapState(); }
+        showGameToast("🏰 KALE ŞEHRİNİ SEÇ!");
+        renderAll();
     });
 }
 
-// ============================================================
-// TUR VE SORU SİSTEMİ
-// ============================================================
+// =========================================================================
+// 5. OYUN DÖNGÜSÜ
+// =========================================================================
 let myAnswer = null, myTime = 0, p2AnswerTemp = null, p2TimeTemp = 0;
 
 function startNewTurn() {
-    if(currentTurn >= questions.length) {
-        return calculateFinalWinner("Tüm Sorular Bitti!");
-    }
-    myAnswer = null; p2AnswerTemp = null; turnQueue = []; turnLockedCities = [];
-    const q = questions[currentTurn];
+    if(currentTurn >= gameQuestions.length) return alert("Oyun Bitti!");
+    myAnswer = null; p2AnswerTemp = null;
+    const q = gameQuestions[currentTurn];
     conn.send({ type: 'NEW_TURN', question: q, turnIndex: currentTurn });
-    showQuestion(q);
+    showQuestion(q, currentTurn);
 }
 
-function showQuestion(q) {
+function showQuestion(q, idx) {
     const modal = new bootstrap.Modal(document.getElementById('questionModal'));
-    document.getElementById('q-text').innerText = formatQuestionText(q.q);
-    document.getElementById('q-counter').innerText = `Soru ${currentTurn+1} / ${questions.length}`;
-
+    document.getElementById('q-text').innerText = q.text;
+    document.getElementById('q-counter').innerText = `Soru ${idx+1}`;
+    
     let html = '';
-    ['A','B','C','D','E'].forEach(key => {
-        if(q.opts && q.opts[key]) {
-            html += `<button class="option-btn" onclick="submitAnswer('${key}')"><b>${key})</b> ${q.opts[key]}</button>`;
-        }
+    ['A','B','C','D','E'].forEach(k => {
+        if(q.opts[k]) html += `<button class="option-btn" onclick="submitAnswer('${k}')"><b>${k})</b> ${q.opts[k]}</button>`;
     });
-
     document.getElementById('q-options').innerHTML = html;
     document.getElementById('wait-msg').classList.add('d-none');
     modal.show();
     startTimer();
 }
 
-function formatQuestionText(text) { return text ? text.replace(/___/g, "__________") : ""; }
-
 function startTimer() {
-    let timeLeft = window.GAME_TIMER || 30;
+    let timeLeft = window.GAME_TIMER;
     document.getElementById('q-timer').innerText = timeLeft;
     if(timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
         timeLeft--;
         document.getElementById('q-timer').innerText = timeLeft;
-        if(timeLeft <= 5) document.getElementById('q-timer').style.color = '#e74c3c';
-        if(timeLeft <= 0) { clearInterval(timerInterval); submitAnswer(null); }
+        if(timeLeft <= 0) { clearInterval(timerInterval); submitAnswer('X'); }
     }, 1000);
 }
 
 function submitAnswer(ans) {
     if(timerInterval) clearInterval(timerInterval);
-    document.getElementById('q-timer').style.color = '';
-    const timestamp = Date.now();
+    const now = Date.now();
     document.querySelectorAll('.option-btn').forEach(b => {
         b.classList.add('locked');
-        if(ans && b.innerText.startsWith(ans)) b.classList.add('selected');
+        if(b.innerText.startsWith(ans)) b.classList.add('selected');
     });
     document.getElementById('wait-msg').classList.remove('d-none');
-    const finalAns = ans || 'X';
-    if(isHost) { myAnswer = finalAns; myTime = timestamp; checkTurnEnd(); }
-    else conn.send({ type: 'OPPONENT_ANSWER', ans: finalAns, time: timestamp });
+    
+    if(isHost) { myAnswer = ans; myTime = now; checkAllAnswers(); }
+    else conn.send({ type: 'OPPONENT_ANSWER', ans: ans, time: now });
 }
 
-function resolveTurn(ans, time) { p2AnswerTemp = ans; p2TimeTemp = time; checkTurnEnd(); }
+function resolveQuestion(ans, time) { p2AnswerTemp = ans; p2TimeTemp = time; checkAllAnswers(); }
 
-function checkTurnEnd() {
+function checkAllAnswers() {
     if(!myAnswer || !p2AnswerTemp) return;
+    const q = gameQuestions[currentTurn];
+    const correct = q.correctAnswer;
     
-    const q = questions[currentTurn];
-    const p1Correct = (myAnswer === q.ans);
-    const p2Correct = (p2AnswerTemp === q.ans);
-
-    if(p1Correct) players.p1.score += 100;
-    if(p2Correct) players.p2.score += 100;
-
-    turnQueue = [];
-    if(p1Correct && p2Correct) {
-        turnQueue = myTime <= p2TimeTemp ? ['p1','p2'] : ['p2','p1'];
-    } else if(p1Correct) {
-        turnQueue = ['p1','p1'];
-    } else if(p2Correct) {
-        turnQueue = ['p2','p2'];
-    }
-
-    const data = {
-        type: 'TURN_RESULT',
-        p1Correct, p2Correct,
-        p1Ans: myAnswer, p2Ans: p2AnswerTemp,
-        queue: turnQueue, correct: q.ans, players: players
+    const p1Ok = (myAnswer === correct);
+    const p2Ok = (p2AnswerTemp === correct);
+    
+    // YENİ: p1Ans ve p2Ans parametrelerini ekledik
+    const resData = { 
+        type: 'TURN_RESULT', 
+        p1Ok, p2Ok, 
+        p1Time: myTime, p2Time: p2TimeTemp, 
+        correct,
+        p1Ans: myAnswer, // Mavi ne seçti?
+        p2Ans: p2AnswerTemp // Kırmızı ne seçti?
     };
-    conn.send(data);
-    handleTurnResult(data);
+    
+    conn.send(resData);
+    handleTurnResult(resData);
 }
 
 function handleTurnResult(data) {
-    // Şıkları renklendir
-    const btns = document.querySelectorAll('.option-btn');
-    btns.forEach(btn => {
-        const key = btn.innerText.substring(0, 1);
-        btn.classList.remove('selected');
+    // Şıkları boya
+    document.querySelectorAll('.option-btn').forEach(btn => {
+        const key = btn.innerText.substring(0, 1); // "A", "B" harfini al
+        
+        btn.classList.remove('selected'); // Sarı seçimi kaldır
+        
+        // Doğru cevap yeşil çerçeve
         if(key === data.correct) btn.classList.add('btn-correct');
+        
+        // Oyuncu seçimleri
         const p1Chose = (key === data.p1Ans);
         const p2Chose = (key === data.p2Ans);
+        
         if(p1Chose && p2Chose) btn.classList.add('btn-both');
         else if(p1Chose) btn.classList.add('btn-p1');
         else if(p2Chose) btn.classList.add('btn-p2');
     });
-
-    players = data.players;
-    turnQueue = data.queue;
-    turnLockedCities = [];
-    updateScoreboard();
-
-    // Puan animasyonu
-    if(data.p1Correct) spawnFloatingScore(true, "+100 ✓");
-    if(data.p2Correct) spawnFloatingScore(false, "+100 ✓");
-
+    
+    // Modalı kapat ve ödülleri dağıt
     setTimeout(() => {
-        const modalEl = document.getElementById('questionModal');
-        const inst = bootstrap.Modal.getInstance(modalEl);
-        if(inst) inst.hide();
-        gameState = "EXPANSION";
-
-        if(turnQueue.length === 0) {
-            showGameToast("❌ Kimse bilemedi! Yeni soru geliyor...");
-            if(isHost) { currentTurn++; setTimeout(startNewTurn, 2500); }
-        } else {
-            updateExpansionStatus();
-        }
-    }, 4000);
+        bootstrap.Modal.getInstance(document.getElementById('questionModal')).hide();
+        if(isHost) distributeRewards(data.p1Ok, data.p2Ok, data.p1Time, data.p2Time);
+    }, 4000); // Süreyi biraz uzattım ki renkler görünsün
 }
 
-function updateExpansionStatus() {
-    const me = isHost ? 'p1' : 'p2';
-    if(turnQueue.length > 0 && turnQueue[0] === me) {
-        const hak = turnQueue.filter(x => x === me).length;
-        showStatus(`🗡️ SIRA SENDE! Haritadan şehir seç (${hak} hak)`);
-    } else if(turnQueue.length > 0) {
-        const name = turnQueue[0] === 'p1' ? players.p1.name : players.p2.name;
-        showStatus(`⏳ Sıra ${name}'de...`);
-    }
-}
-
-// ============================================================
-// FETİH VE SALDIRI
-// ============================================================
-function checkTurnProgress() {
-    if(isHost && gameState === "EXPANSION" && turnQueue.length === 0) {
-        gameState = "WAITING";
-        currentTurn++;
-        setTimeout(startNewTurn, 4000);
-    }
-}
-
-function claimCity(plate) {
-    const me = isHost ? 'p1' : 'p2';
-    if(gameState !== "EXPANSION") return;
-    if(turnQueue.length === 0 || turnQueue[0] !== me) return showStatus("⛔ Sıra sende değil!");
-    if(isHost) processClaim(plate, 'p1');
-    else conn.send({ type: 'CLAIM_REQUEST', plate: plate });
-}
-
-function processClaim(plateInput, playerKey) {
-    const plate = parseInt(plateInput);
-    const oppKey = playerKey === 'p1' ? 'p2' : 'p1';
-    const cityName = CITY_NAMES[plate] || ("İl " + plate);
-
-    if(turnQueue.length === 0 || turnQueue[0] !== playerKey) return;
-
-    if(turnLockedCities.includes(plate)) {
-        return sendWarning(playerKey, "⚠️ " + cityName + " bu tur zaten işlem gördü!");
-    }
-
-    if(!isAdjacent(plate, players[playerKey].cities)) {
-        return sendWarning(playerKey, "⚠️ Sadece komşu illeri alabilirsin!");
-    }
-
+function distributeRewards(p1Ok, p2Ok, t1, t2) {
     let msg = "";
-    let actionSuccess = false;
-    let rightsConsumed = 1;
-    const oppBase = parseInt(players[oppKey].base);
-
-    // A) KALE SALDIRISI
-    if(oppBase === plate) {
-        const rights = turnQueue.filter(p => p === playerKey).length;
-        if(rights < 2) return sendWarning(playerKey, "⚠️ Kale saldırısı için 2 HAK gerekli!");
-        players[oppKey].hp -= 1;
-        rightsConsumed = 2;
-        msg = `⚔️ KALE SALDIRISI! ${players[oppKey].name}'in kalesi hasar aldı! (❤️ ${players[oppKey].hp})`;
-        if(players[oppKey].hp <= 0) {
-            players[playerKey].score += 1000;
-            calculateFinalWinner("🏰 Kale Fethi!");
-            return;
+    
+    // 1. Altın Dağıtımı ve Sıra Belirleme
+    if(p1Ok && p2Ok) {
+        if(t1 < t2) { 
+            players.p1.gold += 250; players.p2.gold += 200; 
+            turnQueue = ['p1', 'p2']; // Mavi Hızlı -> Önce Mavi, Sonra Kırmızı
+            msg="Mavi Hızlı! (+250)"; 
+        } else { 
+            players.p2.gold += 250; players.p1.gold += 200; 
+            turnQueue = ['p2', 'p1']; // Kırmızı Hızlı -> Önce Kırmızı, Sonra Mavi
+            msg="Kırmızı Hızlı! (+250)"; 
         }
-        actionSuccess = true;
-    }
-    // B) TOPRAK ÇALMA
-    else if(players[oppKey].cities.some(c => parseInt(c) === plate)) {
-        players[oppKey].cities = players[oppKey].cities.filter(c => parseInt(c) !== plate);
-        players[oppKey].score -= 150;
-        players[playerKey].cities.push(plate);
-        players[playerKey].score += 150;
-        msg = `🔥 ${players[playerKey].name} ${cityName}'ı çaldı! (+150)`;
-        actionSuccess = true;
-    }
-    // C) NORMAL FETİH
-    else {
-        if(!players[playerKey].cities.some(c => parseInt(c) === plate)) {
-            players[playerKey].cities.push(plate);
-            players[playerKey].score += 50;
-            msg = `🚩 ${players[playerKey].name} → ${cityName} (+50)`;
-            actionSuccess = true;
-        }
-    }
-
-    if(actionSuccess) {
-        turnLockedCities.push(plate);
-        turnQueue.shift();
-        if(rightsConsumed === 2) {
-            const extra = turnQueue.indexOf(playerKey);
-            if(extra > -1) turnQueue.splice(extra, 1);
-        }
-
-        // HER İKİ TARAFI GÜNCELLE
-        broadcastState(msg);
-
-        // Bitiş kontrolü
-        const totalOwned = players.p1.cities.length + players.p2.cities.length;
-        if(totalOwned >= 81) { calculateFinalWinner("Tüm İller Fethedildi!"); return; }
-
-        if(turnQueue.length === 0) {
-            gameState = "WAITING";
-            showGameToast("Tur bitti! Yeni soru geliyor...");
-            currentTurn++;
-            setTimeout(startNewTurn, 4000);
-        }
-    }
-}
-
-function isAdjacent(targetPlate, myCities) {
-    if(!myCities || myCities.length === 0) return false;
-    const neighbors = NEIGHBORS[parseInt(targetPlate)] || [];
-    return neighbors.some(n => myCities.some(c => parseInt(c) === parseInt(n)));
-}
-
-// ============================================================
-// BROADCAST / SYNC FONKSİYONLARI
-// ============================================================
-function broadcastState(message) {
-    renderMapState();
-    updateScoreboard();
-    updateExpansionStatus();
-    if(message) showGameToast(message);
-
-    const cleanData = JSON.parse(JSON.stringify(players));
-    conn.send({
-        type: 'UPDATE_MAP',
-        players: cleanData,
-        queue: [...turnQueue],
-        lockedCities: [...turnLockedCities],
-        msg: message
-    });
-}
-
-function sendWarning(targetPlayer, text) {
-    if(targetPlayer === 'p1') {
-        showStatus(text);
+    } else if(p1Ok) {
+        players.p1.gold += 500; 
+        turnQueue = ['p1', 'p2']; // Sadece Mavi bildi -> Mavi başlar
+        msg="Mavi Bildi! (+500)";
+    } else if(p2Ok) {
+        players.p2.gold += 500; 
+        turnQueue = ['p2', 'p1']; // Sadece Kırmızı bildi -> Kırmızı başlar
+        msg="Kırmızı Bildi! (+500)";
     } else {
-        conn.send({ type: 'UPDATE_MAP', players: JSON.parse(JSON.stringify(players)), msg: text });
+        // Kimse bilemedi, rastgele biri başlar
+        const rnd = Math.random() > 0.5 ? 'p1' : 'p2';
+        turnQueue = (rnd === 'p1') ? ['p1', 'p2'] : ['p2', 'p1'];
+        msg="Kimse bilemedi! Sıra: " + (rnd==='p1'?"Mavi":"Kırmızı");
     }
-}
 
-function syncMap(msg) {
+    // Hareket haklarını sıfırla (Her iki oyuncu için)
+    units.forEach(u => u.moved = false);
+
+    // İlk sıradaki oyuncuyu başlat
     broadcastState(msg);
+    setTimeout(nextTurnStep, 1500); // Mesaj okunsun diye kısa gecikme
 }
 
-// ============================================================
-// HARİTA YÜKLEME VE BOYAMA (INLINE STYLE - GARANTİLİ)
-// ============================================================
-async function loadSvgMap() {
-    const wrapper = document.getElementById('map-container');
-    const resp = await fetch(SVG_URL);
-    wrapper.innerHTML = await resp.text();
-
-    const svg = wrapper.querySelector('svg');
-    svg.querySelectorAll('style, defs').forEach(s => s.remove());
-    svg.querySelectorAll('[style]').forEach(el => el.removeAttribute('style'));
-    svg.removeAttribute('width');
-    svg.removeAttribute('height');
-    svg.style.width = '100%';
-    svg.style.height = '100%';
-
-    // Katmanlar oluştur
-    const iconGrp = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    iconGrp.id = "icon-layer";
-    svg.appendChild(iconGrp);
-
-    const labelGrp = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    labelGrp.id = "label-layer";
-    svg.appendChild(labelGrp);
-
-    svg.querySelectorAll('path').forEach(p => {
-        let id = p.getAttribute('id') || (p.parentElement ? p.parentElement.getAttribute('id') : null);
-        if(id && id.startsWith('TR')) {
-            const pl = parseInt(id.replace('TR',''));
-            p.setAttribute('id', `city-${pl}`);
-            p.removeAttribute('fill');
-            p.removeAttribute('style');
-            p.onclick = (e) => { e.stopPropagation(); onCityClick(pl); };
-
-            // Şehir ismi etiketi ekle
-            try {
-                const b = p.getBBox();
-                if(b.width > 0) {
-                    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                    txt.setAttribute("x", b.x + b.width/2);
-                    txt.setAttribute("y", b.y + b.height/2 + 3);
-                    txt.setAttribute("class", "city-label");
-                    txt.setAttribute("id", `label-${pl}`);
-                    txt.textContent = CITY_NAMES[pl] || "";
-                    labelGrp.appendChild(txt);
-                }
-            } catch(e) {}
-        }
-    });
+function setTurnOrder(first) {
+    units.forEach(u => u.moved = false);
+    gameState = (first === 'p1') ? "ACTION_P1" : "ACTION_P2";
+    players.p1.active = (first === 'p1');
+    players.p2.active = (first === 'p2');
 }
-
-function renderMapState() {
-    if(!svgReady) { pendingMapRender = true; return; }
-
-    // 1. TÜM PATHLARI TEMİZLE (inline style ile)
-    document.querySelectorAll('path[id^="city-"]').forEach(p => {
-    p.removeAttribute('class');
-    p.removeAttribute('style');
-    p.setAttribute('fill', '#ecf0f1');
-    p.setAttribute('stroke', '#95a5a6');
-    p.setAttribute('stroke-width', '1');
-});
-
-    // Label'ları sıfırla
-    document.querySelectorAll('.city-label').forEach(lbl => {
-        lbl.classList.remove('city-label-owned');
-    });
-
-    const iconLayer = document.getElementById('icon-layer');
-    if(iconLayer) iconLayer.innerHTML = '';
-
-    // 2. P1 şehirlerini boya
-    if(players && players.p1 && players.p1.cities) {
-        players.p1.cities.forEach(c => paintCity(parseInt(c), '#3498db', '#fff', 'p1'));
-    }
-    // 3. P2 şehirlerini boya
-    if(players && players.p2 && players.p2.cities) {
-        players.p2.cities.forEach(c => paintCity(parseInt(c), '#e74c3c', '#fff', 'p2'));
+function nextTurnStep() {
+    // Kuyruk bittiyse (İkisi de oynadıysa) -> TURU BİTİR
+    if (turnQueue.length === 0) {
+        endRoundPhase();
+        return;
     }
 
-    updateScoreboard();
+    // Kuyruktan sıradaki oyuncuyu al
+    const nextPlayer = turnQueue.shift(); // 'p1' veya 'p2' çıkar
+    
+    // Durumları güncelle
+    gameState = (nextPlayer === 'p1') ? "ACTION_P1" : "ACTION_P2";
+    players.p1.active = (nextPlayer === 'p1');
+    players.p2.active = (nextPlayer === 'p2');
+
+    // Herkese bildir
+    const name = players[nextPlayer].name;
+    broadcastState(`Sıra ${name}'de! Hamleni yap...`);
+}
+function endMyTurn() {
+    const me = isHost ? 'p1' : 'p2';
+    
+    // Eğer sıra bende değilse işlem yapma
+    if(!players[me].active) return;
+    
+    // Aktifliği kapat (çift tıklamayı önlemek için)
+    players[me].active = false;
+
+    if (isHost) {
+        // Host ise direkt sıradakine geç
+        nextTurnStep();
+    } else {
+        // Misafir ise Host'a "Ben bitirdim" sinyali gönder
+        conn.send({ type: 'GUEST_TURN_ENDED' });
+        // Kendi ekranında butonu gizle (Host'tan update gelene kadar)
+        document.getElementById('turn-controls').style.display = 'none';
+        showGameToast("Hamle sırası devrediliyor...");
+    }
 }
 
-function paintCity(id, fillColor, strokeColor, pid) {
-    const el = document.getElementById(`city-${id}`);
-    if(!el) return;
-    el.removeAttribute('style');
-    el.setAttribute('fill', fillColor);
-    el.setAttribute('stroke', strokeColor);
-    el.setAttribute('stroke-width', '1.5');
-    // Label'ı beyaz yap
-    const label = document.getElementById(`label-${id}`);
-    if(label) label.classList.add('city-label-owned');
-
-    // İkon çiz
-    const baseId = parseInt(players[pid].base);
-    const icon = (baseId === id) ? ICONS.CASTLE : (pid === 'p1' ? ICONS.HOST_SOLDIER : ICONS.GUEST_SOLDIER);
-    drawIcon(id, icon);
+function endRoundPhase() {
+    players.p1.active = false; players.p2.active = false;
+    players.p1.gold += players.p1.cities.length * 10;
+    players.p2.gold += players.p2.cities.length * 10;
+    currentTurn++;
+    broadcastState("Tur Bitti! Altınlar Toplandı.");
+    setTimeout(startNewTurn, 3000);
 }
 
-function drawIcon(c, url) {
-    const p = document.getElementById(`city-${c}`);
-    const layer = document.getElementById('icon-layer');
-    if(!p || !layer) return;
-    try {
-        const b = p.getBBox();
-        const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
-        img.setAttributeNS(null, "href", url);
-        img.setAttribute("x", b.x + b.width/2 - ICON_SIZE/2);
-        img.setAttribute("y", b.y + b.height/2 - ICON_SIZE/2);
-        img.setAttribute("width", ICON_SIZE);
-        img.setAttribute("height", ICON_SIZE);
-        img.classList.add("map-icon");
-        layer.appendChild(img);
-    } catch(e) {}
+// =========================================================================
+// 6. HARİTA VE BİRLİK YÖNETİMİ
+// =========================================================================
+function createUnit(owner, type, loc, count) {
+    units.push({ id: unitIdCounter++, owner, type, loc: parseInt(loc), count, moved: true });
 }
 
-// ============================================================
-// ŞEHİR TIKLAMA
-// ============================================================
-function onCityClick(plate) {
+function onMapClick(plate) {
+    const me = isHost ? 'p1' : 'p2';
+    
+    // Kale Seçimi
     if(gameState === "BASE_SELECT") {
-        const me = isHost ? 'p1' : 'p2';
+        if(players[me].base) return;
         const opp = isHost ? 'p2' : 'p1';
-        if(players[me].base) return showStatus("Zaten kale kurdun!");
-        if(parseInt(players[opp].base) === plate) return showStatus("Rakibin kalesi burada!");
+        if(parseInt(players[opp].base) === plate) return alert("Dolu!");
         
-        players[me].base = plate;
-        players[me].cities.push(plate);
-        const cityName = CITY_NAMES[plate] || plate;
-
         if(isHost) {
-            broadcastState("🏰 " + players.p1.name + " kalesini kurdu: " + cityName);
-            checkGameStart();
+            players[me].base = plate;
+            players[me].cities.push(plate);
+            createUnit(me, 'inf', plate, 10);
+            checkGameStart(); 
+            broadcastState("Mavi Kale Kurdu!");
         } else {
-            conn.send({ type: 'GUEST_BASE_SELECT', plate: plate, p2Name: players.p2.name });
-            renderMapState();
-            showGameToast("🏰 Kalen: " + cityName + " — Rakip bekleniyor...");
+            // Misafir sadece seçimini gönderir, birlik oluşturmaz
+            conn.send({ type: 'GUEST_BASE_SELECT', plate }); 
+            showGameToast("Rakip Bekleniyor...");
+        }
+        return;
+    }
+    
+    // Hedef Seçimi (Hareket Modu)
+    if((gameState === "ACTION_P1_MOVE" && me === 'p1') || (gameState === "ACTION_P2_MOVE" && me === 'p2')) {
+        const count = parseInt(document.getElementById('move-slider').value);
+        moveUnitCommand(selectedUnitId, plate, count);
+        gameState = (me === 'p1') ? "ACTION_P1" : "ACTION_P2";
+        renderAll();
+        return;
+    }
+    
+    // Detay Görüntüleme
+    if(players[me].cities.includes(plate) || units.some(u => u.loc === plate && u.owner === me)) {
+        renderCityModal(plate);
+        new bootstrap.Modal(document.getElementById('unitModal')).show();
+    }
+}
+
+function moveUnitCommand(uid, target, count, actor) {
+    // Misafir ise komutu host'a gönder, yerel state'i değiştirme
+    if(!isHost) {
+        conn.send({ type: 'GUEST_MOVE', uid, target: parseInt(target), count });
+        return;
+    }
+    
+    const uIdx = units.findIndex(u => u.id === uid);
+    if(uIdx === -1) return;
+    const unit = units[uIdx];
+    
+    // Sahiplik kontrolü - sadece kendi askerini hareket ettirebilir
+    if(!actor) actor = 'p1'; // Host'un kendi hamlesi
+    if(unit.owner !== actor) { console.warn("Sahiplik hatası: Başkasının askerini hareket ettiremezsin!"); return; }
+    
+    // Hareket hakkı kontrolü
+    if(unit.moved) { if(actor === 'p1') alert("Bu birlik bu tur zaten hareket etti!"); return; }
+    
+    // Menzil Kontrolü
+    const range = (unit.type === 'cav') ? 2 : 1;
+    const validTargets = getReachableCities(unit.loc, unit.type);
+    if(!validTargets.includes(parseInt(target))) {
+        if(actor === 'p1') alert((unit.type === 'cav') ? "Atlılar en fazla 2, Piyadeler 1 şehir gidebilir!" : "Piyadeler sadece komşu şehre gidebilir!");
+        return;
+    }
+    
+    // --- Hareket Öncesi Bölme İşlemi (Split) ---
+    let activeUnit = unit;
+    if(count < unit.count) {
+        const newUnit = { 
+            id: unitIdCounter++, 
+            owner: unit.owner, 
+            type: unit.type, 
+            loc: unit.loc, 
+            count: count, 
+            moved: true 
+        };
+        units.push(newUnit);
+        unit.count -= count;
+        activeUnit = newUnit;
+    } else {
+        unit.moved = true;
+    }
+
+    // --- Atlı Birlik Yol Fethetme Mantığı ---
+    const dist = getDistance(activeUnit.loc, parseInt(target));
+    if(activeUnit.type === 'cav' && dist === 2) {
+        const midCity = getCommonNeighbor(activeUnit.loc, target);
+        if(midCity) {
+            conquerCity(midCity, activeUnit.owner); 
         }
     }
-    else if(gameState === "EXPANSION") {
-        claimCity(plate);
+
+    // --- Hedef Analizi: KALE mi ŞEHİR mi? ---
+    const opponent = (activeUnit.owner === 'p1') ? 'p2' : 'p1';
+    const isTargetBase = (parseInt(players[opponent].base) === parseInt(target));
+
+    if (isTargetBase) {
+        if (dist === 2) {
+            const stepCity = getCommonNeighbor(activeUnit.loc, target);
+            activeUnit.loc = stepCity; 
+        }
+        checkSiegeCombat(activeUnit, parseInt(target));
+    } else {
+        activeUnit.loc = parseInt(target);
+        checkFieldCombat(activeUnit);
     }
+    
+    mergeUnits(activeUnit.loc, activeUnit.owner);
+    
+    // Sadece host state yayınlar
+    broadcastState();
+}
+
+// Yardımcı Mesafe Fonksiyonu (Basitçe komşu mu değil mi bakar)
+function getDistance(start, end) {
+    const neighbors = NEIGHBORS[parseInt(start)] || [];
+    if (neighbors.includes(parseInt(end))) return 1;
+    return 2; // Menzil kontrolünden geçtiği için ya 1 ya 2'dir.
+}
+
+// --- MEYDAN SAVAŞI (Şehre Girdiğinde) ---
+function checkFieldCombat(attUnit) {
+    const loc = attUnit.loc;
+    const attacker = attUnit.owner;
+    const defender = (attacker === 'p1') ? 'p2' : 'p1';
+
+    // O şehirdeki düşmanları bul
+    const enemies = units.filter(u => u.loc === loc && u.owner === defender);
+    
+    if(enemies.length === 0) {
+        // Düşman yok, direkt fethet
+        conquerCity(loc, attacker);
+        return;
+    }
+
+    // Güç Hesapla
+    let attPower = attUnit.count * (attUnit.type === 'cav' ? 2 : 1);
+    let defPower = enemies.reduce((sum, u) => sum + (u.count * (u.type === 'cav' ? 2 : 1)), 0);
+
+    showGameToast(`⚔️ ÇATIŞMA! ${attPower} vs ${defPower}`);
+
+    if (attPower > defPower) {
+        // SALDIRAN KAZANDI
+        // Düşmanlar silinir
+        units = units.filter(u => !(u.loc === loc && u.owner === defender));
+        
+        // Saldıranın kaybını düş
+        let remainingPower = attPower - defPower;
+        attUnit.count = Math.ceil(remainingPower / (attUnit.type === 'cav' ? 2 : 1));
+        
+        // Şehri ele geçir
+        conquerCity(loc, attacker);
+        
+    } else if (defPower > attPower) {
+        // SAVUNAN KAZANDI
+        // Saldıran silinir
+        units = units.filter(u => u.id !== attUnit.id);
+        
+        // Savunanın kaybını düş (İlk birliğe yansıt basitçe)
+        let remainingPower = defPower - attPower;
+        const survivor = enemies[0];
+        survivor.count = Math.max(1, Math.ceil(remainingPower / (survivor.type === 'cav' ? 2 : 1))); // En az 1 kalır
+        
+    } else {
+        // BERABERE (İkisi de ölür)
+        units = units.filter(u => !(u.loc === loc && u.owner === defender)); // Düşman ölür
+        units = units.filter(u => u.id !== attUnit.id); // Saldıran ölür
+        
+        // Şehir SAVUNANDA KALIR (Fetih fonksiyonu çağrılmaz)
+        showGameToast("⚔️ BERABERE! Herkes öldü, şehir düşmedi.");
+    }
+}
+
+// --- KUŞATMA SAVAŞI (Kaleye Dışarıdan Saldırı) ---
+function checkSiegeCombat(attUnit, baseLoc) {
+    const defender = (attUnit.owner === 'p1') ? 'p2' : 'p1';
+    
+    // Kaledeki düşman askerleri
+    const defendersInBase = units.filter(u => u.loc === baseLoc && u.owner === defender);
+    
+    // Güçler
+    let attPower = attUnit.count * (attUnit.type === 'cav' ? 2 : 1);
+    let defPower = defendersInBase.reduce((sum, u) => sum + (u.count * (u.type === 'cav' ? 2 : 1)), 0);
+
+    // 1. ÖNCE ASKERLER SAVAŞIR
+    if (defPower > 0) {
+        if (attPower > defPower) {
+            // Saldıran askeri yendi
+            units = units.filter(u => !(u.loc === baseLoc && u.owner === defender)); // Kaledekiler ölür
+            
+            // Saldıranın gücü azalır
+            let remainingPower = attPower - defPower;
+            attUnit.count = Math.ceil(remainingPower / (attUnit.type === 'cav' ? 2 : 1));
+            
+            // Kalan güçle kaleye vurmak için güncelle
+            attPower = remainingPower;
+            showGameToast("⚔️ Savunma yarıldı! Kaleye saldırılıyor...");
+            
+        } else {
+            // Savunan askeri yendi veya berabere
+            units = units.filter(u => u.id !== attUnit.id); // Saldıran ölür
+            
+            // Kaledekilerin kaybı
+            let remainingDef = defPower - attPower;
+            if(remainingDef <= 0) {
+                // Berabere: Kaledekiler de ölür
+                units = units.filter(u => !(u.loc === baseLoc && u.owner === defender));
+            } else if (defendersInBase.length > 0) {
+                // Savunan hayatta
+                const s = defendersInBase[0];
+                s.count = Math.max(1, Math.ceil(remainingDef / (s.type==='cav'?2:1)));
+            }
+            showGameToast("🛡️ Saldırı püskürtüldü!");
+            return; // Kale hasar almaz
+        }
+    }
+
+    // 2. KALE HASARI (Asker kalmadıysa veya yenildiyse)
+    players[defender].hp -= attPower;
+    showGameToast(`🔥 KALE VURULDU! -${attPower} Hasar (Kalan: ${players[defender].hp})`);
+
+    if (players[defender].hp <= 0) {
+        players[defender].hp = 0;
+        setTimeout(() => {
+            alert(`🏆 OYUN BİTTİ! ${players[attUnit.owner].name} KAZANDI!`);
+            location.reload();
+        }, 1000);
+    }
+}
+
+// Basit Fetih Yardımcısı
+function conquerCity(cityId, newOwner) {
+    const oldOwner = (newOwner === 'p1') ? 'p2' : 'p1';
+    
+    // Rakipteyse sil
+    if (players[oldOwner].cities.includes(cityId)) {
+        players[oldOwner].cities = players[oldOwner].cities.filter(c => c !== cityId);
+    }
+    
+    // Bizde değilse ekle
+    if (!players[newOwner].cities.includes(cityId)) {
+        players[newOwner].cities.push(cityId);
+        // showGameToast(`${CITY_NAMES[cityId]} ele geçirildi!`);
+    }
+}
+
+function buyUnit(type) {
+    const me = isHost ? 'p1' : 'p2';
+    
+    // Misafir ise komutu host'a gönder
+    if(!isHost) {
+        conn.send({ type: 'GUEST_BUY', unitType: type });
+        return;
+    }
+    
+    // Host ise direkt işle (kendi birliği veya GUEST_BUY komutu ile)
+    executeBuyUnit(me, type);
+}
+
+function executeBuyUnit(buyer, type) {
+    const cost = UNIT_TYPES[type].cost;
+    if(players[buyer].gold < cost) { if(buyer === (isHost?'p1':'p2')) alert("Para yok!"); return; }
+    players[buyer].gold -= cost;
+    createUnit(buyer, type, players[buyer].base, 1);
+    broadcastState();
+    if(buyer === (isHost?'p1':'p2')) renderCityModal(players[buyer].base);
+}
+
+function mergeUnits(loc, owner) {
+    ['inf','cav'].forEach(t => {
+        const my = units.filter(u => u.loc === loc && u.owner === owner && u.type === t);
+        if(my.length > 1) {
+            const main = my[0];
+            for(let i=1; i<my.length; i++) {
+                main.count += my[i].count;
+                if(my[i].moved) main.moved = true;
+                units = units.filter(u => u.id !== my[i].id);
+            }
+        }
+    });
 }
 
 function checkGameStart() {
     if(players.p1.base && players.p2.base) {
-        gameState = "PLAYING";
-        showGameToast("⚔️ SAVAŞ BAŞLIYOR!");
+        broadcastState("Savaş Başlıyor!");
         setTimeout(startNewTurn, 2000);
     }
 }
 
-// ============================================================
-// SKOR VE UI
-// ============================================================
-function updateScoreboard() {
-    document.getElementById('p1-name').innerText = players.p1.name || "Mavi";
-    document.getElementById('p2-name').innerText = players.p2.name || "Kırmızı";
+// =========================================================================
+// 7. GÖRSELLEŞTİRME (RENDER)
+// =========================================================================
+async function loadSvgMap() {
+    const wrapper = document.getElementById('map-container');
+    const resp = await fetch(SVG_URL);
+    wrapper.innerHTML = await resp.text();
+    const svg = wrapper.querySelector('svg');
+    svg.removeAttribute('width'); svg.removeAttribute('height');
+    svg.style.width = '100%'; svg.style.height = '100%';
     
-    const p1s = document.getElementById('p1-score');
-    const p2s = document.getElementById('p2-score');
-    const oldP1 = parseInt(p1s.innerText) || 0;
-    const oldP2 = parseInt(p2s.innerText) || 0;
+    const iconL = document.createElementNS("http://www.w3.org/2000/svg", "g"); iconL.id="icon-layer"; svg.appendChild(iconL);
     
-    p1s.innerText = players.p1.score;
+    svg.querySelectorAll('path').forEach(p => {
+        if(p.id && p.id.startsWith('TR')) {
+            const pl = parseInt(p.id.replace('TR',''));
+            p.id = `city-${pl}`;
+            p.onclick = (e) => { e.stopPropagation(); onMapClick(pl); };
+            p.style.fill = "#ecf0f1";
+            
+            // Label ekle
+            try {
+                const b = p.getBBox();
+                const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                t.setAttribute("x", b.x + b.width/2); t.setAttribute("y", b.y + b.height/2);
+                t.textContent = CITY_NAMES[pl] || "";
+                t.classList.add('city-label');
+                t.id = `label-${pl}`;
+                svg.appendChild(t);
+            } catch(e){}
+        }
+    });
+}
+
+function renderAll() {
+    // 1. Skorlar
+    document.getElementById('p1-gold').innerText = players.p1.gold;
+    document.getElementById('p2-gold').innerText = players.p2.gold;
     document.getElementById('p1-cities').innerText = players.p1.cities.length;
-    document.getElementById('p1-hp').innerText = players.p1.hp;
-
-    p2s.innerText = players.p2.score;
     document.getElementById('p2-cities').innerText = players.p2.cities.length;
+    document.getElementById('p1-hp').innerText = players.p1.hp;
     document.getElementById('p2-hp').innerText = players.p2.hp;
+    
+    // Buton
+    const me = isHost ? 'p1' : 'p2';
+    document.getElementById('turn-controls').style.display = players[me].active ? 'block' : 'none';
 
-    // Puan değiştiyse flash animasyonu
-    if(players.p1.score !== oldP1) { p1s.classList.add('score-highlight'); setTimeout(() => p1s.classList.remove('score-highlight'), 600); }
-    if(players.p2.score !== oldP2) { p2s.classList.add('score-highlight'); setTimeout(() => p2s.classList.remove('score-highlight'), 600); }
+    // 2. Harita Renkleri
+    document.querySelectorAll('path[id^="city-"]').forEach(p => {
+        p.style.fill = "#ecf0f1";
+        const pid = parseInt(p.id.split('-')[1]);
+        if(players.p1.cities.includes(pid)) p.style.fill = "#3498db";
+        if(players.p2.cities.includes(pid)) p.style.fill = "#e74c3c";
+    });
+
+    // 3. Asker İkonları
+    const layer = document.getElementById('icon-layer');
+    if(layer) {
+        layer.innerHTML = "";
+        // Grupla
+        const counts = {};
+        units.forEach(u => {
+            if(!counts[u.loc]) counts[u.loc] = { p1:[], p2:[] };
+            counts[u.loc][u.owner].push(u);
+        });
+        
+        for(const [loc, grp] of Object.entries(counts)) {
+            if(grp.p1.length) drawIconGroup(loc, grp.p1, 'p1');
+            if(grp.p2.length) drawIconGroup(loc, grp.p2, 'p2');
+        }
+        
+        // Kale İkonları (Ekstra süs)
+        if(players.p1.base) drawCastle(players.p1.base, 'p1');
+        if(players.p2.base) drawCastle(players.p2.base, 'p2');
+    }
 }
 
-function showStatus(msg) {
-    const el = document.getElementById('status-bar');
-    el.innerText = msg;
-    el.style.display = 'block';
+function drawIconGroup(loc, list, owner) {
+    const total = list.reduce((a,b)=>a+b.count,0);
+    const hasCav = list.some(u=>u.type==='cav');
+    const icon = hasCav ? UNIT_TYPES.cav[`icon${owner.toUpperCase()}`] : UNIT_TYPES.inf[`icon${owner.toUpperCase()}`];
+    
+    const p = document.getElementById(`city-${loc}`);
+    if(!p) return;
+    const b = p.getBBox();
+    const off = (owner==='p1') ? -10 : 10;
+    
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.innerHTML = `
+        <image href="${icon}" x="${b.x+b.width/2-15+off}" y="${b.y+b.height/2-15}" width="30" height="30" class="map-icon"/>
+        <circle cx="${b.x+b.width/2+10+off}" cy="${b.y+b.height/2+10}" r="6" fill="red" stroke="white"/>
+        <text x="${b.x+b.width/2+10+off}" y="${b.y+b.height/2+12}" class="unit-badge" text-anchor="middle" font-size="9" fill="white">${total}</text>
+    `;
+    document.getElementById('icon-layer').appendChild(g);
 }
 
-// ============================================================
-// GÖRSEL EFEKTLER
-// ============================================================
-
-// Uçan puan animasyonu (harita üzerinde)
-function spawnFloatingScore(isP1, text) {
-    const container = document.getElementById('map-container');
-    if(!container) return;
-
-    const el = document.createElement('div');
-    el.className = 'float-score';
-    el.innerText = text;
-    el.style.color = isP1 ? '#3498db' : '#e74c3c';
-
-    // Player card pozisyonuna yakın yerleştir
-    if(isP1) { el.style.left = '15%'; el.style.top = '20%'; }
-    else { el.style.right = '15%'; el.style.top = '20%'; }
-
-    container.appendChild(el);
-    setTimeout(() => el.remove(), 2500);
+function drawCastle(loc, owner) {
+    const p = document.getElementById(`city-${loc}`);
+    if(!p) return;
+    const b = p.getBBox();
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    g.setAttribute("href", "./castle.svg");
+    g.setAttribute("x", b.x + b.width/2 - 20);
+    g.setAttribute("y", b.y + b.height/2 - 25); // Biraz daha yukarı
+    g.setAttribute("width", 40);
+    g.setAttribute("height", 40);
+    g.style.pointerEvents = "none";
+    document.getElementById('icon-layer').appendChild(g);
 }
 
-// Oyun bilgilendirme toast'u (harita ortasında belirir kaybolur)
+// Modal Render
+function renderCityModal(cityId) {
+    const me = isHost ? 'p1' : 'p2';
+    const myUnits = units.filter(u => u.loc === parseInt(cityId) && u.owner === me);
+    
+    document.getElementById('city-modal-title').innerText = CITY_NAMES[cityId] || cityId;
+    const list = document.getElementById('city-units-list');
+    list.innerHTML = "";
+    
+    if(myUnits.length === 0) list.innerHTML = "<small>Birlik yok.</small>";
+    
+    myUnits.forEach(u => {
+        const d = document.createElement('div');
+        d.className = `unit-select-card d-flex justify-content-between ${u.moved?'opacity-50':''}`;
+        d.innerHTML = `<span>${u.count} x ${UNIT_TYPES[u.type].name}</span> ${u.moved?'<span class="badge bg-secondary">Bekle</span>':'<span class="badge bg-success">Hazır</span>'}`;
+        if(!u.moved && players[me].active) {
+            d.onclick = () => {
+                selectedUnitId = u.id;
+                document.querySelectorAll('.unit-select-card').forEach(x=>x.classList.remove('active'));
+                d.classList.add('active');
+                document.getElementById('move-controls').classList.remove('d-none');
+                document.getElementById('move-slider').max = u.count;
+                document.getElementById('move-slider').value = u.count;
+                document.getElementById('move-val').innerText = u.count;
+            };
+        }
+        list.appendChild(d);
+    });
+    
+    // Kale ise recruit göster
+    if(parseInt(players[me].base) === parseInt(cityId) && players[me].active) {
+        document.getElementById('recruit-controls').classList.remove('d-none');
+    } else {
+        document.getElementById('recruit-controls').classList.add('d-none');
+    }
+}
+
+function updateSliderVal(v) { document.getElementById('move-val').innerText = v; }
+function enableMoveMode() {
+    bootstrap.Modal.getInstance(document.getElementById('unitModal')).hide();
+    gameState = isHost ? "ACTION_P1_MOVE" : "ACTION_P2_MOVE";
+    showGameToast("Haritada hedef seç...");
+}
+
+function broadcastState(msg) {
+    if(isHost) conn.send({ type: 'UPDATE_MAP', players, units, gameState, unitIdCounter, msg });
+    if(msg) showGameToast(msg);
+    renderAll();
+}
+
 function showGameToast(msg) {
-    const container = document.getElementById('screen-game') || document.body;
+    const t = document.createElement('div'); t.className='game-toast'; t.innerText=msg;
+    document.body.appendChild(t); setTimeout(()=>t.remove(), 2500);
+}
+// Bu fonksiyonu script taginin en altına, diğer fonksiyonların yanına ekle:
+function generateVocabQuestions() {
+    const qList = [];
+    const total = ydsVocabDB.length;
     
-    // Eski toast'ları temizle
-    container.querySelectorAll('.game-toast').forEach(t => t.remove());
+    ydsVocabDB.forEach((item, index) => {
+        const isEnToTr = index < (total / 2); // Yarısı EN->TR, yarısı TR->EN
+        const questionText = isEnToTr 
+            ? `"${item.en}" kelimesinin Türkçe karşılığı nedir?`
+            : `"${item.tr}" ifadesinin İngilizce karşılığı nedir?`;
+        const correctAns = isEnToTr ? item.tr : item.en;
 
-    const toast = document.createElement('div');
-    toast.className = 'game-toast';
-    toast.innerText = msg;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-    
-    // Status bar'ı da güncelle
-    showStatus(msg);
+        // Çeldirici (Şık) Üretimi
+        let distractors = [];
+        let seed = index + 42; // Sabit rastgelelik için
+        let tempPool = ydsVocabDB.filter(w => w.en !== item.en);
+        
+        while(distractors.length < 4 && tempPool.length > 0) {
+            seed = (seed * 9301 + 49297) % 233280;
+            const rIdx = Math.floor((seed / 233280) * tempPool.length);
+            const pick = isEnToTr ? tempPool[rIdx].tr : tempPool[rIdx].en;
+            if(!distractors.includes(pick) && pick !== correctAns) {
+                distractors.push(pick);
+            }
+            tempPool.splice(rIdx, 1);
+        }
+
+        // Şıkları Karıştır
+        let optionsArr = [...distractors, correctAns];
+        optionsArr.sort(() => Math.random() - 0.5);
+
+        const opts = { A: optionsArr[0], B: optionsArr[1], C: optionsArr[2], D: optionsArr[3], E: optionsArr[4] };
+        
+        qList.push({
+            id: 5000 + index,
+            text: questionText,
+            opts: opts,
+            correctAnswer: Object.keys(opts).find(k => opts[k] === correctAns) || 'A'
+        });
+    });
+    return qList;
 }
+    // YENİ: Menzil Hesaplama Fonksiyonu (Piyade:1, Atlı:2)
+function getReachableCities(startLoc, unitType) {
+    const range = (unitType === 'cav') ? 2 : 1;
+    let accessible = new Set();
+    let queue = [{ id: parseInt(startLoc), dist: 0 }];
+    let visited = new Set([parseInt(startLoc)]);
 
-// Şehir fethedilince uçan puan (harita üzerinde şehrin yerinde)
-function spawnCityScore(plate, text, color) {
-    const el = document.getElementById(`city-${plate}`);
-    const container = document.getElementById('map-container');
-    if(!el || !container) return;
+    while (queue.length > 0) {
+        let curr = queue.shift();
+        if (curr.dist > 0) accessible.add(curr.id); // Başlangıç noktası hariç ekle
 
-    try {
-        const bbox = el.getBoundingClientRect();
-        const cbox = container.getBoundingClientRect();
-
-        const score = document.createElement('div');
-        score.className = 'float-score';
-        score.innerText = text;
-        score.style.color = color;
-        score.style.left = (bbox.left - cbox.left + bbox.width/2) + 'px';
-        score.style.top = (bbox.top - cbox.top) + 'px';
-        container.appendChild(score);
-        setTimeout(() => score.remove(), 2500);
-    } catch(e) {}
+        if (curr.dist < range) {
+            let neighbors = NEIGHBORS[curr.id] || [];
+            neighbors.forEach(n => {
+                if (!visited.has(n)) {
+                    visited.add(n);
+                    queue.push({ id: n, dist: curr.dist + 1 });
+                }
+            });
+        }
+    }
+    return Array.from(accessible);
 }
-
-// ============================================================
-// OYUN BİTİŞİ
-// ============================================================
-function calculateFinalWinner(reason) {
-    let winner = "Berabere";
-    if(players.p1.score > players.p2.score) winner = players.p1.name;
-    else if(players.p2.score > players.p1.score) winner = players.p2.name;
-    const scores = `${players.p1.name}: ${players.p1.score} (${players.p1.cities.length} il) — ${players.p2.name}: ${players.p2.score} (${players.p2.cities.length} il)`;
-    conn.send({ type: 'GAME_OVER', winner, reason, scores });
-    endGame(winner, reason, scores);
+    // İki şehir arasındaki ortak komşuyu bulur (Atlıların geçtiği yol)
+function getCommonNeighbor(start, end) {
+    const startNeighbors = NEIGHBORS[parseInt(start)] || [];
+    const endNeighbors = NEIGHBORS[parseInt(end)] || [];
+    // İkisinin kesişimini bul
+    const common = startNeighbors.filter(x => endNeighbors.includes(x));
+    return common.length > 0 ? common[0] : null; // İlk bulunanı döndür
 }
-
-function endGame(winner, reason, scores) {
-    if(timerInterval) clearInterval(timerInterval);
-    document.getElementById('winner-name').innerText = "👑 " + winner;
-    document.getElementById('winner-reason').innerText = reason;
-    document.getElementById('winner-score-info').innerText = scores;
-    new bootstrap.Modal(document.getElementById('resultModal')).show();
-}
-
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
