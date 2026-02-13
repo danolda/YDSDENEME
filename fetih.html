@@ -7750,7 +7750,9 @@ function handleData(data) {
             if(data.lockedCities) turnLockedCities = data.lockedCities;
             if(data.msg) showGameToast(data.msg);
             renderMapState();
-            setTimeout(renderMapState, 150);
+            setTimeout(renderMapState, 200);
+            setTimeout(renderMapState, 600);
+            setTimeout(renderMapState, 1200);
             updateExpansionStatus();
             if(data.gameOver) return endGame(data.winner, data.reason, data.scores);
             if(isHost) checkTurnProgress();
@@ -8216,6 +8218,15 @@ function renderMapState() {
     }
 
     updateScoreboard();
+    // MOBILE SVG REPAINT FIX
+    requestAnimationFrame(() => {
+        const svgEl = document.querySelector('#map-container svg');
+        if(svgEl) {
+            svgEl.style.display = 'none';
+            void svgEl.offsetHeight;
+            svgEl.style.display = '';
+        }
+    });
 }
 
 function paintCity(id, fillColor, strokeColor, pid) {
