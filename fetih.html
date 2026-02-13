@@ -7743,66 +7743,123 @@ let units = []; // { id, owner, type, loc, count, moved }
 // =========================================================================
 // 4. BAĞLANTI & KURULUM
 // =========================================================================
+/* --- GÜNCELLENMİŞ BAĞLANTI FONKSİYONLARI --- */
+
+// Ortak PeerJS Ayarları (Daha fazla STUN sunucusu eklendi)
+const peerConfig = {
+    debug: 2, // Hataları konsolda daha net görmek için
+    config: {
+        'iceServers': [
+            { 'urls': 'stun:stun.l.google.com:19302' },
+            { 'urls': 'stun:stun1.l.google.com:19302' },
+            { 'urls': 'stun:stun2.l.google.com:19302' }
+        ]
+    }
+};
+
+// Oda ismini standart hale getirir (Boşlukları sil, küçük harf yap)
+function sanitizeRoomId(room) {
+    return room.trim().replace(/\s+/g, '').toLowerCase();
+}
+
 function createGame() {
-    const room = document.getElementById('room-id').value.trim();
+    const rawRoom = document.getElementById('room-id').value;
     const name = document.getElementById('player-name').value.trim() || "Mavi";
-    if(!room) return alert("Oda ismi girin!");
+    
+    if(!rawRoom) return alert("Lütfen bir oda ismi girin!");
+    
+    // Oda ismini temizle (Örn: "Fetih 1" -> "fetih1")
+    const room = sanitizeRoomId(rawRoom);
+    
+    // Benzersiz bir ID oluştur (Çakışmayı önlemek için prefix ekliyoruz)
+    const peerId = 'yds-fetih-game-v1-' + room;
+
     if(peer) peer.destroy();
     
-    const peerId = 'yds-fetih-' + room;
+    document.getElementById('lobby-status').innerHTML = '<span class="text-warning">⏳ Sunucuya bağlanılıyor...</span>';
+
+    // Host ID'yi manuel olarak alır
+    peer = new Peer(peerId, peerConfig);
     
-    peer = new Peer(peerId, { 
-        debug: 1, config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }, serialization: 'json' 
+    peer.on('open', (id) => { 
+        isHost = true; 
+        players.p1.name = name; 
+        console.log("Host ID:", id); // Konsoldan ID'yi kontrol edebilirsiniz
+        document.getElementById('lobby-status').innerHTML = `<span class="text-success">✅ Oda Açıldı! (${room})<br>Rakip bekleniyor...</span>`; 
     });
     
-    peer.on('open', () => { isHost = true; players.p1.name = name; document.getElementById('lobby-status').innerHTML = '<span class="text-success">✅ Oda Açıldı! Rakip bekleniyor...</span>'; });
-    peer.on('connection', c => { conn = c; setupConnection(); });
+    peer.on('connection', c => { 
+        conn = c; 
+        setupConnection(); 
+    });
+    
     peer.on('error', (err) => {
+        console.error(err);
         if(err.type === 'unavailable-id') {
-            document.getElementById('lobby-status').innerHTML = '<span class="text-danger">❌ Bu oda zaten açık! Farklı isim dene.</span>';
+            document.getElementById('lobby-status').innerHTML = '<span class="text-danger">❌ Bu oda ismi DOLU! Lütfen başka bir isim girin.</span>';
+        } else {
+            document.getElementById('lobby-status').innerHTML = `<span class="text-danger">❌ Hata: ${err.type}</span>`;
         }
     });
 }
 
 function joinGame() {
-    const room = document.getElementById('room-id').value.trim();
+    const rawRoom = document.getElementById('room-id').value;
     const name = document.getElementById('player-name').value.trim() || "Kırmızı";
-    if(!room) return alert("Oda ismi girin!");
+    
+    if(!rawRoom) return alert("Lütfen oda ismini girin!");
+    
+    const room = sanitizeRoomId(rawRoom);
+    const targetPeerId = 'yds-fetih-game-v1-' + room;
+
     if(peer) peer.destroy();
     
-    const peerId = 'yds-fetih-' + room;
-    document.getElementById('lobby-status').innerHTML = '<span class="text-info">⏳ Bağlanılıyor...</span>';
+    document.getElementById('lobby-status').innerHTML = '<span class="text-info">⏳ Odaya bağlanılıyor...</span>';
     
-    peer = new Peer(null, { 
-        debug: 1, config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }, serialization: 'json' 
-    });
+    // Guest rastgele bir ID alır (new Peer() içi boş bırakılır veya null)
+    peer = new Peer(peerConfig);
 
-    peer.on('open', () => { 
-        conn = peer.connect(peerId, { serialization: 'json', reliable: true }); 
+    peer.on('open', (id) => { 
+        console.log("Guest ID:", id);
         isHost = false; 
         players.p2.name = name; 
         
+        // Host'a bağlan
+        conn = peer.connect(targetPeerId, {
+            reliable: true // Veri kaybını önlemek için
+        });
+        
         conn.on('open', () => {
+            console.log("Bağlantı kuruldu!");
+            // Bağlantı açılır açılmaz JOIN bilgisini gönder
             conn.send({ type: 'JOIN', p2Name: players.p2.name });
-            document.getElementById('lobby-status').innerHTML = '<span class="text-success">✅ Bağlandı!</span>';
+            document.getElementById('lobby-status').innerHTML = '<span class="text-success">✅ Başarıyla Bağlandı!</span>';
         });
         
         conn.on('data', handleData);
         
         conn.on('error', (err) => {
-            document.getElementById('lobby-status').innerHTML = '<span class="text-danger">❌ Bağlantı hatası: ' + err + '</span>';
+            console.error("Bağlantı hatası:", err);
+            document.getElementById('lobby-status').innerHTML = '<span class="text-danger">❌ Bağlantı koptu.</span>';
         });
+
+        // Bağlantı 5 saniye içinde kurulamazsa uyarı ver
+        setTimeout(() => {
+            if (!conn || !conn.open) {
+                 document.getElementById('lobby-status').innerHTML = '<span class="text-danger">⚠️ Oda bulunamadı veya yanıt vermiyor. Oda ismini kontrol edin.</span>';
+            }
+        }, 5000);
     });
 
     peer.on('error', (err) => {
+        console.error(err);
         if(err.type === 'peer-unavailable') {
-            document.getElementById('lobby-status').innerHTML = '<span class="text-danger">❌ Oda bulunamadı! Host\'un odayı açtığından emin ol.</span>';
+            document.getElementById('lobby-status').innerHTML = `<span class="text-danger">❌ Oda Bulunamadı!<br>Host "${room}" isminde bir oda açtı mı?</span>`;
         } else {
-            document.getElementById('lobby-status').innerHTML = '<span class="text-danger">❌ Hata: ' + err.type + '</span>';
+            document.getElementById('lobby-status').innerHTML = `<span class="text-danger">❌ Hata: ${err.type}</span>`;
         }
     });
 }
-
 function setupConnection() {
     conn.on('data', handleData);
     conn.on('open', () => {
