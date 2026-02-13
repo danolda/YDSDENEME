@@ -95,21 +95,104 @@
     background: linear-gradient(90deg, var(--p1-color) 50%, var(--p2-color) 50%) !important; 
     color: white !important; text-shadow: 1px 1px 2px black;
 }
+/* --- FETİH GİRİŞ EKRANI --- */
+#screen-lobby {
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.85)),
+                url('https://images.unsplash.com/photo-1562753619-0e854da5e034?w=1920&q=80') center/cover no-repeat;
+}
+
+#screen-lobby h1 {
+    font-family: 'Georgia', serif;
+    text-shadow: 0 0 30px rgba(241,196,15,0.5), 2px 4px 6px rgba(0,0,0,0.8);
+    letter-spacing: 3px;
+}
+
+.lobby-card {
+    background: linear-gradient(145deg, rgba(15,15,15,0.95), rgba(30,20,10,0.95)) !important;
+    border: 2px solid #b8860b !important;
+    box-shadow: 0 0 40px rgba(184,134,11,0.3), inset 0 1px 0 rgba(255,215,0,0.1);
+    backdrop-filter: blur(10px);
+}
+
+.lobby-card input {
+    background: rgba(255,255,255,0.08) !important;
+    border: 1px solid #555 !important;
+    color: #f1c40f !important;
+}
+.lobby-card input::placeholder { color: #888 !important; }
+
+.btn-war {
+    background: linear-gradient(180deg, #b8860b, #8B6914) !important;
+    color: #fff !important;
+    border: 2px solid #d4a017 !important;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 800;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    transition: all 0.2s;
+}
+.btn-war:hover {
+    background: linear-gradient(180deg, #d4a017, #b8860b) !important;
+    box-shadow: 0 0 20px rgba(212,160,23,0.5);
+    transform: translateY(-1px);
+}
+
+.btn-war-outline {
+    background: transparent !important;
+    color: #d4a017 !important;
+    border: 2px solid #8B6914 !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+.btn-war-outline:hover {
+    background: rgba(184,134,11,0.2) !important;
+    border-color: #d4a017 !important;
+}
+
+.lobby-subtitle {
+    color: #aaa;
+    font-size: 0.9rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+.lobby-divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #b8860b, transparent);
+    margin: 15px 0;
+}
+
+/* Setup ekranı da aynı arkaplan */
+#screen-setup {
+    background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.9)),
+                url('https://images.unsplash.com/photo-1562753619-0e854da5e034?w=1920&q=80') center/cover no-repeat;
+}
+        
     </style>
 </head>
 <body>
 
 <!-- 1. GİRİŞ EKRANI -->
-<div id="screen-lobby" class="container d-flex flex-column justify-content-center align-items-center vh-100">
-    <h1 class="display-3 fw-bold text-warning mb-4"><i class="bi bi-shield-shaded"></i> YDS İMPARATORLUK</h1>
-    <div class="card bg-dark p-5 shadow-lg border-secondary" style="width: 400px;">
-        <input type="text" id="player-name" class="form-control mb-3 text-center fw-bold fs-5" placeholder="Komutan Adı Gir">
-        <input type="text" id="room-id" class="form-control mb-3 text-center" placeholder="Oda İsmi (Örn: fetih1)">
-        <div class="d-grid gap-2">
-            <button class="btn btn-primary btn-lg" onclick="createGame()">ODA KUR (Host)</button>
-            <button class="btn btn-outline-light" onclick="joinGame()">ODAYA KATIL (Misafir)</button>
+<div id="screen-lobby" class="d-flex flex-column justify-content-center align-items-center vh-100">
+    <div class="text-center mb-4">
+        <div class="lobby-subtitle mb-2">⚔ SAVAŞ MEYDANI ⚔</div>
+        <h1 class="display-3 fw-bold text-warning mb-1"><i class="bi bi-shield-shaded"></i> FETİH</h1>
+        <div class="lobby-subtitle">İMPARATORLUK SAVAŞI</div>
+    </div>
+    <div class="card lobby-card p-4 shadow-lg" style="width: 420px; max-width: 95%;">
+        <div class="text-center mb-3">
+            <i class="bi bi-person-badge-fill text-warning" style="font-size: 2.5rem;"></i>
         </div>
-        <div id="lobby-status" class="mt-3 text-center text-info small fw-bold"></div>
+        <input type="text" id="player-name" class="form-control mb-3 text-center fw-bold fs-5" placeholder="⚔ Komutan Adını Gir">
+        <input type="text" id="room-id" class="form-control mb-3 text-center" placeholder="Oda Kodu (Örn: fetih1)">
+        <hr class="lobby-divider">
+        <div class="d-grid gap-2">
+            <button class="btn btn-war btn-lg" onclick="createGame()"><i class="bi bi-flag-fill"></i> SAVAŞ ODASI KUR</button>
+            <button class="btn btn-war-outline" onclick="joinGame()"><i class="bi bi-box-arrow-in-right"></i> SAVAŞA KATIL</button>
+        </div>
+        <div id="lobby-status" class="mt-3 text-center small fw-bold" style="color: #d4a017;"></div>
     </div>
 </div>
 
@@ -119,13 +202,9 @@
         <h3 class="text-warning text-center mb-4"><i class="bi bi-sliders"></i> Savaş Ayarları</h3>
         
         <div class="row g-3 mb-4 border-bottom border-secondary pb-3">
-            <div class="col-6">
-                <label class="form-label text-white fw-bold">Tur Başı Soru:</label>
+            <div class="col-12">
+                <label class="form-label text-white fw-bold">Tur Başı Soru Sayısı:</label>
                 <input type="number" id="vs-q-count-input" class="form-control bg-secondary text-white border-0 fw-bold text-center" value="40" min="5" max="100">
-            </div>
-            <div class="col-6">
-                <label class="form-label text-white fw-bold">Süre (Saniye):</label>
-                <input type="number" id="vs-time-input" class="form-control bg-secondary text-white border-0" value="30" min="10" max="300">
             </div>
         </div>
 
@@ -7541,10 +7620,17 @@ function renderCategorySelection() {
     sections.forEach(c => {
         const count = allQuestions.filter(q => q.id >= c.start && q.id <= c.end).length;
         list.innerHTML += `
-        <div class="col-6 mb-2">
-            <div class="form-check">
-                <input class="form-check-input vs-cat-check" type="checkbox" value="${c.key}" id="chk-${c.key}" checked>
-                <label class="form-check-label text-white" for="chk-${c.key}">${c.title} <small class="text-muted">(${count})</small></label>
+        <div class="col-12 mb-2">
+            <div class="d-flex align-items-center justify-content-between bg-dark bg-opacity-50 rounded p-2">
+                <div class="form-check mb-0">
+                    <input class="form-check-input vs-cat-check" type="checkbox" value="${c.key}" id="chk-${c.key}" checked>
+                    <label class="form-check-label text-white" for="chk-${c.key}">${c.title} <small class="text-muted">(${count})</small></label>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                    <input type="number" class="form-control form-control-sm bg-secondary text-white border-0 text-center cat-timer" 
+                           id="timer-${c.key}" value="30" min="5" max="300" style="width: 65px;">
+                    <small class="text-muted">sn</small>
+                </div>
             </div>
         </div>`;
     });
@@ -7648,7 +7734,6 @@ function handleData(data) {
         case 'JOIN': players.p2.name = data.p2Name; goToSetup(); break;
         case 'START_GAME_DATA': 
             gameQuestions = data.questions; 
-            window.GAME_TIMER = data.timer;
             startGameUI(); 
             break;
         case 'UPDATE_MAP': 
@@ -7696,22 +7781,25 @@ function startFetihMatch() {
     if(checkboxes.length < 1) return alert("Kategori seç!");
     
     const qCount = parseInt(document.getElementById('vs-q-count-input').value) || 40;
-    const timeLimit = parseInt(document.getElementById('vs-time-input').value) || 30;
 
     let pool = [];
     checkboxes.forEach(chk => {
         const sec = sections.find(s => s.key === chk.value);
-        if(sec) pool = pool.concat(allQuestions.filter(q => q.id >= sec.start && q.id <= sec.end));
+        if(!sec) return;
+        const timerVal = parseInt(document.getElementById(`timer-${sec.key}`).value) || 30;
+        const secQuestions = allQuestions.filter(q => q.id >= sec.start && q.id <= sec.end);
+        // Her soruya kendi kategorisinin süresini ekle
+        secQuestions.forEach(q => q.timer = timerVal);
+        pool = pool.concat(secQuestions);
     });
     
     if(pool.length < qCount) return alert("Yetersiz soru!");
     const shuffled = pool.sort(() => 0.5 - Math.random()).slice(0, qCount);
 
-    const data = { type: 'START_GAME_DATA', questions: shuffled, timer: timeLimit };
+    const data = { type: 'START_GAME_DATA', questions: shuffled };
     conn.send(data);
     
     gameQuestions = shuffled;
-    window.GAME_TIMER = timeLimit;
     startGameUI();
 }
 
@@ -7756,7 +7844,9 @@ function showQuestion(q, idx) {
 }
 
 function startTimer() {
-    let timeLeft = window.GAME_TIMER;
+    // Sorunun kendi süresini kullan, yoksa 30
+    const q = gameQuestions[currentTurn];
+    let timeLeft = (q && q.timer) ? q.timer : 30;
     document.getElementById('q-timer').innerText = timeLeft;
     if(timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
