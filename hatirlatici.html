@@ -7661,7 +7661,7 @@ function syncWithMainApp() {
         });
     }
 
-    // --- CEVAP KONTROLÜ ---
+    // --- CEVAP KONTROLÜ (DÜZELTİLMİŞ HALİ) ---
     function checkAnswer(qId, selectedOpt, correctOpt) {
         const card = document.getElementById(`card-${qId}`);
         const feedback = document.getElementById(`feedback-${qId}`);
@@ -7676,22 +7676,33 @@ function syncWithMainApp() {
         });
 
         if (selectedOpt === correctOpt) {
-            // DOĞRU: Sadece HATIRLATICI listesinden sil.
-            // (Ana 'wrongBank' listesinden silmiyoruz, kullanıcı öyle istedi)
-            feedback.innerHTML = `<span class="text-success"><i class="bi bi-check-circle"></i> Doğru! Hatırlatıcıdan silindi.</span>`;
+            // === DÜZELTME BURADA ===
+            // DOĞRU: Soruyu hem takvimden hem de ana yanlış listesinden SİL.
+            // Böylece sayfa yenilendiğinde "Bekleyenler" arasına tekrar girmez.
+            feedback.innerHTML = `<span class="text-success"><i class="bi bi-check-circle"></i> Tebrikler! Soru listeden tamamen silindi.</span>`;
             
+            // 1. SRS Takviminden sil
             delete srsSchedule[qId];
             localStorage.setItem('yds_srs_schedule', JSON.stringify(srsSchedule));
             
+            // 2. Ana Yanlış Listesinden (wrongBank) sil
+            // Filter kullanarak ID'si eşleşmeyenleri (yani diğerlerini) tutuyoruz.
+            wrongBank = wrongBank.filter(id => id != qId);
+            localStorage.setItem('yds_mistakes', JSON.stringify(wrongBank));
+
+            // Sayaçları anlık güncelle (Görsel düzeltme)
+            let dueCountEl = document.getElementById('due-count');
+            dueCountEl.innerText = Math.max(0, parseInt(dueCountEl.innerText) - 1);
+
             setTimeout(() => { card.style.display = 'none'; }, 1500);
 
         } else {
-            // YANLIŞ: Kullanıcının seçtiği gün sayısı kadar ertele
+            // YANLIŞ: Kullanıcının seçtiği gün sayısı kadar ertele (Bekleyenlere at)
             const milliseconds = userReminderDays * 24 * 60 * 60 * 1000;
             const nextDate = Date.now() + milliseconds;
-            const dateStr = new Date(nextDate).toLocaleString();
+            const dateStr = new Date(nextDate).toLocaleDateString('tr-TR'); // Sadece tarih yeterli
             
-            feedback.innerHTML = `<span class="text-danger"><i class="bi bi-arrow-clockwise"></i> Yanlış. ${dateStr} tarihine kadar ertelendi.</span>`;
+            feedback.innerHTML = `<span class="text-danger"><i class="bi bi-arrow-clockwise"></i> Yanlış. ${userReminderDays} gün sonraya (${dateStr}) ertelendi.</span>`;
             
             srsSchedule[qId] = nextDate;
             localStorage.setItem('yds_srs_schedule', JSON.stringify(srsSchedule));
