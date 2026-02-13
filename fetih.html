@@ -7747,12 +7747,29 @@ let units = []; // { id, owner, type, loc, count, moved }
 
 // Ortak PeerJS Ayarları (Daha fazla STUN sunucusu eklendi)
 const peerConfig = {
-    debug: 2, // Hataları konsolda daha net görmek için
+    debug: 2,
     config: {
-        'iceServers': [
-            { 'urls': 'stun:stun.l.google.com:19302' },
-            { 'urls': 'stun:stun1.l.google.com:19302' },
-            { 'urls': 'stun:stun2.l.google.com:19302' }
+        iceServers: [
+            // Google STUN Sunucuları (Standart)
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            
+            // OpenRelay TURN Sunucuları (Ağ engellerini aşmak için ekledik)
+            { 
+                urls: "turn:openrelay.metered.ca:80",
+                username: "openrelayproject",
+                credential: "openrelayproject"
+            },
+            { 
+                urls: "turn:openrelay.metered.ca:443",
+                username: "openrelayproject",
+                credential: "openrelayproject"
+            },
+            { 
+                urls: "turn:openrelay.metered.ca:443?transport=tcp",
+                username: "openrelayproject",
+                credential: "openrelayproject"
+            }
         ]
     }
 };
