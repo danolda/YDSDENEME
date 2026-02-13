@@ -15,238 +15,176 @@
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     
     <style>
+    /* --- MODERN & MASCULINE THEME (PRO UI) --- */
     :root {
-        /* DUOLINGO TARZI RENK PALETİ */
-        --duo-green: #58cc02;
-        --duo-green-shadow: #46a302;
-        --duo-red: #ff4b4b;
-        --duo-red-shadow: #ea2b2b;
-        --duo-blue: #1cb0f6;
-        --duo-blue-shadow: #1899d6;
-        --duo-yellow: #ffc800;
-        --duo-yellow-shadow: #e5a500;
-        --duo-gray: #e5e5e5;
-        --duo-gray-text: #afafaf;
-        
-        --bg-body: #fff;
-        --text-color: #3c3c3c;
+        --primary-dark: #0f172a;    /* Koyu Lacivert */
+        --primary-light: #1e293b;   /* Slate Gri */
+        --accent-blue: #2563eb;     /* Profesyonel Mavi */
+        --accent-gold: #d97706;     /* Bronz/Altın */
+        --text-main: #334155;
+        --bg-body: #f1f5f9;
         --card-bg: #ffffff;
-        --border-radius: 16px;
-        --btn-translate: 4px; /* 3D derinlik mesafesi */
+        --border-radius: 6px;       /* Keskin Köşeler */
+        --shadow-sharp: 4px 4px 0px rgba(0,0,0,0.15); /* Sert Gölge */
     }
 
     [data-theme="dark"] {
-        --bg-body: #131f24;
-        --text-color: #f2f2f2;
-        --card-bg: #202f36;
-        --duo-gray: #37464f;
-        --duo-gray-text: #52656d;
+        --bg-body: #0b0f19;
+        --card-bg: #151b2b;
+        --text-main: #e2e8f0;
+        --primary-light: #1e293b;
+        --shadow-sharp: 4px 4px 0px #000;
     }
 
     body {
         background-color: var(--bg-body);
-        color: var(--text-color);
-        font-family: 'Nunito', sans-serif; /* Yuvarlak, sevimli font */
-        font-weight: 600;
-        transition: background-color 0.3s;
+        color: var(--text-main);
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        font-weight: 500;
     }
 
-    /* --- KART TASARIMI (3D GÖRÜNÜM) --- */
+    /* --- KART YAPISI --- */
     .card {
         background-color: var(--card-bg) !important;
-        color: var(--text-color) !important;
-        border: 2px solid var(--duo-gray);
+        border: 2px solid var(--primary-light);
         border-radius: var(--border-radius);
-        box-shadow: none; /* Standart gölgeyi kaldır */
-        margin-bottom: 25px;
+        box-shadow: var(--shadow-sharp);
+        transition: transform 0.1s;
     }
 
-    /* --- SOL MENÜ (GAMIFIED LIST) --- */
+    /* --- MENÜ (SIDEBAR) --- */
     .sidebar-item {
-        padding: 15px;
-        margin-bottom: 12px;
-        border-radius: 12px;
-        border: 2px solid transparent;
+        padding: 14px 18px;
+        margin-bottom: 8px;
+        border: 2px solid #cbd5e1;
+        border-radius: var(--border-radius);
+        background: var(--card-bg);
+        color: var(--text-main);
+        font-weight: 700;
         cursor: pointer;
         transition: all 0.1s;
-        font-weight: 800;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        color: var(--text-color);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
     }
-    
     .sidebar-item:hover {
-        background-color: var(--duo-gray);
+        background-color: #e2e8f0;
+        transform: translateX(3px);
+    }
+    .sidebar-item.active {
+        background-color: var(--primary-dark);
+        color: #fff;
+        border-color: var(--primary-dark);
+        box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
     }
     
-    .sidebar-item:active {
-        transform: scale(0.98);
-    }
+    /* Yanlışlar ve AI Menüsü Özel Renkler */
+    .sidebar-mistakes { border-color: #ef4444; color: #ef4444; }
+    .sidebar-mistakes.active { background: #ef4444; color: white; }
+    .sidebar-ai { border-color: #8b5cf6; color: #8b5cf6; }
+    .sidebar-ai.active { background: #8b5cf6; color: white; }
 
-    /* Aktif Menü Öğesi (Parlak Mavi) */
-    .sidebar-item.active {
-        background-color: var(--duo-blue);
-        border: 2px solid var(--duo-blue);
-        border-bottom: 4px solid var(--duo-blue-shadow); /* 3D Alt Çizgi */
-        color: white;
-    }
-
-    .sidebar-mistakes.active { background-color: var(--duo-red); border-color: var(--duo-red); border-bottom-color: var(--duo-red-shadow); }
-    .sidebar-ai.active { background-color: #8964d8; border-color: #8964d8; border-bottom-color: #704eb8; } /* Mor */
-    .sidebar-vocab.active { background-color: var(--duo-yellow); border-color: var(--duo-yellow); border-bottom-color: var(--duo-yellow-shadow); color: #3c3c3c; }
-
-    /* --- ŞIKLAR (EN ÖNEMLİ KISIM) --- */
+    /* --- ŞIKLAR (OPTIONS) --- */
     .option-row {
         background-color: var(--card-bg);
-        border: 2px solid var(--duo-gray);
-        border-bottom: 4px solid var(--duo-gray); /* İşte o basma hissi veren kalın alt çizgi */
-        border-radius: 16px;
-        padding: 15px 20px;
+        border: 2px solid #cbd5e1;
+        border-radius: var(--border-radius);
+        padding: 16px;
         margin-bottom: 12px;
         cursor: pointer;
-        transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         align-items: center;
-        font-size: 1.1rem;
-        position: relative;
-        top: 0;
+        transition: all 0.1s;
+        font-weight: 600;
     }
-
     .option-row:hover:not(.disabled-opts) {
-        background-color: rgba(0,0,0,0.03);
-        border-color: #d0d0d0;
-        border-bottom-color: #d0d0d0;
+        border-color: var(--accent-blue);
+        background-color: #f8fafc;
     }
-
     .option-row:active:not(.disabled-opts) {
-        border-bottom-width: 2px; /* Basılınca alt çizgi incelir */
-        top: 2px; /* Aşağı kayar */
+        background-color: #e0f2fe;
     }
 
     .btn-circle {
-        width: 32px; height: 32px;
-        border: 2px solid var(--duo-gray-text);
-        border-radius: 8px; /* Yuvarlak değil karemsi */
+        width: 36px; height: 36px;
+        background: #f1f5f9;
+        border: 2px solid #94a3b8;
+        color: #475569;
+        border-radius: 4px; /* Karemsi */
         display: flex; align-items: center; justify-content: center;
-        margin-right: 15px; font-weight: 800; color: var(--duo-gray-text);
-        background: transparent;
+        margin-right: 15px;
+        font-weight: 800;
     }
 
-    /* DOĞRU CEVAP STİLİ */
+    /* DOĞRU/YANLIŞ STİLLERİ */
     .opt-correct {
-        background-color: #d7ffb8 !important; /* Açık Yeşil */
-        border-color: var(--duo-green) !important;
-        border-bottom-color: var(--duo-green-shadow) !important;
-        color: var(--duo-green-shadow) !important;
+        border-color: #10b981 !important;
+        background-color: rgba(16, 185, 129, 0.1) !important;
+        color: #065f46;
     }
     .opt-correct .btn-circle {
-        background-color: var(--duo-green);
+        background-color: #10b981;
         color: white;
-        border-color: var(--duo-green);
+        border-color: #10b981;
     }
-    /* Koyu modda doğru cevap */
-    [data-theme="dark"] .opt-correct { background-color: #162518 !important; }
 
-    /* YANLIŞ CEVAP STİLİ */
     .opt-wrong {
-        background-color: #ffdfe0 !important; /* Açık Kırmızı */
-        border-color: var(--duo-red) !important;
-        border-bottom-color: var(--duo-red-shadow) !important;
-        color: var(--duo-red) !important;
+        border-color: #ef4444 !important;
+        background-color: rgba(239, 68, 68, 0.1) !important;
+        color: #7f1d1d;
     }
     .opt-wrong .btn-circle {
-        background-color: var(--duo-red);
+        background-color: #ef4444;
         color: white;
-        border-color: var(--duo-red);
+        border-color: #ef4444;
     }
-    /* Koyu modda yanlış cevap */
-    [data-theme="dark"] .opt-wrong { background-color: #2a1515 !important; }
 
-    /* --- BUTONLAR GENEL --- */
+    /* --- BUTONLAR (SHARP & BOLD) --- */
     .btn {
-        border-radius: 12px;
+        border-radius: 4px;
         font-weight: 700;
-        border-width: 2px;
-        border-bottom-width: 4px; /* 3D Efekt */
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        transition: all 0.1s;
+        box-shadow: 0 2px 0 rgba(0,0,0,0.1);
     }
-    .btn:active {
-        border-bottom-width: 2px;
-        transform: translateY(2px);
-    }
-    .btn-primary {
-        background-color: var(--duo-blue);
-        border-color: var(--duo-blue-shadow);
-    }
-    .btn-success {
-        background-color: var(--duo-green);
-        border-color: var(--duo-green-shadow);
-    }
-    .btn-danger {
-        background-color: var(--duo-red);
-        border-color: var(--duo-red-shadow);
-    }
-    .btn-outline-secondary {
-        border-color: var(--duo-gray);
-        color: var(--duo-gray-text);
-    }
-
-    /* --- NAVBAR --- */
+    .btn:active { box-shadow: none; transform: translateY(2px); }
+    
+    .btn-primary { background-color: var(--accent-blue); border: none; }
+    .btn-danger { background-color: #ef4444; border: none; }
+    .btn-outline-secondary { border: 2px solid #94a3b8; color: #64748b; }
+    
+    /* NAVBAR */
     .navbar {
-        background-color: var(--bg-body) !important;
-        border-bottom: 2px solid var(--duo-gray) !important;
-        padding-bottom: 15px;
+        background-color: var(--primary-dark) !important;
+        box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        padding: 1rem;
     }
-    .navbar-brand {
-        font-weight: 800;
-        color: var(--duo-green) !important;
-        font-size: 1.5rem;
-    }
+    .navbar-brand { color: #fff !important; font-weight: 900; letter-spacing: 1px; }
 
-    /* --- İPUCU KUTUSU --- */
-    .tip-box {
-        border-radius: 16px;
-        border: 2px solid var(--duo-yellow);
-        background-color: #fff9e6; /* Çok açık sarı */
-        color: #5c4900;
-        border-bottom: 4px solid var(--duo-yellow-shadow);
-    }
-    [data-theme="dark"] .tip-box { background-color: #3d3314; color: #ffeab3; }
-
-    /* --- FLOATING BUTTONS --- */
+    /* --- FLOATING BUTTONS (SABİTLENMİŞ BUTONLAR) --- */
     .floating-btn, .scroll-top-btn {
-        border-bottom: 4px solid rgba(0,0,0,0.2);
+        position: fixed;
+        width: 55px; height: 55px;
+        border-radius: 8px; /* Keskin */
+        border: 2px solid rgba(0,0,0,0.2);
+        box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+        z-index: 1080 !important; /* En üstte */
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem;
+        transition: transform 0.1s;
+        cursor: pointer;
     }
-    .floating-btn:active, .scroll-top-btn:active {
-        border-bottom-width: 0;
-        transform: translateY(4px);
-    }
+    .floating-btn { bottom: 30px; right: 30px; background-color: #10b981; color: white; }
+    .scroll-top-btn { bottom: 30px; left: 30px; background-color: var(--primary-dark); color: white; opacity: 0.9; }
+    
+    .floating-btn:hover, .scroll-top-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 rgba(0,0,0,0.3); }
+    .floating-btn:active, .scroll-top-btn:active { transform: translate(0, 0); box-shadow: 0 0 0; }
 
-    /* KONFETİ EFEKTİ İÇİN CANVAS */
-    #confetti-canvas {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;
-    }
-    
-    .question-text { font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; }
-    
-    /* VS MODU */
-    .vs-card { border: none; }
-    .vs-header { 
-        background: var(--duo-purple); 
-        border-bottom: 4px solid #a358df;
-    }
-    .vs-opt-btn {
-        border-radius: 12px;
-        border: 2px solid var(--duo-gray) !important;
-        border-bottom: 4px solid var(--duo-gray) !important;
-        font-weight: bold;
-    }
-    .vs-opt-btn:active {
-        border-bottom-width: 2px !important;
-        transform: translateY(2px);
+    /* --- MOBİL UYUMLULUK --- */
+    @media (max-width: 768px) {
+        .floating-btn { bottom: 20px; right: 20px; width: 50px; height: 50px; }
+        .scroll-top-btn { bottom: 20px; left: 20px; width: 50px; height: 50px; }
+        .sidebar-item { padding: 10px; font-size: 0.8rem; }
     }
 </style>
 </head>
@@ -319,6 +257,9 @@
 
             
         <div class="d-flex gap-2">
+            <button class="btn btn-warning btn-sm fw-bold" onclick="openLeaderboard()">
+                <i class="bi bi-trophy-fill"></i> Liderlik Tablosu
+            </button>
             <!-- YENİ EKLENEN HEDEFLER BUTONU -->
             <button class="btn btn-outline-success btn-sm" onclick="openDailyGoals()">
                 <i class="bi bi-graph-up-arrow"></i> Hedefler
@@ -488,11 +429,112 @@
         </div>
     </div>
 </div>
+
+    <!-- LEADERBOARD MODAL -->
+<div class="modal fade" id="leaderboardModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white border-bottom-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-trophy text-warning"></i> GÜNLÜK SKOR TABLOSU</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body bg-light">
+                <!-- Kullanıcı İsmi Girişi -->
+                <div class="input-group mb-3">
+                    <span class="input-group-text bg-secondary text-white fw-bold">Komutan Adı:</span>
+                    <input type="text" id="leaderboard-name" class="form-control fw-bold" placeholder="Adını Gir" onchange="saveUserName()">
+                </div>
+
+                <div class="card bg-white border-0 shadow-sm mb-3">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted text-uppercase small fw-bold">Bugünkü Puanın</h6>
+                        <h1 class="display-4 fw-bold text-primary mb-0" id="my-daily-score">0</h1>
+                        <small class="text-muted">Sıfırlanma: 00:00</small>
+                    </div>
+                </div>
+
+                <h6 class="fw-bold border-bottom pb-2">🏆 En İyiler (Global Simülasyon)</h6>
+                <ul class="list-group list-group-flush" id="leaderboard-list">
+                    <!-- JS ile dolacak -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
     
 <!-- Konfeti Efekti İçin Kütüphane -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
 <script>
+    
+    // --- SKOR SİSTEMİ DEĞİŞKENLERİ ---
+let currentUser = localStorage.getItem('yds_username') || "Komutan";
+let dailyScoreData = JSON.parse(localStorage.getItem('yds_daily_score_v2')) || { date: new Date().toLocaleDateString(), score: 0 };
+
+// Tarih kontrolü (Günlük Reset)
+if (dailyScoreData.date !== new Date().toLocaleDateString()) {
+    dailyScoreData = { date: new Date().toLocaleDateString(), score: 0 };
+    localStorage.setItem('yds_daily_score_v2', JSON.stringify(dailyScoreData));
+}
+
+// Kullanıcı Adını Kaydet
+function saveUserName() {
+    const inputName = document.getElementById('leaderboard-name').value.trim();
+    if(inputName) {
+        currentUser = inputName;
+        localStorage.setItem('yds_username', currentUser);
+    }
+}
+
+// Puan Ekleme Fonksiyonu
+function addScorePoints(amount) {
+    // Sadece günlük sıfırlama yapıldıysa skoru artır
+    if (dailyScoreData.date !== new Date().toLocaleDateString()) {
+        dailyScoreData.score = 0;
+        dailyScoreData.date = new Date().toLocaleDateString();
+    }
+    dailyScoreData.score += amount;
+    localStorage.setItem('yds_daily_score_v2', JSON.stringify(dailyScoreData));
+    
+    // Anlık bildirim (Opsiyonel)
+    // showToast(`+${amount} Puan!`); 
+}
+
+// Leaderboard Modalını Aç
+function openLeaderboard() {
+    document.getElementById('leaderboard-name').value = currentUser;
+    document.getElementById('my-daily-score').innerText = dailyScoreData.score;
+    
+    // Sahte Global Sıralama (Dopamin için)
+    const list = document.getElementById('leaderboard-list');
+    list.innerHTML = "";
+    
+    // Rakipler (Fake data + Gerçek kullanıcı)
+    let players = [
+        { name: "Ahmet K.", score: Math.floor(Math.random() * 500) + 1500 },
+        { name: "Zeynep Y.", score: Math.floor(Math.random() * 500) + 1200 },
+        { name: currentUser + " (SEN)", score: dailyScoreData.score, isMe: true }, // Gerçek veri
+        { name: "Mehmet Demir", score: Math.max(0, dailyScoreData.score - 150) },
+        { name: "Selin B.", score: Math.max(0, dailyScoreData.score - 400) }
+    ];
+    
+    // Puana göre sırala
+    players.sort((a, b) => b.score - a.score);
+    
+    players.forEach((p, index) => {
+        const bgClass = p.isMe ? "bg-warning bg-opacity-25 border-warning" : "";
+        const icon = index === 0 ? "🥇" : (index === 1 ? "🥈" : (index === 2 ? "🥉" : `#${index+1}`));
+        
+        list.innerHTML += `
+        <li class="list-group-item d-flex justify-content-between align-items-center ${bgClass}">
+            <span><span class="fw-bold me-2">${icon}</span> ${p.name}</span>
+            <span class="badge bg-dark rounded-pill">${p.score} Puan</span>
+        </li>`;
+    });
+    
+    new bootstrap.Modal(document.getElementById('leaderboardModal')).show();
+}
+    
 /* ================= YDS MEGA KELİME HAVUZU (GÜNCELLENMİŞ - 1200+ KELİME) ================= */
     const ydsVocabDB = [
         // --- A GRUBU ---
@@ -8322,7 +8364,7 @@ function renderQuestions(qList) {
     }
     
 function checkAnswer(qId, selectedOpt) {
-    let q = allQuestions.find(i => i.id === qId);
+    let q = allQuestions.find(i => i.id === qId) || generatedQuestions.find(i => i.id === questionId);
     if(!q) q = generatedQuestions.find(i => i.id === qId);
     if(!q) return;
 
@@ -8357,7 +8399,22 @@ function checkAnswer(qId, selectedOpt) {
             renderMenu(); 
         }
         progressData[qId] = 'correct';
-    } else {
+
+        // --- YENİ EKLENEN KISIM: PUANLAMA ---
+        if (!q.isAi) { // Yapay Zeka soruları hariç
+            // Eğer daha önce çözülmemişse puan ver
+            if (progressData[qId] !== 'correct') {
+                if (currentSectionKey === 'mistakes') {
+                    addScorePoints(50); // Yanlışlardan: 50 Puan
+                } else {
+                    addScorePoints(100); // Normal Bölümden: 100 Puan
+                }
+            }
+        }
+        // -------------------------------------
+    } 
+    
+    else {
         feedbackDiv.innerHTML = `<div class="mt-2 text-danger fw-bold"><i class="bi bi-x-circle"></i> Yanlış. Cevap: ${q.correctAnswer}</div>`;
         
         if(tipDiv) {
