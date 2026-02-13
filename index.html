@@ -517,17 +517,46 @@
     
 <script>
     
-    // --- SKOR SİSTEMİ DEĞİŞKENLERİ ---
-let currentUser = localStorage.getItem('yds_username') || "Komutan";
-let dailyScoreData = JSON.parse(localStorage.getItem('yds_daily_score_v2')) || { date: new Date().toLocaleDateString(), score: 0 };
+/* ================= GÜNCELLENMİŞ SKOR VE LEADERBOARD SİSTEMİ ================= */
 
-// Tarih kontrolü (Günlük Reset)
+// 1. GÜNLÜK SKOR VERİSİNİ BAŞLAT
+let dailyScoreData = JSON.parse(localStorage.getItem('yds_daily_score_v2')) || { date: new Date().toLocaleDateString(), score: 0 };
+let currentUser = localStorage.getItem('yds_username') || "Komutan";
+
+// Gün değiştiyse sıfırla
 if (dailyScoreData.date !== new Date().toLocaleDateString()) {
     dailyScoreData = { date: new Date().toLocaleDateString(), score: 0 };
     localStorage.setItem('yds_daily_score_v2', JSON.stringify(dailyScoreData));
 }
 
-// Kullanıcı Adını Kaydet
+// 2. PUAN EKLEME FONKSİYONU
+function addScorePoints(amount) {
+    // Veriyi tekrar çek (Senkronizasyon için)
+    dailyScoreData = JSON.parse(localStorage.getItem('yds_daily_score_v2')) || { date: new Date().toLocaleDateString(), score: 0 };
+    
+    // Gün kontrolü
+    if (dailyScoreData.date !== new Date().toLocaleDateString()) {
+        dailyScoreData.score = 0;
+        dailyScoreData.date = new Date().toLocaleDateString();
+    }
+
+    dailyScoreData.score += amount;
+    localStorage.setItem('yds_daily_score_v2', JSON.stringify(dailyScoreData));
+    
+    // Ekranda anlık bildirim göster
+    showScoreToast(`+${amount} PUAN!`);
+}
+
+// 3. ANLIK BİLDİRİM GÖSTERME (TOAST)
+function showScoreToast(msg) {
+    const div = document.createElement('div');
+    div.className = 'score-toast';
+    div.innerHTML = `<i class="bi bi-lightning-fill"></i> ${msg}`;
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 2500);
+}
+
+// 4. KULLANICI ADINI KAYDETME
 function saveUserName() {
     const inputName = document.getElementById('leaderboard-name').value.trim();
     if(inputName) {
@@ -536,54 +565,118 @@ function saveUserName() {
     }
 }
 
-// Puan Ekleme Fonksiyonu
-function addScorePoints(amount) {
-    // Sadece günlük sıfırlama yapıldıysa skoru artır
-    if (dailyScoreData.date !== new Date().toLocaleDateString()) {
-        dailyScoreData.score = 0;
-        dailyScoreData.date = new Date().toLocaleDateString();
-    }
-    dailyScoreData.score += amount;
-    localStorage.setItem('yds_daily_score_v2', JSON.stringify(dailyScoreData));
-    
-    // Anlık bildirim (Opsiyonel)
-    // showToast(`+${amount} Puan!`); 
-}
-
-// Leaderboard Modalını Aç
+// 5. LEADERBOARD AÇMA (SADECE SEN VARSIN)
 function openLeaderboard() {
     document.getElementById('leaderboard-name').value = currentUser;
     document.getElementById('my-daily-score').innerText = dailyScoreData.score;
     
-    // Sahte Global Sıralama (Dopamin için)
     const list = document.getElementById('leaderboard-list');
     list.innerHTML = "";
     
-    // Rakipler (Fake data + Gerçek kullanıcı)
+    // Sadece mevcut kullanıcıyı göster (Test için)
     let players = [
-        { name: "Ahmet K.", score: Math.floor(Math.random() * 500) + 1500 },
-        { name: "Zeynep Y.", score: Math.floor(Math.random() * 500) + 1200 },
-        { name: currentUser + " (SEN)", score: dailyScoreData.score, isMe: true }, // Gerçek veri
-        { name: "Mehmet Demir", score: Math.max(0, dailyScoreData.score - 150) },
-        { name: "Selin B.", score: Math.max(0, dailyScoreData.score - 400) }
+        { name: currentUser + " (SEN)", score: dailyScoreData.score, isMe: true }
     ];
     
-    // Puana göre sırala
-    players.sort((a, b) => b.score - a.score);
-    
+    // Listeyi oluştur
     players.forEach((p, index) => {
-        const bgClass = p.isMe ? "bg-warning bg-opacity-25 border-warning" : "";
-        const icon = index === 0 ? "🥇" : (index === 1 ? "🥈" : (index === 2 ? "🥉" : `#${index+1}`));
+        const bgClass = "bg-warning bg-opacity-25 border-warning"; // Her zaman vurgulu
+        const icon = "🥇"; // Tek kişi olduğu için hep birinci
         
         list.innerHTML += `
         <li class="list-group-item d-flex justify-content-between align-items-center ${bgClass}">
-            <span><span class="fw-bold me-2">${icon}</span> ${p.name}</span>
-            <span class="badge bg-dark rounded-pill">${p.score} Puan</span>
+            <span><span class="fw-bold me-2 fs-5">${icon}</span> ${p.name}</span>
+            <span class="badge bg-dark rounded-pill p-2">${p.score} Puan</span>
         </li>`;
     });
     
     new bootstrap.Modal(document.getElementById('leaderboardModal')).show();
 }
+
+// 6. GÜNCELLENMİŞ CEVAP KONTROLÜ (CHECK ANSWER)
+// Bu fonksiyon, mevcut checkAnswer fonksiyonunun yerine geçecek.
+window.checkAnswer = function(qId, selectedOpt) {
+    // Soruyu bul
+    let q = allQuestions.find(i => i.id === qId) || generatedQuestions.find(i => i.id === qId);
+    if(!q) return;
+
+    const container = document.getElementById(`opts-${qId}`);
+    const feedbackDiv = document.getElementById(`feedback-${qId}`);
+    const tipDiv = document.getElementById(`tip-${qId}`);
+    
+    // Şıkları kilitle ve boya
+    const rows = container.querySelectorAll('.option-row');
+    rows.forEach(row => {
+        row.classList.add('disabled-opts'); // Tıklamayı engelle
+        const btnText = row.querySelector('.btn-circle').innerText;
+        if (btnText === q.correctAnswer) row.classList.add('opt-correct');
+        else if (btnText === selectedOpt && selectedOpt !== q.correctAnswer) row.classList.add('opt-wrong');
+    });
+
+    const isCorrect = (selectedOpt === q.correctAnswer);
+
+    if (isCorrect) {
+        feedbackDiv.innerHTML = `<div class="mt-2 text-success fw-bold"><i class="bi bi-check-circle"></i> Doğru!</div>`;
+        if(!q.aiExplanation && tipDiv) tipDiv.style.display = 'none';
+        
+        // --- PUANLAMA MANTIĞI (DÜZELTİLDİ) ---
+        // 1. Yapay zeka sorusu değilse puan ver
+        if (!q.isAi) {
+            let points = 0;
+            
+            // Eğer "Yanlışlarım" bölümündeysek, daha önce yanlış yapmışızdır, şimdi düzeltiyoruz -> 50 Puan
+            if (currentSectionKey === 'mistakes') {
+                points = 50;
+            } 
+            // Eğer normal bir bölümdeysek ve daha önce 'correct' olarak işaretlenmemişse -> 100 Puan
+            else if (progressData[qId] !== 'correct') {
+                points = 100;
+            }
+
+            if (points > 0) {
+                addScorePoints(points);
+            }
+        }
+        // -------------------------------------
+
+        // Yanlış bankasından çıkar
+        if (wrongBank.includes(qId)) {
+            wrongBank = wrongBank.filter(id => id !== qId);
+            localStorage.setItem('yds_mistakes', JSON.stringify(wrongBank));
+            // Menüdeki sayıyı güncelle
+            const badge = document.querySelector('#menu-mistakes .badge');
+            if(badge) badge.innerText = wrongBank.length;
+        }
+        progressData[qId] = 'correct';
+
+        // Konfeti Patlat
+        if(typeof confetti === "function") {
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        }
+
+    } else {
+        feedbackDiv.innerHTML = `<div class="mt-2 text-danger fw-bold"><i class="bi bi-x-circle"></i> Yanlış. Cevap: ${q.correctAnswer}</div>`;
+        
+        if(tipDiv) {
+            if (!q.isExam || (q.isExam && q.aiExplanation)) tipDiv.style.display = 'block';
+        }
+
+        if (!wrongBank.includes(qId)) {
+            wrongBank.push(qId);
+            localStorage.setItem('yds_mistakes', JSON.stringify(wrongBank));
+            // Menüdeki sayıyı güncelle
+            const badge = document.querySelector('#menu-mistakes .badge');
+            if(badge) badge.innerText = wrongBank.length;
+        }
+        progressData[qId] = 'wrong';
+        progressData[qId + '_selected'] = selectedOpt;
+    }
+
+    localStorage.setItem('yds_progress', JSON.stringify(progressData));
+    
+    // Günlük Hedef Takibi
+    if(typeof trackDailyProgress === "function") trackDailyProgress(qId);
+};
     
 /* ================= YDS MEGA KELİME HAVUZU (GÜNCELLENMİŞ - 1200+ KELİME) ================= */
     const ydsVocabDB = [
@@ -9291,166 +9384,7 @@ function endGame() {
         winTitle.className = "display-4 fw-bold mb-3 text-warning";
     }
 }
-    /* ================= GÜNCELLENMİŞ SKOR VE LEADERBOARD SİSTEMİ ================= */
 
-// 1. GÜNLÜK SKOR VERİSİNİ BAŞLAT
-let dailyScoreData = JSON.parse(localStorage.getItem('yds_daily_score_v2')) || { date: new Date().toLocaleDateString(), score: 0 };
-let currentUser = localStorage.getItem('yds_username') || "Komutan";
-
-// Gün değiştiyse sıfırla
-if (dailyScoreData.date !== new Date().toLocaleDateString()) {
-    dailyScoreData = { date: new Date().toLocaleDateString(), score: 0 };
-    localStorage.setItem('yds_daily_score_v2', JSON.stringify(dailyScoreData));
-}
-
-// 2. PUAN EKLEME FONKSİYONU
-function addScorePoints(amount) {
-    // Veriyi tekrar çek (Senkronizasyon için)
-    dailyScoreData = JSON.parse(localStorage.getItem('yds_daily_score_v2')) || { date: new Date().toLocaleDateString(), score: 0 };
-    
-    // Gün kontrolü
-    if (dailyScoreData.date !== new Date().toLocaleDateString()) {
-        dailyScoreData.score = 0;
-        dailyScoreData.date = new Date().toLocaleDateString();
-    }
-
-    dailyScoreData.score += amount;
-    localStorage.setItem('yds_daily_score_v2', JSON.stringify(dailyScoreData));
-    
-    // Ekranda anlık bildirim göster
-    showScoreToast(`+${amount} PUAN!`);
-}
-
-// 3. ANLIK BİLDİRİM GÖSTERME (TOAST)
-function showScoreToast(msg) {
-    const div = document.createElement('div');
-    div.className = 'score-toast';
-    div.innerHTML = `<i class="bi bi-lightning-fill"></i> ${msg}`;
-    document.body.appendChild(div);
-    setTimeout(() => div.remove(), 2500);
-}
-
-// 4. KULLANICI ADINI KAYDETME
-function saveUserName() {
-    const inputName = document.getElementById('leaderboard-name').value.trim();
-    if(inputName) {
-        currentUser = inputName;
-        localStorage.setItem('yds_username', currentUser);
-    }
-}
-
-// 5. LEADERBOARD AÇMA (SADECE SEN VARSIN)
-function openLeaderboard() {
-    document.getElementById('leaderboard-name').value = currentUser;
-    document.getElementById('my-daily-score').innerText = dailyScoreData.score;
-    
-    const list = document.getElementById('leaderboard-list');
-    list.innerHTML = "";
-    
-    // Sadece mevcut kullanıcıyı göster (Test için)
-    let players = [
-        { name: currentUser + " (SEN)", score: dailyScoreData.score, isMe: true }
-    ];
-    
-    // Listeyi oluştur
-    players.forEach((p, index) => {
-        const bgClass = "bg-warning bg-opacity-25 border-warning"; // Her zaman vurgulu
-        const icon = "🥇"; // Tek kişi olduğu için hep birinci
-        
-        list.innerHTML += `
-        <li class="list-group-item d-flex justify-content-between align-items-center ${bgClass}">
-            <span><span class="fw-bold me-2 fs-5">${icon}</span> ${p.name}</span>
-            <span class="badge bg-dark rounded-pill p-2">${p.score} Puan</span>
-        </li>`;
-    });
-    
-    new bootstrap.Modal(document.getElementById('leaderboardModal')).show();
-}
-
-// 6. GÜNCELLENMİŞ CEVAP KONTROLÜ (CHECK ANSWER)
-// Bu fonksiyon, mevcut checkAnswer fonksiyonunun yerine geçecek.
-window.checkAnswer = function(qId, selectedOpt) {
-    // Soruyu bul
-    let q = allQuestions.find(i => i.id === qId) || generatedQuestions.find(i => i.id === qId);
-    if(!q) return;
-
-    const container = document.getElementById(`opts-${qId}`);
-    const feedbackDiv = document.getElementById(`feedback-${qId}`);
-    const tipDiv = document.getElementById(`tip-${qId}`);
-    
-    // Şıkları kilitle ve boya
-    const rows = container.querySelectorAll('.option-row');
-    rows.forEach(row => {
-        row.classList.add('disabled-opts'); // Tıklamayı engelle
-        const btnText = row.querySelector('.btn-circle').innerText;
-        if (btnText === q.correctAnswer) row.classList.add('opt-correct');
-        else if (btnText === selectedOpt && selectedOpt !== q.correctAnswer) row.classList.add('opt-wrong');
-    });
-
-    const isCorrect = (selectedOpt === q.correctAnswer);
-
-    if (isCorrect) {
-        feedbackDiv.innerHTML = `<div class="mt-2 text-success fw-bold"><i class="bi bi-check-circle"></i> Doğru!</div>`;
-        if(!q.aiExplanation && tipDiv) tipDiv.style.display = 'none';
-        
-        // --- PUANLAMA MANTIĞI (DÜZELTİLDİ) ---
-        // 1. Yapay zeka sorusu değilse puan ver
-        if (!q.isAi) {
-            let points = 0;
-            
-            // Eğer "Yanlışlarım" bölümündeysek, daha önce yanlış yapmışızdır, şimdi düzeltiyoruz -> 50 Puan
-            if (currentSectionKey === 'mistakes') {
-                points = 50;
-            } 
-            // Eğer normal bir bölümdeysek ve daha önce 'correct' olarak işaretlenmemişse -> 100 Puan
-            else if (progressData[qId] !== 'correct') {
-                points = 100;
-            }
-
-            if (points > 0) {
-                addScorePoints(points);
-            }
-        }
-        // -------------------------------------
-
-        // Yanlış bankasından çıkar
-        if (wrongBank.includes(qId)) {
-            wrongBank = wrongBank.filter(id => id !== qId);
-            localStorage.setItem('yds_mistakes', JSON.stringify(wrongBank));
-            // Menüdeki sayıyı güncelle
-            const badge = document.querySelector('#menu-mistakes .badge');
-            if(badge) badge.innerText = wrongBank.length;
-        }
-        progressData[qId] = 'correct';
-
-        // Konfeti Patlat
-        if(typeof confetti === "function") {
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-        }
-
-    } else {
-        feedbackDiv.innerHTML = `<div class="mt-2 text-danger fw-bold"><i class="bi bi-x-circle"></i> Yanlış. Cevap: ${q.correctAnswer}</div>`;
-        
-        if(tipDiv) {
-            if (!q.isExam || (q.isExam && q.aiExplanation)) tipDiv.style.display = 'block';
-        }
-
-        if (!wrongBank.includes(qId)) {
-            wrongBank.push(qId);
-            localStorage.setItem('yds_mistakes', JSON.stringify(wrongBank));
-            // Menüdeki sayıyı güncelle
-            const badge = document.querySelector('#menu-mistakes .badge');
-            if(badge) badge.innerText = wrongBank.length;
-        }
-        progressData[qId] = 'wrong';
-        progressData[qId + '_selected'] = selectedOpt;
-    }
-
-    localStorage.setItem('yds_progress', JSON.stringify(progressData));
-    
-    // Günlük Hedef Takibi
-    if(typeof trackDailyProgress === "function") trackDailyProgress(qId);
-};
     
 </script>
     
