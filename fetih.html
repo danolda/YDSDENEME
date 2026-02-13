@@ -7743,18 +7743,21 @@ let units = []; // { id, owner, type, loc, count, moved }
 // =========================================================================
 // 4. BAĞLANTI & KURULUM
 // =========================================================================
-/* --- GÜNCELLENMİŞ BAĞLANTI FONKSİYONLARI --- */
-
-// Ortak PeerJS Ayarları (Daha fazla STUN sunucusu eklendi)
+/* --- GÜÇLENDİRİLMİŞ BAĞLANTI AYARLARI --- */
 const peerConfig = {
-    debug: 2,
+    debug: 2, // Konsolda detaylı hata görmek için
+    secure: true, // HTTPS üzerinden güvenli bağlantı zorla
+    host: '0.peerjs.com', // PeerJS'in ana sunucusu
+    port: 443,
+    path: '/',
     config: {
         iceServers: [
             // Google STUN Sunucuları (Standart)
             { urls: 'stun:stun.l.google.com:19302' },
             { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' },
             
-            // OpenRelay TURN Sunucuları (Ağ engellerini aşmak için ekledik)
+            // OpenRelay TURN Sunucuları (Güvenlik duvarını delmek için kritik)
             { 
                 urls: "turn:openrelay.metered.ca:80",
                 username: "openrelayproject",
