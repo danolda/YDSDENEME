@@ -7699,12 +7699,19 @@ function createGame() {
     if(!room) return alert("Oda ismi girin!");
     if(peer) peer.destroy();
     
-    peer = new Peer(room, { 
+    const peerId = 'yds-fetih-' + room;
+    
+    peer = new Peer(peerId, { 
         debug: 1, config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }, serialization: 'json' 
     });
     
     peer.on('open', () => { isHost = true; players.p1.name = name; document.getElementById('lobby-status').innerHTML = '<span class="text-success">✅ Oda Açıldı! Rakip bekleniyor...</span>'; });
     peer.on('connection', c => { conn = c; setupConnection(); });
+    peer.on('error', (err) => {
+        if(err.type === 'unavailable-id') {
+            document.getElementById('lobby-status').innerHTML = '<span class="text-danger">❌ Bu oda zaten açık! Farklı isim dene.</span>';
+        }
+    });
 }
 
 function joinGame() {
@@ -7717,7 +7724,7 @@ function joinGame() {
         debug: 1, config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }, serialization: 'json' 
     });
 
-    peer.on('open', () => { conn = peer.connect(room, { serialization: 'json' }); isHost = false; players.p2.name = name; setupConnection(); });
+    peer.on('open', () => { conn = peer.connect('yds-fetih-' + room, { serialization: 'json' }); isHost = false; players.p2.name = name; setupConnection(); });
 }
 
 function setupConnection() {
