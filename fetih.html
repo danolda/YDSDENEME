@@ -7745,34 +7745,12 @@ let units = []; // { id, owner, type, loc, count, moved }
 // =========================================================================
 /* --- GÜÇLENDİRİLMİŞ BAĞLANTI AYARLARI --- */
 const peerConfig = {
-    debug: 2, // Konsolda detaylı hata görmek için
-    secure: true, // HTTPS üzerinden güvenli bağlantı zorla
-    host: '0.peerjs.com', // PeerJS'in ana sunucusu
-    port: 443,
-    path: '/',
+    debug: 2,
+    serialization: 'json', // <--- İŞTE SORUNU ÇÖZEN SİHİRLİ SATIR
     config: {
-        iceServers: [
-            // Google STUN Sunucuları (Standart)
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
-            { urls: 'stun:stun2.l.google.com:19302' },
-            
-            // OpenRelay TURN Sunucuları (Güvenlik duvarını delmek için kritik)
-            { 
-                urls: "turn:openrelay.metered.ca:80",
-                username: "openrelayproject",
-                credential: "openrelayproject"
-            },
-            { 
-                urls: "turn:openrelay.metered.ca:443",
-                username: "openrelayproject",
-                credential: "openrelayproject"
-            },
-            { 
-                urls: "turn:openrelay.metered.ca:443?transport=tcp",
-                username: "openrelayproject",
-                credential: "openrelayproject"
-            }
+        'iceServers': [
+            { 'urls': 'stun:stun.l.google.com:19302' },
+            { 'urls': 'stun:stun1.l.google.com:19302' }
         ]
     }
 };
@@ -7845,9 +7823,10 @@ function joinGame() {
         players.p2.name = name; 
         
         // Host'a bağlan
-        conn = peer.connect(targetPeerId, {
-            reliable: true // Veri kaybını önlemek için
-        });
+conn = peer.connect(targetPeerId, {
+    serialization: 'json'  // <--- reliable: true yerine bunu kullanın
+});
+
         
         conn.on('open', () => {
             console.log("Bağlantı kuruldu!");
