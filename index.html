@@ -7,7 +7,26 @@
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- İkonlar -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script>
+    // Fallback: CDN yüklenemezse alternatif CDN dene
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            var testEl = document.createElement('span');
+            testEl.className = 'bi bi-check';
+            testEl.style.cssText = 'position:absolute;left:-9999px;font-size:16px;';
+            document.body.appendChild(testEl);
+            var w = testEl.offsetWidth;
+            document.body.removeChild(testEl);
+            if(w === 0) {
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css';
+                document.head.appendChild(link);
+            }
+        }, 2000);
+    });
+    </script>
     <!-- Bu satırı <head> içine, diğer linklerin altına ekle -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     
@@ -285,43 +304,318 @@
         /* --- K.O. EFEKTİ (HARDCORE STYLE) --- */
     #ko-overlay {
         position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) scale(0);
-        font-size: 12rem; /* Kocaman yazı */
-        font-weight: 900;
-        color: #ef4444; /* Kan kırmızısı */
-        text-shadow: 
-            8px 8px 0px #000, 
-            -2px -2px 0 #fff; /* Sert gölge ve kenar */
-        font-family: 'Arial Black', 'Impact', sans-serif;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.85);
+        display: flex;
+        align-items: center;
+        justify-content: center;
         z-index: 10000;
         pointer-events: none;
-        letter-spacing: -10px;
-        white-space: nowrap;
+        opacity: 0;
     }
-
-    /* Vuruş Animasyonu */
+    #ko-overlay img {
+        max-width: 70vw;
+        max-height: 70vh;
+        transform: scale(0);
+    }
     .ko-anim {
+        animation: ko-bg-in 0.15s ease-out forwards;
+    }
+    .ko-anim img {
         animation: 
-            ko-stamp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.5) forwards, 
-            ko-shake 0.2s ease-in-out 0.3s,
-            ko-fade 0.5s ease-in 2.5s forwards; /* 2.5 sn ekranda kalır */
+            ko-slam 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.5) forwards,
+            ko-img-shake 0.3s ease-in-out 0.25s,
+            ko-img-fade 0.6s ease-in 3s forwards;
+    }
+    @keyframes ko-bg-in { 0%{opacity:0} 100%{opacity:1} }
+    @keyframes ko-slam {
+        0% { transform: scale(6); opacity: 0; }
+        60% { transform: scale(0.9); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes ko-img-shake {
+        0%,100% { transform: scale(1) rotate(0deg); }
+        25% { transform: scale(1.02) rotate(-4deg); }
+        75% { transform: scale(1.02) rotate(4deg); }
+    }
+    @keyframes ko-img-fade { to { opacity: 0; transform: scale(1.3); } }
+
+    /* --- VS MODE HEALTH BAR SYSTEM (MK / SF STYLE) --- */
+    .vs-healthbar-container {
+        background: linear-gradient(180deg, #0a0a1a 0%, #141428 100%);
+        padding: 10px 12px 8px;
+        border-bottom: 3px solid #0f3460;
+        position: relative;
+    }
+    .vs-hb-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .vs-player-side {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .vs-player-side.right {
+        flex-direction: row-reverse;
+    }
+    .vs-player-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 6px;
+        object-fit: cover;
+        border: 3px solid #3498db;
+        flex-shrink: 0;
+        box-shadow: 0 0 12px rgba(52,152,219,0.4);
+    }
+    .vs-player-side.right .vs-player-avatar {
+        border-color: #e74c3c;
+        box-shadow: 0 0 12px rgba(231,76,60,0.4);
+    }
+    .vs-player-info { flex: 1; min-width: 0; }
+    .vs-player-side.right .vs-player-info { text-align: right; }
+    .vs-player-name {
+        font-weight: 800;
+        font-size: 0.8rem;
+        color: #fff;
+        margin-bottom: 3px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .vs-hp-bar-wrap {
+        width: 100%;
+        height: 18px;
+        background: #1a1a2e;
+        border-radius: 3px;
+        overflow: hidden;
+        position: relative;
+        border: 1px solid #333;
+    }
+    .vs-hp-bar {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.6s ease;
+        position: relative;
+        background: linear-gradient(180deg, #4cff4c 0%, #27ae60 50%, #1e8449 100%);
+        box-shadow: inset 0 2px 4px rgba(255,255,255,0.25), 0 0 8px rgba(46,204,113,0.3);
+    }
+    .vs-hp-bar.danger {
+        background: linear-gradient(180deg, #ff6b6b 0%, #e74c3c 50%, #c0392b 100%);
+        box-shadow: inset 0 2px 4px rgba(255,255,255,0.2), 0 0 8px rgba(231,76,60,0.3);
+    }
+    .vs-hp-bar.warning {
+        background: linear-gradient(180deg, #ffd93d 0%, #f39c12 50%, #e67e22 100%);
+        box-shadow: inset 0 2px 4px rgba(255,255,255,0.2), 0 0 8px rgba(243,156,18,0.3);
+    }
+    /* Right side bar goes right-to-left */
+    .vs-player-side.right .vs-hp-bar {
+        float: right;
+    }
+    .vs-hp-text {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #fff;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.9);
+    }
+    .vs-player-side:not(.right) .vs-hp-text { right: 6px; }
+    .vs-player-side.right .vs-hp-text { left: 6px; }
+    .vs-hb-vs-badge {
+        flex-shrink: 0;
+        color: #f1c40f;
+        font-weight: 900;
+        font-size: 1rem;
+        text-shadow: 0 0 10px rgba(241,196,15,0.6);
+        padding: 0 4px;
     }
 
-    @keyframes ko-stamp {
-        0% { transform: translate(-50%, -50%) scale(5); opacity: 0; }
-        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    /* --- VS answer coloring (fetih style) --- */
+    .vs-opt-btn.ans-p1 {
+        background: #3498db !important;
+        color: #fff !important;
+        border-color: #2980b9 !important;
+    }
+    .vs-opt-btn.ans-p2 {
+        background: #e74c3c !important;
+        color: #fff !important;
+        border-color: #c0392b !important;
+    }
+    .vs-opt-btn.ans-both {
+        background: linear-gradient(90deg, #3498db 50%, #e74c3c 50%) !important;
+        color: #fff !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    .vs-opt-btn.ans-correct {
+        border: 3px solid #2ecc71 !important;
+        box-shadow: 0 0 12px #2ecc71, 0 0 24px rgba(46,204,113,0.3) !important;
     }
 
-    @keyframes ko-shake {
-        0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
-        25% { transform: translate(-52%, -48%) rotate(-5deg); }
-        75% { transform: translate(-48%, -52%) rotate(5deg); }
+    /* VS Ready bar (bottom, not blocking) */
+    .vs-ready-overlay {
+        position: relative;
+        background: linear-gradient(180deg, rgba(0,0,0,0.85), rgba(0,0,0,0.95));
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 16px 20px;
+        border-top: 2px solid #2ecc71;
+    }
+    .vs-ready-btn {
+        padding: 14px 40px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        border: 3px solid #2ecc71;
+        background: #27ae60;
+        color: #fff;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .vs-ready-btn:hover { background: #2ecc71; transform: scale(1.05); }
+    .vs-ready-btn.done {
+        background: #555;
+        border-color: #777;
+        cursor: default;
+        pointer-events: none;
     }
 
-    @keyframes ko-fade {
-        to { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+    /* Damage flash */
+    @keyframes dmg-flash {
+        0%,100% { background-color: transparent; }
+        50% { background-color: rgba(231,76,60,0.3); }
+    }
+    .dmg-flash { animation: dmg-flash 0.3s ease 2; }
+
+    /* VS Setup matching fetih.html */
+    .vs-setup-card {
+        background: linear-gradient(145deg, rgba(15,15,15,0.95), rgba(30,20,10,0.95)) !important;
+        border: 2px solid #b8860b !important;
+        box-shadow: 0 0 40px rgba(184,134,11,0.3), inset 0 1px 0 rgba(255,215,0,0.1);
+    }
+    .vs-cat-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(0,0,0,0.4);
+        border-radius: 6px;
+        padding: 8px 12px;
+        margin-bottom: 6px;
+    }
+    .vs-cat-timer-input {
+        width: 65px;
+        background: #34495e;
+        border: none;
+        color: #f1c40f;
+        text-align: center;
+        font-weight: 700;
+        border-radius: 4px;
+        padding: 3px;
+    }
+    .vs-cat-qcount-input {
+        width: 55px;
+        background: #34495e;
+        border: none;
+        color: #3498db;
+        text-align: center;
+        font-weight: 700;
+        border-radius: 4px;
+        padding: 3px;
+    }
+
+    /* AI Hint button in VS */
+    .vs-hint-btn {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        border: none;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 6px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .vs-hint-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(139,92,246,0.5); }
+    .vs-hint-btn:disabled { opacity: 0.5; pointer-events: none; }
+
+    /* === DARK THEME: VS MODE + GOALS + RESULT === */
+    [data-theme="dark"] #vs-q-text,
+    [data-theme="dark"] #vs-status-msg,
+    [data-theme="dark"] #vs-question-body,
+    [data-theme="dark"] #vs-question-body h5 {
+        color: #e2e8f0 !important;
+    }
+    [data-theme="dark"] .vs-opt-btn {
+        background: #1e293b !important;
+        color: #e2e8f0 !important;
+        border-color: #475569 !important;
+    }
+    [data-theme="dark"] .vs-opt-btn:hover {
+        background: #334155 !important;
+        border-color: #94a3b8 !important;
+    }
+    [data-theme="dark"] #vs-hint-content {
+        color: #e2e8f0 !important;
+        background: rgba(139,92,246,0.15) !important;
+    }
+    [data-theme="dark"] #vs-result,
+    [data-theme="dark"] #vs-result h1,
+    [data-theme="dark"] #vs-result h2,
+    [data-theme="dark"] #vs-result h3,
+    [data-theme="dark"] #vs-result small {
+        color: #e2e8f0 !important;
+    }
+    [data-theme="dark"] #vs-result .bg-light {
+        background: #1e293b !important;
+        border-color: #475569 !important;
+    }
+    [data-theme="dark"] #vs-result .text-primary { color: #60a5fa !important; }
+    [data-theme="dark"] #vs-result .text-danger { color: #f87171 !important; }
+    [data-theme="dark"] #vs-lobby h3,
+    [data-theme="dark"] #vs-lobby h5,
+    [data-theme="dark"] #vs-lobby p {
+        color: #e2e8f0 !important;
+    }
+    /* Hedefler / Goals modal dark */
+    [data-theme="dark"] #goalModal .modal-body,
+    [data-theme="dark"] #goalModal .progress-bar,
+    [data-theme="dark"] #goalModal label,
+    [data-theme="dark"] #goalModal .input-group-text {
+        color: #e2e8f0 !important;
+    }
+    [data-theme="dark"] #goalModal .modal-body {
+        background: #151b2b !important;
+    }
+    [data-theme="dark"] #goalModal .input-group-text {
+        background: #334155 !important;
+        border-color: #475569 !important;
+    }
+    [data-theme="dark"] #goalModal .form-control {
+        background: #1e293b !important;
+        color: #e2e8f0 !important;
+        border-color: #475569 !important;
+    }
+    /* Leaderboard modal dark */
+    [data-theme="dark"] #leaderboardModal .modal-body {
+        background: #151b2b !important;
+    }
+    [data-theme="dark"] #leaderboardModal .card,
+    [data-theme="dark"] #leaderboardModal .list-group-item {
+        background: #1e293b !important;
+        color: #e2e8f0 !important;
+        border-color: #475569 !important;
+    }
+    [data-theme="dark"] #leaderboardModal h1,
+    [data-theme="dark"] #leaderboardModal h6,
+    [data-theme="dark"] #leaderboardModal small {
+        color: #e2e8f0 !important;
     }
       /* --- MOBİL NAVBAR DÜZENLEMESİ (TAŞMA SORUNU İÇİN) --- */
     @media (max-width: 768px) {
@@ -510,11 +804,12 @@
         <h3 class="text-primary fw-bold mb-4"><i class="bi bi-lightning-charge-fill"></i> YDS MEYDAN OKUMA</h3>
         
         <div class="row g-4">
-            <!-- HOST KISMI (GÜNCELLENDİ) -->
+            <!-- HOST KISMI -->
             <div class="col-md-6 border-end">
                 <h5>Oda Kur (Host)</h5>
                 <p class="text-muted small">Odanıza bir isim verin (Örn: yds123)</p>
                 
+                <input type="text" id="vs-host-name" class="form-control mb-2 fw-bold text-center" placeholder="Senin İsmin" maxlength="15">
                 <div class="input-group mb-2">
                     <input type="text" id="host-id-input" class="form-control fw-bold" placeholder="Oda İsmi Yazın">
                     <button class="btn btn-primary" onclick="createCustomRoom()">
@@ -530,10 +825,11 @@
                 </div>
             </div>
             
-            <!-- GUEST KISMI (AYNI KALDI) -->
+            <!-- GUEST KISMI -->
             <div class="col-md-6">
                 <h5>Odaya Katıl (Guest)</h5>
                 <p class="text-muted small">Arkadaşının belirlediği oda ismini gir.</p>
+                <input type="text" id="vs-guest-name" class="form-control mb-2 fw-bold text-center" placeholder="Senin İsmin" maxlength="15">
                 <input type="text" id="join-id-input" class="form-control mb-2 text-center" placeholder="Oda İsmi">
                 <button class="btn btn-lg btn-success w-100" onclick="joinRoom()">
                     <i class="bi bi-box-arrow-in-right"></i> Katıl
@@ -542,57 +838,93 @@
         </div>
     </div>
 
-<!-- KATEGORİ VE AYAR SEÇİMİ (HOST) -->
-    <div id="vs-setup" class="card p-4 d-none">
-        <h4 class="mb-3 fw-bold text-primary">Yarışma Ayarları</h4>
+<!-- KATEGORİ VE AYAR SEÇİMİ (HOST - FETİH STYLE) -->
+    <div id="vs-setup" class="card vs-setup-card p-4 d-none" style="color:#fff;">
+        <h3 class="text-warning text-center mb-4"><i class="bi bi-sliders"></i> Savaş Ayarları</h3>
         
-        <!-- YENİ EKLENEN AYARLAR -->
-        <div class="row g-3 mb-4 border-bottom pb-3">
-            <div class="col-6">
-                <label class="form-label fw-bold">Bölüm Başı Soru:</label>
-                <select id="vs-q-count-input" class="form-select">
-                    <option value="1">1 Soru</option>
-                    <option value="2">2 Soru</option>
-                    <option value="3" selected>3 Soru</option>
-                    <option value="4">4 Soru</option>
-                    <option value="5">5 Soru</option>
-                </select>
-            </div>
-            <div class="col-6">
-                <label class="form-label fw-bold">Süre (Saniye):</label>
-                <input type="number" id="vs-time-input" class="form-control" value="90" min="10" max="300">
-            </div>
-        </div>
-
-        <h5 class="mb-3">Bölümleri Seçiniz (En az 1 tane)</h5>
-        <div class="row text-start" id="vs-cat-list">
+        <h5 class="text-white mb-3">Soru Bölümleri</h5>
+        <div id="vs-cat-list">
             <!-- JS ile doldurulacak -->
         </div>
         
-        <button class="btn btn-primary w-100 mt-3 btn-lg" onclick="startVsMatch()">
-            <i class="bi bi-play-circle-fill"></i> YARIŞMAYI BAŞLAT
+        <hr style="border-color: #b8860b;">
+
+        <div class="mb-3">
+            <label class="form-label text-warning fw-bold">Kim Önce Cevaplar?</label>
+            <select id="vs-first-answer" class="form-select bg-dark text-white border-secondary">
+                <option value="whoever" selected>Kim biliyorsa o (önce basan)</option>
+            </select>
+        </div>
+        
+        <button class="btn btn-lg w-100 mt-2 fw-bold" style="background:linear-gradient(180deg,#b8860b,#8B6914);color:#fff;border:2px solid #d4a017;text-transform:uppercase;letter-spacing:2px;" onclick="startVsMatch()">
+            <i class="bi bi-swords"></i> SAVAŞI BAŞLAT
         </button>
     </div>
 
     <!-- OYUN EKRANI -->
-    <div id="vs-gameplay" class="card d-none" style="overflow: hidden;">
-        <div class="vs-header">
-            <div class="d-flex justify-content-between">
-                <span id="vs-q-count">Soru 1/15</span>
-                <span id="vs-timer-text">90sn</span>
+    <div id="vs-gameplay" class="card d-none" style="overflow: hidden; position: relative;">
+        <!-- HEALTH BAR TOP (MK / SF STYLE) -->
+        <div class="vs-healthbar-container">
+            <div class="vs-hb-row">
+                <!-- Player 1 (Host) - LEFT -->
+                <div class="vs-player-side" id="vs-p1-side">
+                    <img src="Hostimg.jpeg" alt="Host" class="vs-player-avatar" id="vs-p1-avatar">
+                    <div class="vs-player-info">
+                        <div class="vs-player-name" id="vs-p1-name">HOST</div>
+                        <div class="vs-hp-bar-wrap">
+                            <div class="vs-hp-bar" id="vs-p1-hp-bar" style="width:100%"></div>
+                            <span class="vs-hp-text" id="vs-p1-hp-text">100</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- VS Badge -->
+                <div class="vs-hb-vs-badge">VS</div>
+                <!-- Player 2 (Guest) - RIGHT -->
+                <div class="vs-player-side right" id="vs-p2-side">
+                    <img src="Questimg.jpeg" alt="Quest" class="vs-player-avatar" id="vs-p2-avatar">
+                    <div class="vs-player-info">
+                        <div class="vs-player-name" id="vs-p2-name">RAKİP</div>
+                        <div class="vs-hp-bar-wrap">
+                            <div class="vs-hp-bar" id="vs-p2-hp-bar" style="width:100%"></div>
+                            <span class="vs-hp-text" id="vs-p2-hp-text">100</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="vs-timer"><div id="vs-timer-bar" class="vs-timer-bar"></div></div>
-        
-        <div class="vs-score-board">
-            <span class="player-badge p1-badge">SEN: <span id="score-me">0</span></span>
-            <span class="player-badge p2-badge">RAKİP: <span id="score-opp">0</span></span>
+
+        <!-- Question Header -->
+        <div style="padding:8px 16px;background:#1e293b;display:flex;justify-content:space-between;align-items:center;">
+            <span id="vs-q-count" style="color:#f1c40f;font-weight:800;">Soru 1/15</span>
+            <span id="vs-timer-text" style="color:#e74c3c;font-weight:800;font-size:1.2rem;">30sn</span>
+        </div>
+        <div style="height:4px;background:#2c2c3a;"><div id="vs-timer-bar" style="height:100%;width:100%;background:#3498db;transition:width 1s linear;"></div></div>
+
+        <div class="card-body text-center mt-2" id="vs-question-body">
+            <h5 id="vs-q-text" class="mb-4 fw-bold" style="min-height:60px;">Soru Yükleniyor...</h5>
+            <div id="vs-options" class="d-grid gap-2"></div>
+            <div id="vs-status-msg" class="mt-3 fw-bold fst-italic"></div>
+            
+            <!-- AI Hint area -->
+            <div id="vs-hint-area" class="d-none mt-3">
+                <button class="vs-hint-btn" id="vs-hint-btn" onclick="requestAiHint()">
+                    <i class="bi bi-stars"></i> AI İpucu Al
+                </button>
+                <div id="vs-hint-content" class="mt-2 text-start p-3 d-none" style="background:rgba(139,92,246,0.1);border:1px solid #7c3aed;border-radius:8px;font-size:0.9rem;"></div>
+            </div>
         </div>
 
-        <div class="card-body text-center mt-3">
-            <h5 id="vs-q-text" class="mb-4 text-dark font-weight-bold">Soru Yükleniyor...</h5>
-            <div id="vs-options" class="d-grid gap-2"></div>
-            <div id="vs-status-msg" class="mt-3 text-muted fw-bold fst-italic"></div>
+        <!-- Ready overlay (hidden by default) -->
+        <div id="vs-ready-screen" class="vs-ready-overlay d-none">
+            <div class="text-center text-white mb-3">
+                <div id="vs-round-result-text" style="font-size:1.1rem;font-weight:700;"></div>
+            </div>
+            <button class="vs-ready-btn" id="vs-ready-btn" onclick="pressReady()">
+                <i class="bi bi-check-circle-fill"></i> HAZIRIM
+            </button>
+            <div id="vs-ready-wait" class="d-none text-white mt-3">
+                <div class="spinner-border spinner-border-sm text-warning"></div> Rakip bekleniyor...
+            </div>
         </div>
     </div>
 
@@ -601,12 +933,14 @@
         <h1 class="display-4 fw-bold mb-3" id="vs-winner-text"></h1>
         <div class="row justify-content-center mb-4">
             <div class="col-4 bg-light p-3 rounded border me-2">
-                <h3>SEN</h3>
-                <h2 class="text-primary" id="final-score-me">0</h2>
+                <h3 id="vs-final-p1-label">HOST</h3>
+                <h2 class="text-primary" id="final-hp-p1">100</h2>
+                <small class="text-muted">HP</small>
             </div>
             <div class="col-4 bg-light p-3 rounded border">
-                <h3>RAKİP</h3>
-                <h2 class="text-danger" id="final-score-opp">0</h2>
+                <h3 id="vs-final-p2-label">RAKİP</h3>
+                <h2 class="text-danger" id="final-hp-p2">100</h2>
+                <small class="text-muted">HP</small>
             </div>
         </div>
         <button class="btn btn-outline-secondary" onclick="location.reload()">Ana Menüye Dön</button>
@@ -4591,7 +4925,7 @@ TIP: Main clause: would have V3 (burada would).
     C) from / at
     D) on / to
     E) with / on
-    30. Anorexia nervosa is a severe eating disorder, usually involving excessive weight loss ---- self‐starvation, most often found ---- teenage girls. (2021 NİSAN YDS)
+    30. Anorexia nervosa is a severe eating disorder, usually involving excessive weight loss ---- self-starvation, most often found ---- teenage girls. (2021 NİSAN YDS)
     A) at / with
     B) from / of
     C) for / between
@@ -8713,25 +9047,9 @@ function renderQuestions(qList) {
         }
     }
 
-// --- 1. GÜNCELLENMİŞ HEDEF KUTLAMASI (K.O. EFEKTİ BURADA) ---
+// --- 1. GÜNCELLENMİŞ HEDEF KUTLAMASI ---
 function showGoalCelebration(categoryTitle) {
-    // A) K.O. Efektini Başlat
-    const koEl = document.getElementById('ko-overlay');
-    const audio = document.getElementById('ko-audio');
-    
-    // Animasyonu sıfırla ve başlat
-    koEl.classList.remove('d-none', 'ko-anim');
-    void koEl.offsetWidth; // CSS Reflow tetikle (Animasyonu resetlemek için)
-    koEl.classList.add('ko-anim');
-    koEl.classList.remove('d-none');
-
-    // Sesi Çal
-    if (audio) {
-        audio.currentTime = 0;
-        audio.play().catch(e => console.log("Tarayıcı ses izni vermedi, etkileşim lazım."));
-    }
-
-    // B) Toast Bildirimi (Yanda bilgi olarak kalsın)
+    // Toast Bildirimi
     const toastEl = document.getElementById('goalToast');
     const toastBody = document.getElementById('goalToastBody');
     if(toastEl && toastBody) {
@@ -9242,30 +9560,47 @@ function saveApiKey() {
         }
     }
 
-/* ================= VS MODU (MULTIPLAYER - CUSTOM ID) ================= */
+/* ================= VS MODU (MULTIPLAYER - REVAMPED) ================= */
 let peer = null;
 let conn = null;
 let amIHost = false;
 let vsQuestions = [];
 let currentVsIndex = 0;
-let myScore = 0;
-let oppScore = 0;
 let myAnswer = null;
 let oppAnswer = null;
+let myAnswerTime = 0;
+let oppAnswerTime = 0;
 let vsTimerInterval = null;
-let vsTimeLimit = 90; // YENİ DEĞİŞKEN (Varsayılan 90)
+let vsTimerStart = 0;
+
+// Health
+let p1HP = 100;
+let p2HP = 100;
+
+// Ready system
+let myReady = false;
+let oppReady = false;
+
+// Track if match ended
+let vsMatchEnded = false;
+
+// AI hint
+let hintRequested = false;
+let hintShown = false;
+
+// Player names
+let vsMyName = "";
+let vsOppName = "";
 
 
-// Menüden Tıklanınca (Sadece ekranı aç, bağlantı kurma)
+// Menuden Tiklaninca
 function initVsMode() {
     document.getElementById('questions-area').style.display = 'none';
     document.getElementById('vs-area').style.display = 'block';
-    document.getElementById('active-section-title').innerText = "VS Modu (Çok Oyunculu)";
+    document.getElementById('active-section-title').innerText = "VS Modu (Cok Oyunculu)";
     
-    // Eğer eski bağlantı varsa temizle
     if(peer) { peer.destroy(); peer = null; }
     
-    // UI Sıfırla
     document.getElementById('vs-lobby').classList.remove('d-none');
     document.getElementById('vs-setup').classList.add('d-none');
     document.getElementById('host-status').classList.add('d-none');
@@ -9274,44 +9609,40 @@ function initVsMode() {
     document.getElementById('join-id-input').value = "";
 }
 
-// ÖZEL İSİMLE ODA KUR (HOST)
+// OZEL ISIMLE ODA KUR (HOST)
 function createCustomRoom() {
-    const roomId = document.getElementById('host-id-input').value.trim().replace(/[^a-zA-Z0-9_-]/g, ""); // Sadece harf sayı
+    const roomId = document.getElementById('host-id-input').value.trim().replace(/[^a-zA-Z0-9_-]/g, "");
     
     if (roomId.length < 3) {
-        alert("Oda ismi en az 3 karakter olmalı!");
+        alert("Oda ismi en az 3 karakter olmali!");
         return;
     }
 
-    // UI Güncelle
+    vsMyName = document.getElementById('vs-host-name').value.trim() || currentUser || "HOST";
+
     document.getElementById('host-status').classList.remove('d-none');
     document.getElementById('host-status').innerText = "Oda kuruluyor (" + roomId + ")...";
 
-    // Kendi ismimizle Peer başlat
     peer = new Peer(roomId);
 
-    // Başarılı Açılırsa
     peer.on('open', (id) => {
         amIHost = true;
         document.getElementById('host-status').classList.add('d-none');
         document.getElementById('host-ready-msg').classList.remove('d-none');
-        // Inputu kilitle
         document.getElementById('host-id-input').disabled = true;
     });
 
-    // Hata Olursa (Örn: İsim doluysa)
     peer.on('error', (err) => {
         document.getElementById('host-status').classList.add('d-none');
         if (err.type === 'unavailable-id') {
-            alert("Bu oda ismi (" + roomId + ") zaten kullanılıyor. Başka bir isim deneyin.");
+            alert("Bu oda ismi (" + roomId + ") zaten kullaniliyor. Baska bir isim deneyin.");
         } else {
-            alert("Hata oluştu: " + err.type);
+            alert("Hata olustu: " + err.type);
         }
         document.getElementById('host-id-input').disabled = false;
         peer = null;
     });
 
-    // Rakip Bağlanınca
     peer.on('connection', (c) => {
         conn = c;
         setupConnection();
@@ -9321,298 +9652,600 @@ function createCustomRoom() {
 // ODAYA KATIL (GUEST)
 function joinRoom() {
     const destId = document.getElementById('join-id-input').value.trim();
-    if (!destId) return alert("Lütfen oda ismini girin!");
+    if (!destId) return alert("Lutfen oda ismini girin!");
     
+    vsMyName = document.getElementById('vs-guest-name').value.trim() || currentUser || "GUEST";
     amIHost = false;
-    
-    // Guest için rastgele ID oluştur (Çakışma olmasın diye)
-    // Guest'in isminin ne olduğu önemli değil, Host'a bağlanması yeterli
     peer = new Peer(); 
 
     peer.on('open', (id) => {
-        // Kendi ID'mizi alınca Host'a bağlanmayı dene
         conn = peer.connect(destId);
         
-        // Bağlantı hatası olursa (Host yoksa)
         peer.on('error', (err) => {
-            alert("Oda bulunamadı veya bağlantı hatası!");
+            alert("Oda bulunamadi veya baglanti hatasi!");
         });
 
         setupConnection();
     });
 }
 
-// BAĞLANTI KURULDUĞUNDA (ORTAK)
+// BAGLANTI KURULDUGUNDA (ORTAK)
 function setupConnection() {
     if(!conn) return;
 
     conn.on('open', () => {
-        console.log("Bağlantı sağlandı!");
+        console.log("Baglanti saglandi!");
+        
+        // Send my name to opponent
+        conn.send({ type: 'PLAYER_NAME', name: vsMyName });
         
         if (amIHost) {
-            // Host Kategori Seçimine Geçer
             document.getElementById('vs-lobby').classList.add('d-none');
             document.getElementById('vs-setup').classList.remove('d-none');
             renderCategorySelection();
         } else {
-            // Guest Bekleme Ekranına Geçer
-            document.getElementById('vs-lobby').innerHTML = `
-                <div class="text-center py-5">
-                    <h3 class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Odaya Girildi!</h3>
-                    <p class="lead">Host'un oyunu başlatması bekleniyor...</p>
-                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                </div>`;
+            document.getElementById('vs-lobby').innerHTML = '<div class="text-center py-5"><h3 class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Odaya Girildi!</h3><p class="lead">Host\'un oyunu baslatmasi bekleniyor...</p><div class="spinner-border text-primary" style="width:3rem;height:3rem;"></div></div>';
         }
     });
 
     conn.on('data', (data) => {
-        handleData(data);
+        handleVsData(data);
     });
     
     conn.on('close', () => {
-        alert("Bağlantı koptu!");
-        location.reload();
+        if(!vsMatchEnded) {
+            alert("Baglanti koptu!");
+            location.reload();
+        }
     });
 }
 
-// VERİ ALINDIĞINDA (GUEST İÇİN GÜNCELLEME)
-function handleData(data) {
-    if (data.type === 'START_GAME') {
-        vsQuestions = data.questions;
-        vsTimeLimit = data.timeLimit; // HOST'UN BELİRLEDİĞİ SÜREYİ AL
-        startGameUI();
-    } 
-    else if (data.type === 'OPP_ANSWER') {
-        oppAnswer = data.ans;
-        checkRoundEnd();
-    }
-}
-
-// KATEGORİ SEÇİMİ (Sadece Host)
+// KATEGORI SECIMI (Fetih tarzi: per-section timer + quest count)
 function renderCategorySelection() {
     const list = document.getElementById('vs-cat-list');
     list.innerHTML = "";
-    // Yapay Zeka ve Hatalar hariç diğer bölümler
     const cats = sections.filter(s => s.key !== 'secAi' && s.key !== 'secMistakes');
     
     cats.forEach(c => {
-        list.innerHTML += `
-        <div class="col-6 mb-2">
-            <div class="form-check">
-                <input class="form-check-input vs-cat-check" type="checkbox" value="${c.key}" id="chk-${c.key}">
-                <label class="form-check-label" for="chk-${c.key}">${c.title}</label>
-            </div>
-        </div>`;
+        const count = allQuestions.filter(q => q.id >= c.start && q.id <= c.end).length;
+        list.innerHTML += '<div class="vs-cat-row">'
+            + '<div class="form-check mb-0" style="flex:1;">'
+            + '<input class="form-check-input vs-cat-check" type="checkbox" value="' + c.key + '" id="chk-' + c.key + '" checked>'
+            + '<label class="form-check-label text-white" for="chk-' + c.key + '">' + c.title + ' <small style="color:#888;">(' + count + ')</small></label>'
+            + '</div>'
+            + '<div class="d-flex align-items-center gap-1">'
+            + '<input type="number" class="vs-cat-qcount-input" id="qcount-' + c.key + '" value="3" min="1" max="50" title="Soru sayisi">'
+            + '<small style="color:#3498db;">soru</small>'
+            + '</div>'
+            + '<div class="d-flex align-items-center gap-1 ms-2">'
+            + '<input type="number" class="vs-cat-timer-input" id="timer-' + c.key + '" value="30" min="5" max="300" title="Sure (saniye)">'
+            + '<small style="color:#f1c40f;">sn</small>'
+            + '</div>'
+            + '</div>';
     });
 }
 
-// OYUNU BAŞLAT (HOST İÇİN GÜNCELLEME)
+// OYUNU BASLAT (HOST)
 function startVsMatch() {
-    // 1. Seçili Bölümleri Al
     const checkboxes = document.querySelectorAll('.vs-cat-check:checked');
     if (checkboxes.length < 1) {
-        alert("En az 1 bölüm seçmelisiniz!");
+        alert("En az 1 bolum secmelisiniz!");
         return;
     }
 
-    // 2. Ayarları Al (Soru Sayısı ve Süre)
-    const qPerSection = parseInt(document.getElementById('vs-q-count-input').value);
-    const timeSet = parseInt(document.getElementById('vs-time-input').value);
-    
-    if(timeSet < 10) { alert("Süre en az 10 saniye olmalı!"); return; }
-
-    // 3. Soruları Havuzdan Çek
     let pool = [];
     checkboxes.forEach(chk => {
         const sec = sections.find(s => s.key === chk.value);
-        const sectionQuestions = allQuestions.filter(q => q.id >= sec.start && q.id <= sec.end);
+        if(!sec) return;
+        const timerVal = parseInt(document.getElementById('timer-' + sec.key).value) || 30;
+        const qCount = parseInt(document.getElementById('qcount-' + sec.key).value) || 3;
+        const secQuestions = allQuestions.filter(q => q.id >= sec.start && q.id <= sec.end);
         
-        // Dinamik sayı kadar rastgele seç
-        const picked = sectionQuestions.sort(() => 0.5 - Math.random()).slice(0, qPerSection);
-        pool = pool.concat(picked);
+        secQuestions.forEach(q => q.timer = timerVal);
+        secQuestions.sort(() => 0.5 - Math.random());
+        pool = pool.concat(secQuestions.slice(0, qCount));
     });
 
-    if(pool.length === 0) { alert("Seçilen bölümlerde yeterli soru yok!"); return; }
+    if(pool.length === 0) { alert("Secilen bolumlerde yeterli soru yok!"); return; }
 
-    // 4. Hazırla ve Gönder
     vsQuestions = pool.sort(() => 0.5 - Math.random());
-    vsTimeLimit = timeSet; // Host için süreyi ayarla
 
-    // Guest'e hem soruları hem süreyi gönder
-    conn.send({ 
-        type: 'START_GAME', 
-        questions: vsQuestions, 
-        timeLimit: vsTimeLimit 
-    });
-    
+    conn.send({ type: 'START_GAME', questions: vsQuestions, hostName: vsMyName });
     startGameUI();
 }
 
-// OYUN ARAYÜZÜNÜ AÇ
+// VERI ALINDIGINDA
+function handleVsData(data) {
+    switch(data.type) {
+        case 'PLAYER_NAME':
+            vsOppName = data.name || "RAKİP";
+            break;
+        case 'START_GAME':
+            vsQuestions = data.questions;
+            if(data.hostName) vsOppName = data.hostName;
+            startGameUI();
+            break;
+        case 'OPP_ANSWER':
+            oppAnswer = data.ans;
+            oppAnswerTime = data.time;
+            checkRoundEnd();
+            break;
+        case 'OPP_READY':
+            oppReady = true;
+            checkBothReady();
+            break;
+        case 'NEXT_QUESTION':
+            goToNextQuestion();
+            break;
+        case 'HP_UPDATE':
+            p1HP = data.p1HP;
+            p2HP = data.p2HP;
+            updateHPBars();
+            // Guest receives answer info for button coloring
+            if(data.p1Ans && data.correct) {
+                colorVsButtons(data.p1Ans, data.p2Ans, data.correct);
+            }
+            break;
+        case 'MATCH_END':
+            vsMatchEnded = true;
+            p1HP = data.p1HP;
+            p2HP = data.p2HP;
+            updateHPBars();
+            showMatchResult(data.winner, data.reason);
+            break;
+        case 'AI_HINT_RESULT':
+            displayAiHint(data.hintText);
+            break;
+        case 'REQUEST_AI_HINT':
+            if(amIHost) generateAndSendHint();
+            break;
+    }
+}
+
+// OYUN ARAYUZUNU AC
 function startGameUI() {
     document.getElementById('vs-setup').classList.add('d-none');
     document.getElementById('vs-lobby').classList.add('d-none');
     document.getElementById('vs-gameplay').classList.remove('d-none');
     
+    // P1 = host, P2 = guest
+    var p1Name = amIHost ? vsMyName : vsOppName;
+    var p2Name = amIHost ? vsOppName : vsMyName;
+    document.getElementById('vs-p1-name').innerText = p1Name || "HOST";
+    document.getElementById('vs-p2-name').innerText = p2Name || "RAKİP";
+    
     currentVsIndex = 0;
-    myScore = 0;
-    oppScore = 0;
+    p1HP = 100;
+    p2HP = 100;
+    vsMatchEnded = false;
+    updateHPBars();
     loadVsQuestion();
 }
 
-// SORUYU EKRANA BAS (DİNAMİK SAYI + RENK DÜZELTMESİ)
+// HP BAR UPDATE
+function updateHPBars() {
+    var bar1 = document.getElementById('vs-p1-hp-bar');
+    var bar2 = document.getElementById('vs-p2-hp-bar');
+    var text1 = document.getElementById('vs-p1-hp-text');
+    var text2 = document.getElementById('vs-p2-hp-text');
+
+    bar1.style.width = Math.max(0, p1HP) + '%';
+    bar2.style.width = Math.max(0, p2HP) + '%';
+    text1.innerText = Math.max(0, p1HP);
+    text2.innerText = Math.max(0, p2HP);
+
+    [bar1, bar2].forEach(function(bar, i) {
+        var hp = i === 0 ? p1HP : p2HP;
+        bar.classList.remove('danger', 'warning');
+        if(hp <= 25) bar.classList.add('danger');
+        else if(hp <= 50) bar.classList.add('warning');
+    });
+}
+
+// SORUYU EKRANA BAS
 function loadVsQuestion() {
+    if(vsMatchEnded) return;
     if (currentVsIndex >= vsQuestions.length) {
-        endGame();
+        if(amIHost) resolveMatchEnd();
         return;
     }
 
-    const q = vsQuestions[currentVsIndex];
+    var q = vsQuestions[currentVsIndex];
     myAnswer = null;
     oppAnswer = null;
+    myAnswerTime = 0;
+    oppAnswerTime = 0;
+    myReady = false;
+    oppReady = false;
+    hintRequested = false;
+    hintShown = false;
     
-    // UI Güncelle - DİNAMİK SORU SAYISI BURADA
-    document.getElementById('vs-q-count').innerText = `Soru ${currentVsIndex + 1} / ${vsQuestions.length}`;
+    document.getElementById('vs-ready-screen').classList.add('d-none');
+    document.getElementById('vs-hint-area').classList.add('d-none');
+    document.getElementById('vs-hint-content').classList.add('d-none');
+    document.getElementById('vs-hint-content').innerHTML = '';
+    document.getElementById('vs-hint-btn').disabled = false;
     
-    document.getElementById('score-me').innerText = myScore;
-    document.getElementById('score-opp').innerText = oppScore;
+    document.getElementById('vs-q-count').innerText = 'Soru ' + (currentVsIndex + 1) + ' / ' + vsQuestions.length;
     
-    // Soru Metni
-    const qTextEl = document.getElementById('vs-q-text');
-    qTextEl.className = "mb-4 font-weight-bold"; 
-    qTextEl.style.color = "var(--text-color)"; // Tema rengine uyumlu
-    qTextEl.innerText = formatQuestionText(q.text);
+    var qTextEl = document.getElementById('vs-q-text');
+    qTextEl.innerHTML = q.text || '';
     
     document.getElementById('vs-status-msg').innerHTML = "";
     
-    // Şıkları Bas
-    let optsHTML = "";
-    ['A', 'B', 'C', 'D', 'E'].forEach(opt => {
-        optsHTML += `<button class="btn text-start p-3 w-100 mb-2 vs-opt-btn" style="border: 1px solid var(--border-color);" onclick="submitVsAnswer('${opt}', this)"><b>${opt})</b> ${q.options[opt]}</button>`;
+    var opts = q.options || q.opts;
+    var optsHTML = "";
+    ['A', 'B', 'C', 'D', 'E'].forEach(function(opt) {
+        if(opts && opts[opt]) {
+            optsHTML += '<button class="btn text-start p-3 w-100 mb-2 vs-opt-btn" style="border:2px solid #ddd;border-radius:8px;font-weight:600;transition:0.15s;" onclick="submitVsAnswer(\'' + opt + '\', this)"><b>' + opt + ')</b> ' + opts[opt] + '</button>';
+        }
     });
     document.getElementById('vs-options').innerHTML = optsHTML;
 
-    // Sayacı Başlat
-    startTimer();
+    startVsTimer(q.timer || 30);
 }
 
-// SAYAÇ MANTIĞINI GÜNCELLE
-function startTimer() {
-    timeLeft = vsTimeLimit; // ARTIK 90 DEĞİL, AYARLANAN SÜRE
+// TIMER
+function startVsTimer(seconds) {
+    var timeLeft = seconds;
+    vsTimerStart = Date.now();
     
-    const bar = document.getElementById('vs-timer-bar');
-    const txt = document.getElementById('vs-timer-text');
+    var bar = document.getElementById('vs-timer-bar');
+    var txt = document.getElementById('vs-timer-text');
     
     clearInterval(vsTimerInterval);
     bar.style.width = "100%";
+    txt.innerText = timeLeft + "sn";
     
-    vsTimerInterval = setInterval(() => {
+    vsTimerInterval = setInterval(function() {
         timeLeft--;
-        txt.innerText = timeLeft + "sn";
-        // Yüzdeyi dinamik hesapla
-        bar.style.width = (timeLeft / vsTimeLimit * 100) + "%";
+        txt.innerText = Math.max(0, timeLeft) + "sn";
+        bar.style.width = (timeLeft / seconds * 100) + "%";
         
         if (timeLeft <= 0) {
             clearInterval(vsTimerInterval);
-            if (!myAnswer) submitVsAnswer('X', null); 
+            if (!myAnswer) submitVsAnswer('X', null);
         }
     }, 1000);
 }
 
 // CEVAP VERME
 function submitVsAnswer(ans, btnElement) {
-    if (myAnswer) return; // Zaten cevapladın
+    if (myAnswer) return;
     
     myAnswer = ans;
+    myAnswerTime = Date.now() - vsTimerStart;
     
-    // Butonları kilitle
-    document.querySelectorAll('.vs-opt-btn').forEach(btn => btn.classList.add('locked-answer'));
+    document.querySelectorAll('.vs-opt-btn').forEach(function(btn) {
+        btn.style.pointerEvents = 'none';
+        btn.style.opacity = '0.7';
+    });
     if(btnElement) {
-        btnElement.classList.remove('btn-outline-dark');
-        btnElement.classList.add('btn-primary'); // Seçileni mavi yap
+        btnElement.style.opacity = '1';
+        btnElement.style.background = '#3498db';
+        btnElement.style.color = '#fff';
+        btnElement.style.borderColor = '#2980b9';
     }
 
-    // Rakibe Gönder
-    conn.send({ type: 'OPP_ANSWER', ans: ans });
+    conn.send({ type: 'OPP_ANSWER', ans: ans, time: myAnswerTime });
     
-    // Durum mesajı
     if (!oppAnswer) {
-        document.getElementById('vs-status-msg').innerHTML = `<span class="waiting-pulse">Rakip bekleniyor...</span>`;
+        document.getElementById('vs-status-msg').innerHTML = '<span style="color:#f39c12;"><i class="bi bi-hourglass-split"></i> Rakip bekleniyor...</span>';
     } else {
         checkRoundEnd();
     }
 }
 
-// TUR SONU KONTROLÜ (İKİSİ DE CEVAPLAYINCA)
+// TUR SONU KONTROLU
 function checkRoundEnd() {
-    if (myAnswer && oppAnswer) {
-        clearInterval(vsTimerInterval); // Sayacı durdur
+    if (!myAnswer || !oppAnswer) return;
+    
+    clearInterval(vsTimerInterval);
+    
+    var q = vsQuestions[currentVsIndex];
+    var correct = q.correctAnswer;
+    var opts = q.options || q.opts;
+    
+    var iAmHost = amIHost;
+    var myCorrect = (myAnswer === correct);
+    var oppCorrect = (oppAnswer === correct);
+    
+    // Determine P1 (host) and P2 (guest) answers
+    var p1Ans = amIHost ? myAnswer : oppAnswer;
+    var p2Ans = amIHost ? oppAnswer : myAnswer;
+    
+    // Host calculates damage
+    if(amIHost) {
+        var p1Correct = myCorrect;
+        var p2Correct = oppCorrect;
+        var p1Time = myAnswerTime;
+        var p2Time = oppAnswerTime;
         
-        const q = vsQuestions[currentVsIndex];
-        const correct = q.correctAnswer;
-        
-        // Puanlama
-        if (myAnswer === correct) myScore += 100;
-        if (oppAnswer === correct) oppScore += 100;
-        
-        // Renklendirme
-        const btns = document.querySelectorAll('.vs-options button'); // Seçiciyi düzelttim
-        // Şıkları manuel bulup boyayalım
-        const optButtons = document.getElementById('vs-options').children;
-        
-        for (let btn of optButtons) {
-            const btnOpt = btn.innerText.split(')')[0]; // A, B, C...
-            
-            // Doğruysa Yeşil
-            if (btnOpt === correct) {
-                btn.classList.remove('btn-outline-dark', 'btn-primary');
-                btn.classList.add('btn-success');
-            } 
-            // Yanlış seçtiysem Kırmızı
-            else if (btnOpt === myAnswer) {
-                btn.classList.remove('btn-outline-dark', 'btn-primary');
-                btn.classList.add('btn-danger');
+        if(p1Correct && !p2Correct) {
+            p2HP = Math.max(0, p2HP - 6);
+        } else if(!p1Correct && p2Correct) {
+            p1HP = Math.max(0, p1HP - 6);
+        } else if(p1Correct && p2Correct) {
+            if(p1Time > p2Time) {
+                p1HP = Math.max(0, p1HP - 3);
+            } else if(p2Time > p1Time) {
+                p2HP = Math.max(0, p2HP - 3);
             }
         }
-
-        // Kim kazandı mesajı
-        let msg = "";
-        if (myAnswer === correct && oppAnswer === correct) msg = "İkiniz de bildiniz! (+100)";
-        else if (myAnswer === correct) msg = "Sen bildin! (+100)";
-        else if (oppAnswer === correct) msg = "Rakip bildi! (Rakip +100)";
-        else msg = "İkiniz de bilemediniz.";
         
-        document.getElementById('vs-status-msg').innerHTML = msg;
-        document.getElementById('score-me').innerText = myScore;
-        document.getElementById('score-opp').innerText = oppScore;
+        conn.send({ type: 'HP_UPDATE', p1HP: p1HP, p2HP: p2HP, p1Ans: p1Ans, p2Ans: p2Ans, correct: correct });
+        updateHPBars();
+        
+        if(p1HP <= 0 || p2HP <= 0) {
+            var winner = p1HP <= 0 ? 'p2' : 'p1';
+            var reason = 'KO! Can 0\'a dustu!';
+            conn.send({ type: 'MATCH_END', winner: winner, reason: reason, p1HP: p1HP, p2HP: p2HP });
+            vsMatchEnded = true;
+            showMatchResult(winner, reason);
+            return;
+        }
+    }
+    
+    // Color buttons fetih-style: blue=host(P1), red=guest(P2), green border=correct
+    colorVsButtons(p1Ans, p2Ans, correct);
+    
+    // Damage flash
+    if(iAmHost) {
+        if(!myCorrect && oppCorrect) flashDamage('p1');
+        if(myCorrect && !oppCorrect) flashDamage('p2');
+        if(myCorrect && oppCorrect && myAnswerTime > oppAnswerTime) flashDamage('p1');
+        if(myCorrect && oppCorrect && oppAnswerTime > myAnswerTime) flashDamage('p2');
+    } else {
+        if(!myCorrect && oppCorrect) flashDamage('p2');
+        if(myCorrect && !oppCorrect) flashDamage('p1');
+        if(myCorrect && oppCorrect && myAnswerTime > oppAnswerTime) flashDamage('p2');
+        if(myCorrect && oppCorrect && oppAnswerTime > myAnswerTime) flashDamage('p1');
+    }
+    
+    // Result message
+    var msg = "";
+    if(myCorrect && oppCorrect) {
+        msg = 'Ikiniz de bildi! (Hizli olan kazandi: -3 HP)';
+    } else if(myCorrect && !oppCorrect) {
+        msg = '<span style="color:#2ecc71;">Sen bildin!</span> Rakip bilemedi (-6 HP)';
+    } else if(!myCorrect && oppCorrect) {
+        msg = '<span style="color:#e74c3c;">Bilemedin!</span> Rakip bildi (-6 HP sana)';
+    } else {
+        msg = 'Ikiniz de bilemedi. Hasar yok.';
+    }
+    document.getElementById('vs-status-msg').innerHTML = msg;
+    
+    // AI hint if at least one wrong
+    if(!myCorrect || !oppCorrect) {
+        document.getElementById('vs-hint-area').classList.remove('d-none');
+    }
+    
+    // Show Ready screen after delay
+    setTimeout(function() {
+        showReadyScreen(msg);
+    }, 1500);
+}
 
-        // 3 Saniye sonra yeni soru
-        setTimeout(() => {
-            currentVsIndex++;
-            loadVsQuestion();
-        }, 3000);
+// Damage flash effect
+function flashDamage(player) {
+    var el = player === 'p1' ? document.getElementById('vs-p1-side') : document.getElementById('vs-p2-side');
+    if(el) {
+        el.classList.add('dmg-flash');
+        setTimeout(function() { el.classList.remove('dmg-flash'); }, 700);
     }
 }
 
-// OYUN BİTİŞİ
-function endGame() {
-    document.getElementById('vs-gameplay').classList.add('d-none');
-    document.getElementById('vs-result').classList.remove('d-none');
+// Fetih-style button coloring: blue=P1(host), red=P2(guest), green glow=correct
+function colorVsButtons(p1Ans, p2Ans, correct) {
+    var optButtons = document.querySelectorAll('.vs-opt-btn');
+    optButtons.forEach(function(btn) {
+        var btnKey = btn.innerText.trim().charAt(0);
+        btn.style.pointerEvents = 'none';
+        
+        // Remove previous inline styles
+        btn.style.removeProperty('background');
+        btn.style.removeProperty('color');
+        btn.style.removeProperty('opacity');
+        btn.style.removeProperty('border-color');
+        
+        var isP1 = (btnKey === p1Ans);
+        var isP2 = (btnKey === p2Ans);
+        
+        // Apply player colors
+        if(isP1 && isP2) {
+            btn.classList.add('ans-both');
+        } else if(isP1) {
+            btn.classList.add('ans-p1');
+        } else if(isP2) {
+            btn.classList.add('ans-p2');
+        }
+        
+        // Green glow on correct answer
+        if(btnKey === correct) {
+            btn.classList.add('ans-correct');
+        }
+    });
+}
+
+// READY SYSTEM
+function showReadyScreen(resultMsg) {
+    var readyScreen = document.getElementById('vs-ready-screen');
+    var readyBtn = document.getElementById('vs-ready-btn');
+    var readyWait = document.getElementById('vs-ready-wait');
+    var resultText = document.getElementById('vs-round-result-text');
     
-    document.getElementById('final-score-me').innerText = myScore;
-    document.getElementById('final-score-opp').innerText = oppScore;
+    resultText.innerHTML = resultMsg;
+    readyBtn.classList.remove('done');
+    readyBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> HAZIRIM';
+    readyWait.classList.add('d-none');
+    readyScreen.classList.remove('d-none');
     
-    const winTitle = document.getElementById('vs-winner-text');
-    if (myScore > oppScore) {
-        winTitle.innerText = "🏆 KAZANDIN! 🏆";
-        winTitle.className = "display-4 fw-bold mb-3 text-success";
-    } else if (oppScore > myScore) {
-        winTitle.innerText = "💀 KAYBETTİN...";
-        winTitle.className = "display-4 fw-bold mb-3 text-danger";
-    } else {
-        winTitle.innerText = "🤝 BERABERE!";
-        winTitle.className = "display-4 fw-bold mb-3 text-warning";
+    myReady = false;
+}
+
+function pressReady() {
+    if(myReady) return;
+    myReady = true;
+    
+    var readyBtn = document.getElementById('vs-ready-btn');
+    readyBtn.classList.add('done');
+    readyBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> HAZIR &#10004;';
+    document.getElementById('vs-ready-wait').classList.remove('d-none');
+    
+    conn.send({ type: 'OPP_READY' });
+    checkBothReady();
+}
+
+function checkBothReady() {
+    if(myReady && oppReady) {
+        if(amIHost) {
+            currentVsIndex++;
+            conn.send({ type: 'NEXT_QUESTION' });
+            goToNextQuestion();
+        }
     }
+}
+
+function goToNextQuestion() {
+    if(!amIHost) currentVsIndex++;
+    myReady = false;
+    oppReady = false;
+    loadVsQuestion();
+}
+
+// MATCH END
+function resolveMatchEnd() {
+    if(vsMatchEnded) return;
+    vsMatchEnded = true;
+    
+    var winner, reason;
+    if(p1HP > p2HP) {
+        winner = 'p1';
+        reason = 'Daha fazla HP ile kazandi! (' + p1HP + ' vs ' + p2HP + ')';
+    } else if(p2HP > p1HP) {
+        winner = 'p2';
+        reason = 'Daha fazla HP ile kazandi! (' + p2HP + ' vs ' + p1HP + ')';
+    } else {
+        winner = 'draw';
+        reason = 'Berabere! HP esit.';
+    }
+    
+    conn.send({ type: 'MATCH_END', winner: winner, reason: reason, p1HP: p1HP, p2HP: p2HP });
+    showMatchResult(winner, reason);
+}
+
+function showMatchResult(winner, reason) {
+    vsMatchEnded = true;
+    clearInterval(vsTimerInterval);
+    
+    var iAmHost = amIHost;
+    var iWon = (winner === 'p1' && iAmHost) || (winner === 'p2' && !iAmHost);
+    var iLost = (winner === 'p1' && !iAmHost) || (winner === 'p2' && iAmHost);
+    
+    // Show KO overlay if someone hit 0 HP
+    if(p1HP <= 0 || p2HP <= 0) {
+        showKoOverlay();
+    }
+    
+    var delay = (p1HP <= 0 || p2HP <= 0) ? 3500 : 500;
+    
+    setTimeout(function() {
+        document.getElementById('vs-gameplay').classList.add('d-none');
+        document.getElementById('vs-result').classList.remove('d-none');
+        
+        document.getElementById('final-hp-p1').innerText = Math.max(0, p1HP);
+        document.getElementById('final-hp-p2').innerText = Math.max(0, p2HP);
+        
+        var p1Label = amIHost ? vsMyName : vsOppName;
+        var p2Label = amIHost ? vsOppName : vsMyName;
+        document.getElementById('vs-final-p1-label').innerText = p1Label || "HOST";
+        document.getElementById('vs-final-p2-label').innerText = p2Label || "RAKİP";
+        
+        var winTitle = document.getElementById('vs-winner-text');
+        if (winner === 'draw') {
+            winTitle.innerText = "\uD83E\uDD1D BERABERE!";
+            winTitle.className = "display-4 fw-bold mb-3 text-warning";
+        } else if (iWon) {
+            winTitle.innerText = "\uD83C\uDFC6 KAZANDIN! \uD83C\uDFC6";
+            winTitle.className = "display-4 fw-bold mb-3 text-success";
+        } else {
+            winTitle.innerText = "\uD83D\uDC80 KAYBETTIN...";
+            winTitle.className = "display-4 fw-bold mb-3 text-danger";
+        }
+    }, delay);
+}
+
+// KO OVERLAY
+function showKoOverlay() {
+    var koEl = document.getElementById('ko-overlay');
+    koEl.classList.remove('d-none', 'ko-anim');
+    void koEl.offsetWidth;
+    koEl.classList.add('ko-anim');
+    koEl.classList.remove('d-none');
+    
+    setTimeout(function() {
+        koEl.classList.add('d-none');
+        koEl.classList.remove('ko-anim');
+    }, 4000);
+}
+
+// AI HINT SYSTEM
+function requestAiHint() {
+    if(hintRequested) return;
+    hintRequested = true;
+    document.getElementById('vs-hint-btn').disabled = true;
+    document.getElementById('vs-hint-btn').innerHTML = '<i class="bi bi-hourglass-split"></i> Ipucu Yukleniyor...';
+    
+    if(amIHost) {
+        generateAndSendHint();
+    } else {
+        conn.send({ type: 'REQUEST_AI_HINT' });
+    }
+}
+
+async function generateAndSendHint() {
+    var q = vsQuestions[currentVsIndex];
+    var opts = q.options || q.opts;
+    var correct = q.correctAnswer;
+    
+    if(typeof userApiKey !== 'undefined' && userApiKey) {
+        try {
+            var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=' + userApiKey;
+            var prompt = 'Soru: "' + q.text + '"\nDogru Cevap: ' + correct + ') ' + opts[correct] + '\nGOREV: Bu soruyu Kisaca acikla. Neden dogru cevap "' + correct + '" oldugunu 2-3 cumleyle belirt. Turkce yaz.';
+            
+            var response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                })
+            });
+            var data = await response.json();
+            var hintText = (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) ? data.candidates[0].content.parts[0].text : ('Dogru cevap: ' + correct + ') ' + opts[correct]);
+            
+            displayAiHint(hintText);
+            conn.send({ type: 'AI_HINT_RESULT', hintText: hintText });
+            return;
+        } catch(e) {
+            console.log("Gemini hint failed:", e);
+        }
+    }
+    
+    var hintText = q.tip || ('Dogru cevap: ' + correct + ') ' + opts[correct]);
+    displayAiHint(hintText);
+    conn.send({ type: 'AI_HINT_RESULT', hintText: hintText });
+}
+
+function displayAiHint(hintText) {
+    hintShown = true;
+    var contentEl = document.getElementById('vs-hint-content');
+    var btnEl = document.getElementById('vs-hint-btn');
+    
+    btnEl.innerHTML = '<i class="bi bi-check-circle"></i> Ipucu Gosterildi';
+    btnEl.disabled = true;
+    
+    contentEl.innerHTML = typeof formatAiOutput === 'function' ? formatAiOutput(hintText) : hintText;
+    contentEl.classList.remove('d-none');
 }
 /* ================= MODAL KAPATMA HATASI DÜZELTİCİ ================= */
 // Tüm modallar kapandığında çalışır
@@ -9750,8 +10383,7 @@ async function getAiTip(questionId) {
     <i class="bi bi-arrow-up"></i>
 </button>
     <!-- K.O. EFEKTİ İÇİN ELEMENTLER -->
-<div id="ko-overlay" class="d-none">K.O.</div>
-<audio id="ko-audio" src="ko.mp3" preload="auto"></audio>
+<div id="ko-overlay" class="d-none"><img src="ko.png" alt="K.O."></div>
     
 </body>
 </html>
