@@ -10318,44 +10318,51 @@ function flashDamage(player) {
     }
 }
 
-// Fetih-style button coloring: blue=P1(host), red=P2(guest), green glow=correct
+// Button coloring: Doğru cevap yeşil glow, yanlış yapanın şıkkı mavi/kırmızı glow
 function colorVsButtons(p1Ans, p2Ans, correct) {
     var optButtons = document.querySelectorAll('.vs-opt-btn');
+    var p1Wrong = (p1Ans !== correct); // Host yanlış mı yaptı?
+    var p2Wrong = (p2Ans !== correct); // Guest yanlış mı yaptı?
+    
     optButtons.forEach(function(btn) {
         var btnKey = btn.innerText.trim().charAt(0);
         btn.style.pointerEvents = 'none';
         btn.style.outline = 'none';
         
-        var isP1 = (btnKey === p1Ans);
-        var isP2 = (btnKey === p2Ans);
         var isCorrect = (btnKey === correct);
+        var isP1Pick = (btnKey === p1Ans);
+        var isP2Pick = (btnKey === p2Ans);
         
-        // Host = mavi, Guest = kırmızı, ikisi aynı = yarı yarıya
-        if(isP1 && isP2) {
-            btn.style.background = 'linear-gradient(90deg, #2980b9 50%, #c0392b 50%)';
-            btn.style.color = '#fff';
-            btn.style.borderColor = '#8e44ad';
-            btn.style.opacity = '1';
-            btn.style.textShadow = '1px 1px 2px rgba(0,0,0,0.5)';
-        } else if(isP1) {
-            btn.style.background = '#2980b9';
-            btn.style.color = '#fff';
-            btn.style.borderColor = '#1a5276';
-            btn.style.opacity = '1';
-        } else if(isP2) {
-            btn.style.background = '#c0392b';
-            btn.style.color = '#fff';
-            btn.style.borderColor = '#922b21';
-            btn.style.opacity = '1';
-        } else {
-            btn.style.opacity = '0.5';
-        }
-        
-        // Doğru cevap yeşil parlak çerçeve
+        // 1. Doğru cevap → yeşil parlak çerçeve
         if(isCorrect) {
             btn.style.border = '3px solid #2ecc71';
             btn.style.boxShadow = '0 0 12px #2ecc71, 0 0 24px rgba(46,204,113,0.3)';
             btn.style.opacity = '1';
+        }
+        
+        // 2. Yanlış yapanların şıkları → sadece yanlış yaptılarsa göster
+        // İkisi de aynı YANLIŞ şıkkı seçtiyse → yarı mavi yarı kırmızı glow
+        if(!isCorrect && isP1Pick && isP2Pick && p1Wrong && p2Wrong) {
+            btn.style.border = '3px solid #8e44ad';
+            btn.style.boxShadow = '-6px 0 12px rgba(41,128,185,0.7), 6px 0 12px rgba(192,57,43,0.7), 0 0 20px rgba(142,68,177,0.4)';
+            btn.style.opacity = '1';
+        }
+        // Host yanlış yaptı ve bu onun seçtiği şık
+        else if(!isCorrect && isP1Pick && p1Wrong) {
+            btn.style.border = '3px solid #3498db';
+            btn.style.boxShadow = '0 0 12px #3498db, 0 0 24px rgba(52,152,219,0.4)';
+            btn.style.opacity = '1';
+        }
+        // Guest yanlış yaptı ve bu onun seçtiği şık
+        else if(!isCorrect && isP2Pick && p2Wrong) {
+            btn.style.border = '3px solid #e74c3c';
+            btn.style.boxShadow = '0 0 12px #e74c3c, 0 0 24px rgba(231,76,60,0.4)';
+            btn.style.opacity = '1';
+        }
+        
+        // Seçilmemiş ve doğru olmayan → soluk
+        if(!isCorrect && !isP1Pick && !isP2Pick) {
+            btn.style.opacity = '0.4';
         }
     });
 }
