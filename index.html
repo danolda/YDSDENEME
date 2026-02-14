@@ -55,6 +55,10 @@
         --shadow-sharp: 4px 4px 0px #000;
     }
 
+    html, body {
+        overflow-x: hidden;
+        max-width: 100vw;
+    }
     body {
         background-color: var(--bg-body);
         color: var(--text-main);
@@ -204,6 +208,21 @@
         .floating-btn { bottom: 20px; right: 20px; width: 50px; height: 50px; }
         .scroll-top-btn { bottom: 20px; left: 20px; width: 50px; height: 50px; }
         .sidebar-item { padding: 10px; font-size: 0.8rem; }
+        
+        /* VS MODE MOBIL TASMA FIX */
+        .vs-healthbar-container { padding: 8px 6px 6px; }
+        .vs-player-avatar { width: 44px; height: 44px; }
+        .vs-player-name { font-size: 0.65rem; letter-spacing: 0.5px; }
+        .vs-hb-vs-badge { font-size: 0.75rem; padding: 0 2px; }
+        .vs-hb-row { gap: 4px; }
+        .vs-player-side { gap: 4px; }
+        .vs-hp-bar-wrap { height: 24px; }
+        .vs-hp-text { font-size: 0.6rem; }
+        .vs-opt-btn { font-size: 0.85rem !important; padding: 10px 12px !important; }
+        #vs-q-text { font-size: 0.95rem !important; }
+        .card-body { padding: 12px !important; }
+        .container { padding-left: 8px; padding-right: 8px; }
+        .vs-container { overflow-x: hidden; }
     }
          /* DARK MODE TEXT FIX (KESİN ÇÖZÜM) */
     [data-theme="dark"] body,
@@ -340,12 +359,65 @@
     }
     @keyframes ko-img-fade { to { opacity: 0; transform: scale(1.3); } }
 
-    /* --- VS MODE HEALTH BAR SYSTEM (MK / SF STYLE) --- */
+    /* --- HEDEF TAMAMLAMA KO EFEKTİ --- */
+    #goal-ko-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.80);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 200000;
+        pointer-events: none;
+        opacity: 0;
+    }
+    #goal-ko-overlay img {
+        max-width: 65vw;
+        max-height: 60vh;
+        transform: scale(0);
+        filter: drop-shadow(0 0 30px rgba(255, 200, 0, 0.8));
+    }
+    .goal-ko-anim {
+        animation: goal-ko-bg 0.2s ease-out forwards;
+    }
+    .goal-ko-anim img {
+        animation: 
+            goal-ko-slam 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.5) forwards,
+            goal-ko-shake 0.4s ease-in-out 0.3s,
+            goal-ko-glow 1.5s ease-in-out 0.3s 2,
+            goal-ko-fade 0.8s ease-in 3.2s forwards;
+    }
+    @keyframes goal-ko-bg { 0%{opacity:0} 100%{opacity:1} }
+    @keyframes goal-ko-slam {
+        0% { transform: scale(8); opacity: 0; }
+        50% { transform: scale(0.85); opacity: 1; }
+        70% { transform: scale(1.1); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes goal-ko-shake {
+        0%,100% { transform: scale(1) rotate(0deg); }
+        15% { transform: scale(1.03) rotate(-5deg); }
+        30% { transform: scale(1.03) rotate(5deg); }
+        45% { transform: scale(1.02) rotate(-3deg); }
+        60% { transform: scale(1.02) rotate(3deg); }
+        75% { transform: scale(1.01) rotate(-1deg); }
+    }
+    @keyframes goal-ko-glow {
+        0%,100% { filter: drop-shadow(0 0 30px rgba(255, 200, 0, 0.8)); }
+        50% { filter: drop-shadow(0 0 60px rgba(255, 100, 0, 1)) drop-shadow(0 0 100px rgba(255, 50, 0, 0.5)); }
+    }
+    @keyframes goal-ko-fade { 
+        0% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(1.4); } 
+    }
+
+    /* --- VS MODE HEALTH BAR SYSTEM (FIGHTING GAME PARALLELOGRAM STYLE) --- */
     .vs-healthbar-container {
         background: linear-gradient(180deg, #0a0a1a 0%, #141428 100%);
         padding: 10px 12px 8px;
         border-bottom: 3px solid #0f3460;
         position: relative;
+        overflow: hidden;
     }
     .vs-hb-row {
         display: flex;
@@ -357,6 +429,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        min-width: 0;
     }
     .vs-player-side.right {
         flex-direction: row-reverse;
@@ -387,30 +460,62 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    /* PARALLELOGRAM HEALTH BAR (eşkenar dörtgen - kalın) */
     .vs-hp-bar-wrap {
         width: 100%;
-        height: 18px;
+        height: 28px;
         background: #1a1a2e;
-        border-radius: 3px;
         overflow: hidden;
         position: relative;
-        border: 1px solid #333;
+        border: 2px solid #444;
+        transform: skewX(-12deg);
+        clip-path: polygon(4% 0%, 100% 0%, 96% 100%, 0% 100%);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.05);
     }
+    /* Ghost damage layer (kırmızı arka plan - yavaşça azalır) */
+    .vs-hp-ghost {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        background: linear-gradient(180deg, #ff4444 0%, #cc0000 60%, #990000 100%);
+        transition: width 1.8s ease-out 0.3s;
+        z-index: 1;
+    }
+    .vs-player-side:not(.right) .vs-hp-ghost { left: 0; }
+    .vs-player-side.right .vs-hp-ghost { right: 0; }
+    
+    /* Actual HP fill */
     .vs-hp-bar {
         height: 100%;
-        border-radius: 3px;
-        transition: width 0.6s ease;
+        transition: width 0.4s ease;
         position: relative;
-        background: linear-gradient(180deg, #4cff4c 0%, #27ae60 50%, #1e8449 100%);
-        box-shadow: inset 0 2px 4px rgba(255,255,255,0.25), 0 0 8px rgba(46,204,113,0.3);
+        z-index: 2;
+        background: linear-gradient(180deg, #66ff66 0%, #27ae60 40%, #1e8449 100%);
+        box-shadow: inset 0 3px 6px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2), 0 0 10px rgba(46,204,113,0.4);
+    }
+    /* Shine effect on health bar */
+    .vs-hp-bar::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 0;
+        right: 0;
+        height: 40%;
+        background: linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 100%);
+        border-radius: 2px;
     }
     .vs-hp-bar.danger {
-        background: linear-gradient(180deg, #ff6b6b 0%, #e74c3c 50%, #c0392b 100%);
-        box-shadow: inset 0 2px 4px rgba(255,255,255,0.2), 0 0 8px rgba(231,76,60,0.3);
+        background: linear-gradient(180deg, #ff6b6b 0%, #e74c3c 40%, #c0392b 100%);
+        box-shadow: inset 0 3px 6px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.2), 0 0 10px rgba(231,76,60,0.4);
+        animation: hp-pulse-danger 0.8s ease-in-out infinite;
     }
     .vs-hp-bar.warning {
-        background: linear-gradient(180deg, #ffd93d 0%, #f39c12 50%, #e67e22 100%);
-        box-shadow: inset 0 2px 4px rgba(255,255,255,0.2), 0 0 8px rgba(243,156,18,0.3);
+        background: linear-gradient(180deg, #ffd93d 0%, #f39c12 40%, #e67e22 100%);
+        box-shadow: inset 0 3px 6px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.2), 0 0 10px rgba(243,156,18,0.4);
+    }
+    @keyframes hp-pulse-danger {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
     }
     /* Right side bar goes right-to-left */
     .vs-player-side.right .vs-hp-bar {
@@ -419,14 +524,15 @@
     .vs-hp-text {
         position: absolute;
         top: 50%;
-        transform: translateY(-50%);
-        font-size: 0.7rem;
+        transform: translateY(-50%) skewX(12deg);
+        font-size: 0.75rem;
         font-weight: 800;
         color: #fff;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.9);
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.5);
+        z-index: 5;
     }
-    .vs-player-side:not(.right) .vs-hp-text { right: 6px; }
-    .vs-player-side.right .vs-hp-text { left: 6px; }
+    .vs-player-side:not(.right) .vs-hp-text { right: 8px; }
+    .vs-player-side.right .vs-hp-text { left: 8px; }
     .vs-hb-vs-badge {
         flex-shrink: 0;
         color: #f1c40f;
@@ -435,6 +541,16 @@
         text-shadow: 0 0 10px rgba(241,196,15,0.6);
         padding: 0 4px;
     }
+    
+    /* Damage shake on health bar */
+    @keyframes hp-shake {
+        0%, 100% { transform: skewX(-12deg) translateX(0); }
+        20% { transform: skewX(-12deg) translateX(-4px); }
+        40% { transform: skewX(-12deg) translateX(4px); }
+        60% { transform: skewX(-12deg) translateX(-3px); }
+        80% { transform: skewX(-12deg) translateX(2px); }
+    }
+    .hp-shake { animation: hp-shake 0.4s ease-in-out; }
 
     /* --- VS answer coloring (fetih style) --- */
     .vs-opt-btn.ans-p1 {
@@ -765,8 +881,8 @@
     </div>
 </nav>
 
-<div class="container py-4">
-    <div class="row">
+<div class="container py-4" style="max-width:100%;overflow-x:hidden;">
+    <div class="row" style="margin-left:0;margin-right:0;">
         <!-- SOL MENÜ -->
         <div class="col-md-4 col-lg-3 mb-4">
             <div class="card p-3 sticky-top" style="top: 20px; max-height: 90vh; overflow-y: auto;">
@@ -797,7 +913,7 @@
                     <div class="text-center py-5 text-muted">Lütfen soldan bir bölüm seçin.</div>
                 </div>
                 <!-- VS MODU ALANI -->
-<div id="vs-area" class="vs-container">
+<div id="vs-area" class="vs-container" style="overflow-x:hidden;max-width:100%;">
     
   <!-- LOBİ EKRANI -->
     <div id="vs-lobby" class="card p-4 text-center">
@@ -871,7 +987,8 @@
                     <img src="Hostimg.jpeg" alt="Host" class="vs-player-avatar" id="vs-p1-avatar">
                     <div class="vs-player-info">
                         <div class="vs-player-name" id="vs-p1-name">HOST</div>
-                        <div class="vs-hp-bar-wrap">
+                        <div class="vs-hp-bar-wrap" id="vs-p1-hp-wrap">
+                            <div class="vs-hp-ghost" id="vs-p1-hp-ghost" style="width:100%"></div>
                             <div class="vs-hp-bar" id="vs-p1-hp-bar" style="width:100%"></div>
                             <span class="vs-hp-text" id="vs-p1-hp-text">100</span>
                         </div>
@@ -884,7 +1001,8 @@
                     <img src="Questimg.jpeg" alt="Quest" class="vs-player-avatar" id="vs-p2-avatar">
                     <div class="vs-player-info">
                         <div class="vs-player-name" id="vs-p2-name">RAKİP</div>
-                        <div class="vs-hp-bar-wrap">
+                        <div class="vs-hp-bar-wrap" id="vs-p2-hp-wrap">
+                            <div class="vs-hp-ghost" id="vs-p2-hp-ghost" style="width:100%"></div>
                             <div class="vs-hp-bar" id="vs-p2-hp-bar" style="width:100%"></div>
                             <span class="vs-hp-text" id="vs-p2-hp-text">100</span>
                         </div>
@@ -974,7 +1092,7 @@
                     </div>
                 </div>
 
-                <h6 class="fw-bold border-bottom pb-2">🏆 En İyiler (Global Simülasyon)</h6>
+                <h6 class="fw-bold border-bottom pb-2">ðŸ† En İyiler (Global Simülasyon)</h6>
                 <ul class="list-group list-group-flush" id="leaderboard-list">
                     <!-- JS ile dolacak -->
                 </ul>
@@ -1132,9 +1250,9 @@ async function openLeaderboard() {
             const isMe = p.name === currentUser;
             // Sıralama ikonları
             let rankIcon = `#${index+1}`;
-            if(index === 0) rankIcon = "👑";
-            if(index === 1) rankIcon = "🥈";
-            if(index === 2) rankIcon = "🥉";
+            if(index === 0) rankIcon = "ðŸ‘‘";
+            if(index === 1) rankIcon = "ðŸ¥ˆ";
+            if(index === 2) rankIcon = "ðŸ¥‰";
 
             // Tasarım
             const bgClass = isMe ? "bg-warning bg-opacity-25 border-warning" : "";
@@ -2716,14 +2834,14 @@ window.checkAnswer = function(qId, selectedOpt) {
 
     /* ================= GRAMER SORULARI (RAW TEXT) ================= */
     const rawQuestionsText = `
-Section: Prepositions & Collocations (1–70)
+Section: Prepositions & Collocations (1â€“70)
 1) She insisted ___ paying for the damage, even though it wasn't her fault.
    A) at
    B) to
    C) for
    D) with
    E) on
-TIP: Kalıp → insist on + V-ing / noun.
+TIP: Kalıp â†’ insist on + V-ing / noun.
 
 2) The committee approved ___ the proposal after minor revisions.
    A) with
@@ -2731,7 +2849,7 @@ TIP: Kalıp → insist on + V-ing / noun.
    C) to
    D) on
    E) of
-TIP: Kalıp → approve of + noun/V-ing.
+TIP: Kalıp â†’ approve of + noun/V-ing.
 
 3) His success largely depends ___ how well he manages time.
    A) to
@@ -2739,7 +2857,7 @@ TIP: Kalıp → approve of + noun/V-ing.
    C) upon
    D) in
    E) with
-TIP: Kalıp → depend on/upon + noun/clause.
+TIP: Kalıp â†’ depend on/upon + noun/clause.
 
 4) The new policy applies ___ all temporary employees as well as full-time staff.
    A) with
@@ -2747,9 +2865,9 @@ TIP: Kalıp → depend on/upon + noun/clause.
    C) for
    D) in
    E) to
-TIP: apply to (uygulanmak) ↔ apply for (başvurmak).
+TIP: apply to (uygulanmak) â†” apply for (başvurmak).
 
-5) I’m not accustomed ___ driving in heavy traffic every day.
+5) Iâ€™m not accustomed ___ driving in heavy traffic every day.
    A) on
    B) to
    C) at
@@ -2771,7 +2889,7 @@ TIP: be known/famous for + noun/V-ing.
    C) at
    D) to
    E) on
-TIP: blame X on Y (suçu Y’ye atmak).
+TIP: blame X on Y (suçu Yâ€™ye atmak).
 
 8) He was charged ___ fraud and faced a lengthy trial.
    A) about
@@ -2779,7 +2897,7 @@ TIP: blame X on Y (suçu Y’ye atmak).
    C) for
    D) of
    E) with
-TIP: En doğal kalıp/bağlantıyı ara → doğru seçenek 'of'.
+TIP: En doğal kalıp/bağlantıyı ara â†’ doğru seçenek 'of'.
 
 9) This textbook is intended ___ students preparing for academic exams.
    A) at
@@ -2803,7 +2921,7 @@ TIP: apologize for + V-ing/noun; apologize to + kişi.
    C) for
    D) to
    E) at
-TIP: En doğal kalıp/bağlantıyı ara → doğru seçenek 'for'.
+TIP: En doğal kalıp/bağlantıyı ara â†’ doğru seçenek 'for'.
 
 12) Please refrain ___ using your phone during the briefing.
    A) with
@@ -2851,7 +2969,7 @@ TIP: result in + sonuç; result from + sebep.
    C) to
    D) for
    E) in
-TIP: En doğal kalıp/bağlantıyı ara → doğru seçenek 'to'.
+TIP: En doğal kalıp/bağlantıyı ara â†’ doğru seçenek 'to'.
 
 18) The project consists ___ three phases, each with its own deadline.
    A) of
@@ -2867,7 +2985,7 @@ TIP: consist of + parçalar.
    C) with
    D) for
    E) at
-TIP: En doğal kalıp/bağlantıyı ara → doğru seçenek 'in'.
+TIP: En doğal kalıp/bağlantıyı ara â†’ doğru seçenek 'in'.
 
 20) The manager is responsible ___ ensuring workplace safety.
    A) on
@@ -2885,13 +3003,13 @@ TIP: responsible for + iş/sonuç; responsible to + kişi.
    E) to
 TIP: succeed in + V-ing.
 
-22) I’m looking forward ___ hearing from you soon.
+22) Iâ€™m looking forward ___ hearing from you soon.
    A) at
    B) in
    C) for
    D) to
    E) on
-TIP: En doğal kalıp/bağlantıyı ara → doğru seçenek 'to'.
+TIP: En doğal kalıp/bağlantıyı ara â†’ doğru seçenek 'to'.
 
 23) She is interested ___ pursuing a career in translation.
    A) at
@@ -2947,7 +3065,7 @@ TIP: warn someone about + risk/problem.
    C) by
    D) to
    E) at
-TIP: Passive agent → influenced by + etken.
+TIP: Passive agent â†’ influenced by + etken.
 
 30) The department is short ___ staff this month.
    A) of
@@ -2957,7 +3075,7 @@ TIP: Passive agent → influenced by + etken.
    E) at
 TIP: be short of + şey (time, money, staff).
 
-31) She was absorbed ___ the novel and didn’t hear the doorbell.
+31) She was absorbed ___ the novel and didnâ€™t hear the doorbell.
    A) at
    B) in
    C) for
@@ -3019,7 +3137,7 @@ TIP: within walking distance of + yer.
    C) in
    D) to
    E) on
-TIP: En doğal kalıp/bağlantıyı ara → doğru seçenek 'on'.
+TIP: En doğal kalıp/bağlantıyı ara â†’ doğru seçenek 'on'.
 
 39) We have to comply ___ the regulations to avoid penalties.
    A) about
@@ -3035,7 +3153,7 @@ TIP: comply with + kural/regulation.
    C) with
    D) on
    E) at
-TIP: En doğal kalıp/bağlantıyı ara → doğru seçenek 'to'.
+TIP: En doğal kalıp/bağlantıyı ara â†’ doğru seçenek 'to'.
 
 41) She prevented her friend ___ making a serious mistake.
    A) at
@@ -3117,7 +3235,7 @@ TIP: be accused of + V-ing/noun.
    E) to
 TIP: similar to (not with).
 
-51) I’m satisfied ___ the results so far.
+51) Iâ€™m satisfied ___ the results so far.
    A) about
    B) with
    C) for
@@ -3131,9 +3249,9 @@ TIP: satisfied with + sonuç.
    C) at
    D) for
    E) to
-TIP: En doğal kalıp/bağlantıyı ara → doğru seçenek 'for'.
+TIP: En doğal kalıp/bağlantıyı ara â†’ doğru seçenek 'for'.
 
-53) We ran ___ sugar, so the cake wasn’t ready.
+53) We ran ___ sugar, so the cake wasnâ€™t ready.
    A) down
    B) into
    C) off
@@ -3179,7 +3297,7 @@ TIP: agree with + kişi; agree on + konu.
    C) with
    D) at
    E) for
-TIP: Kalıp → insist on + V-ing / noun.
+TIP: Kalıp â†’ insist on + V-ing / noun.
 
 59) The team is involved ___ several international projects.
    A) at
@@ -3243,9 +3361,9 @@ TIP: refer to + konu/şey.
    C) Although
    D) Unless
    E) Because
-TIP: although/even though + clause → zıtlık (ama).
+TIP: although/even though + clause â†’ zıtlık (ama).
 
-67) I’ll call you ___ I get home.
+67) Iâ€™ll call you ___ I get home.
    A) unless
    B) even though
    C) as soon as
@@ -3253,7 +3371,7 @@ TIP: although/even though + clause → zıtlık (ama).
    E) despite
 TIP: as soon as = ... olur olmaz.
 
-68) We couldn’t enter the building ___ we didn’t have permission.
+68) We couldnâ€™t enter the building ___ we didnâ€™t have permission.
    A) whereas
    B) because
    C) despite
@@ -3277,22 +3395,22 @@ TIP: so = sonuç; so that = amaç.
    E) so that
 TIP: in case = olur da ... diye (ihtimale karşı).
 
-Section: Conjunctions & Linkers (71–130)
+Section: Conjunctions & Linkers (71â€“130)
 71) She spoke quietly ___ nobody would overhear the conversation.
    A) because
    B) unless
    C) despite
    D) whereas
    E) so that
-TIP: so that + clause → amaç (… diye).
+TIP: so that + clause â†’ amaç (â€¦ diye).
 
-72) I won’t sign the contract ___ the terms are clarified.
+72) I wonâ€™t sign the contract ___ the terms are clarified.
    A) unless
    B) since
    C) until
    D) despite
    E) whereas
-TIP: until + zaman → ... olana kadar.
+TIP: until + zaman â†’ ... olana kadar.
 
 73) He is sociable, ___ his brother prefers to stay alone.
    A) whereas
@@ -3324,9 +3442,9 @@ TIP: Amaç: to + V.
    C) whereas
    D) but
    E) unless
-TIP: Bağlaç sorusu → ilişkiyi bul. Doğru: 'but'.
+TIP: Bağlaç sorusu â†’ ilişkiyi bul. Doğru: 'but'.
 
-77) ___ you study regularly, you’re unlikely to improve.
+77) ___ you study regularly, youâ€™re unlikely to improve.
    A) So that
    B) Whereas
    C) Although
@@ -3334,7 +3452,7 @@ TIP: Bağlaç sorusu → ilişkiyi bul. Doğru: 'but'.
    E) Unless
 TIP: unless = if not.
 
-78) I’ll lend you the book ___ you promise to return it tomorrow.
+78) Iâ€™ll lend you the book ___ you promise to return it tomorrow.
    A) unless
    B) provided that
    C) because
@@ -3348,9 +3466,9 @@ TIP: provided that = şartıyla.
    C) better
    D) the better
    E) best
-TIP: Bağlaç sorusu → ilişkiyi bul. Doğru: 'the better'.
+TIP: Bağlaç sorusu â†’ ilişkiyi bul. Doğru: 'the better'.
 
-80) He didn’t call; ___, I decided to check on him.
+80) He didnâ€™t call; ___, I decided to check on him.
    A) unless
    B) because
    C) nevertheless
@@ -3388,9 +3506,9 @@ TIP: however = ancak/ama.
    C) whereas
    D) despite
    E) because
-TIP: so that + clause → amaç (… diye).
+TIP: so that + clause â†’ amaç (â€¦ diye).
 
-85) ___ you hurry, you’ll miss the beginning of the film.
+85) ___ you hurry, youâ€™ll miss the beginning of the film.
    A) Unless
    B) Whereas
    C) Although
@@ -3404,15 +3522,15 @@ TIP: unless = if not.
    C) because
    D) unless
    E) whereas
-TIP: so that + clause → amaç (… diye).
+TIP: so that + clause â†’ amaç (â€¦ diye).
 
-87) I’ll wait here ___ you finish your call.
+87) Iâ€™ll wait here ___ you finish your call.
    A) until
    B) despite
    C) because
    D) whereas
    E) unless
-TIP: until + zaman → ... olana kadar.
+TIP: until + zaman â†’ ... olana kadar.
 
 88) ___ being inexperienced, she performed extremely well.
    A) Since
@@ -3438,7 +3556,7 @@ TIP: as if = sanki (genelde past form).
    E) since
 TIP: despite/in spite of + noun/V-ing (not + clause).
 
-91) I’ll take notes ___ I forget the details.
+91) Iâ€™ll take notes ___ I forget the details.
    A) whereas
    B) because
    C) despite
@@ -3446,13 +3564,13 @@ TIP: despite/in spite of + noun/V-ing (not + clause).
    E) in case
 TIP: in case = olur da ... diye (ihtimale karşı).
 
-92) He didn’t just complain; ___, he demanded compensation.
+92) He didnâ€™t just complain; ___, he demanded compensation.
    A) in fact
    B) since
    C) unless
    D) because
    E) whereas
-TIP: Bağlaç sorusu → ilişkiyi bul. Doğru: 'in fact'.
+TIP: Bağlaç sorusu â†’ ilişkiyi bul. Doğru: 'in fact'.
 
 93) ___ the weather improves, the match will be cancelled.
    A) Although
@@ -3462,13 +3580,13 @@ TIP: Bağlaç sorusu → ilişkiyi bul. Doğru: 'in fact'.
    E) Since
 TIP: unless = if not.
 
-94) She didn’t go out, ___ she was feeling unwell.
+94) She didnâ€™t go out, ___ she was feeling unwell.
    A) whereas
    B) despite
    C) even though
    D) unless
    E) since
-TIP: Bağlaç sorusu → ilişkiyi bul. Doğru: 'since'.
+TIP: Bağlaç sorusu â†’ ilişkiyi bul. Doğru: 'since'.
 
 95) You can borrow my laptop ___ you handle it carefully.
    A) unless
@@ -3484,7 +3602,7 @@ TIP: as long as = ... olduğu sürece.
    C) Whereas
    D) Unless
    E) Because
-TIP: although/even though + clause → zıtlık (ama).
+TIP: although/even though + clause â†’ zıtlık (ama).
 
 97) He missed the train; ___, he arrived late.
    A) therefore
@@ -3532,7 +3650,7 @@ TIP: despite/in spite of + noun/V-ing (not + clause).
    C) Whereas
    D) Unless
    E) Because
-TIP: although/even though + clause → zıtlık (ama).
+TIP: although/even though + clause â†’ zıtlık (ama).
 
 103) Hardly had I sat down ___ the phone rang.
    A) while
@@ -3540,7 +3658,7 @@ TIP: although/even though + clause → zıtlık (ama).
    C) unless
    D) when
    E) than
-TIP: Bağlaç sorusu → ilişkiyi bul. Doğru: 'when'.
+TIP: Bağlaç sorusu â†’ ilişkiyi bul. Doğru: 'when'.
 
 104) No sooner had he arrived ___ the meeting started.
    A) unless
@@ -3548,7 +3666,7 @@ TIP: Bağlaç sorusu → ilişkiyi bul. Doğru: 'when'.
    C) than
    D) because
    E) when
-TIP: Bağlaç sorusu → ilişkiyi bul. Doğru: 'than'.
+TIP: Bağlaç sorusu â†’ ilişkiyi bul. Doğru: 'than'.
 
 105) He was tired; ___, he kept working.
    A) because
@@ -3564,23 +3682,23 @@ TIP: nevertheless = yine de.
    C) Although
    D) Unless
    E) Whereas
-TIP: Bağlaç sorusu → ilişkiyi bul. Doğru: 'If'.
+TIP: Bağlaç sorusu â†’ ilişkiyi bul. Doğru: 'If'.
 
-107) He didn’t answer the email, ___ he had read it.
+107) He didnâ€™t answer the email, ___ he had read it.
    A) unless
    B) so that
    C) because
    D) whereas
    E) even though
-TIP: although/even though + clause → zıtlık (ama).
+TIP: although/even though + clause â†’ zıtlık (ama).
 
-108) We can’t start the presentation ___ everyone is seated.
+108) We canâ€™t start the presentation ___ everyone is seated.
    A) unless
    B) because
    C) whereas
    D) despite
    E) until
-TIP: until + zaman → ... olana kadar.
+TIP: until + zaman â†’ ... olana kadar.
 
 109) She studies English every day; ___, her grammar is improving fast.
    A) unless
@@ -3588,7 +3706,7 @@ TIP: until + zaman → ... olana kadar.
    C) despite
    D) because
    E) whereas
-TIP: Bağlaç sorusu → ilişkiyi bul. Doğru: 'as a result'.
+TIP: Bağlaç sorusu â†’ ilişkiyi bul. Doğru: 'as a result'.
 
 110) ___ you take regular breaks, you may lose concentration.
    A) Although
@@ -3598,7 +3716,7 @@ TIP: Bağlaç sorusu → ilişkiyi bul. Doğru: 'as a result'.
    E) Whereas
 TIP: unless = if not.
 
-111) He didn’t mention the problem, ___ he expected us to notice it.
+111) He didnâ€™t mention the problem, ___ he expected us to notice it.
    A) since
    B) unless
    C) yet
@@ -3620,7 +3738,7 @@ TIP: provided that = şartıyla.
    C) even though
    D) because
    E) since
-TIP: although/even though + clause → zıtlık (ama).
+TIP: although/even though + clause â†’ zıtlık (ama).
 
 114) He spoke in a low voice ___ wake the baby.
    A) whereas
@@ -3628,7 +3746,7 @@ TIP: although/even though + clause → zıtlık (ama).
    C) unless
    D) despite
    E) so as not to
-TIP: Bağlaç sorusu → ilişkiyi bul. Doğru: 'so as not to'.
+TIP: Bağlaç sorusu â†’ ilişkiyi bul. Doğru: 'so as not to'.
 
 115) ___ the price is high, demand remains strong.
    A) Since
@@ -3636,7 +3754,7 @@ TIP: Bağlaç sorusu → ilişkiyi bul. Doğru: 'so as not to'.
    C) Although
    D) Whereas
    E) Unless
-TIP: although/even though + clause → zıtlık (ama).
+TIP: although/even though + clause â†’ zıtlık (ama).
 
 116) He looked exhausted, ___ he refused to rest.
    A) unless
@@ -3644,7 +3762,7 @@ TIP: although/even though + clause → zıtlık (ama).
    C) but
    D) whereas
    E) because
-TIP: Bağlaç sorusu → ilişkiyi bul. Doğru: 'but'.
+TIP: Bağlaç sorusu â†’ ilişkiyi bul. Doğru: 'but'.
 
 117) You should read the instructions, ___ you might make mistakes.
    A) despite
@@ -3660,7 +3778,7 @@ TIP: otherwise = yoksa/aksi halde.
    C) because
    D) unless
    E) since
-TIP: although/even though + clause → zıtlık (ama).
+TIP: although/even though + clause â†’ zıtlık (ama).
 
 119) ___ I was walking home, I ran into an old friend.
    A) Unless
@@ -3678,7 +3796,7 @@ TIP: while = -iken / buna karşın (bağlama göre).
    E) since
 TIP: whereas = karşılaştırmalı zıtlık.
 
-121) I’ll email you the file ___ I have finished editing it.
+121) Iâ€™ll email you the file ___ I have finished editing it.
    A) despite
    B) once
    C) because
@@ -3694,13 +3812,13 @@ TIP: once = ... olunca/olduktan sonra.
    E) Because
 TIP: despite/in spite of + noun/V-ing (not + clause).
 
-123) He didn’t attend the meeting, ___ did he send an apology.
+123) He didnâ€™t attend the meeting, ___ did he send an apology.
    A) so
    B) because
    C) but
    D) yet
    E) nor
-TIP: nor → inversion: nor did he...
+TIP: nor â†’ inversion: nor did he...
 
 124) She can either call us now ___ send an email later.
    A) nor
@@ -3716,7 +3834,7 @@ TIP: either ... or ...
    C) where
    D) which
    E) who
-TIP: whose = sahiplik (…’ın).
+TIP: whose = sahiplik (â€¦â€™ın).
 
 126) This is the book ___ I was telling you about.
    A) what
@@ -3750,7 +3868,7 @@ TIP: reason why.
    E) who
 TIP: who = kişi (özne).
 
-130) I’ve found the file ___ you asked for.
+130) Iâ€™ve found the file ___ you asked for.
    A) whom
    B) who
    C) that
@@ -3758,7 +3876,7 @@ TIP: who = kişi (özne).
    E) whose
 TIP: that = defining; only/first/superlative ile sık.
 
-Section: Relative Clauses & Reduced Structures (131–190)
+Section: Relative Clauses & Reduced Structures (131â€“190)
 131) Anyone ___ wants to apply must submit a CV.
    A) which
    B) who
@@ -3837,7 +3955,7 @@ TIP: whom = kişi (nesne), özellikle preposition sonrası.
    C) where
    D) which
    E) whose
-TIP: whose = sahiplik (…’ın).
+TIP: whose = sahiplik (â€¦â€™ın).
 
 141) The day ___ we met was raining heavily.
    A) whose
@@ -3933,7 +4051,7 @@ TIP: that = defining; only/first/superlative ile sık.
    C) where
    D) who
    E) which
-TIP: whose = sahiplik (…’ın).
+TIP: whose = sahiplik (â€¦â€™ın).
 
 153) The house ___ roof collapsed was abandoned.
    A) where
@@ -3941,7 +4059,7 @@ TIP: whose = sahiplik (…’ın).
    C) which
    D) whom
    E) who
-TIP: whose = sahiplik (…’ın).
+TIP: whose = sahiplik (â€¦â€™ın).
 
 154) This is the cafe ___ they make excellent desserts.
    A) whom
@@ -3965,7 +4083,7 @@ TIP: which = cansız/üst cümle; virgüllü yapı sık.
    C) whose
    D) where
    E) who
-TIP: whose = sahiplik (…’ın).
+TIP: whose = sahiplik (â€¦â€™ın).
 
 157) The route ___ we took was longer than expected.
    A) where
@@ -4015,7 +4133,7 @@ TIP: V3 = pasif kısaltılmış relative.
    E) where
 TIP: whom = kişi (nesne), özellikle preposition sonrası.
 
-163) The reason ___ I’m calling is to confirm the appointment.
+163) The reason ___ Iâ€™m calling is to confirm the appointment.
    A) whose
    B) why
    C) which
@@ -4069,7 +4187,7 @@ TIP: that = defining; only/first/superlative ile sık.
    C) whose
    D) whom
    E) where
-TIP: whose = sahiplik (…’ın).
+TIP: whose = sahiplik (â€¦â€™ın).
 
 170) The woman ___ you were talking about has arrived.
    A) where
@@ -4093,7 +4211,7 @@ TIP: that = defining; only/first/superlative ile sık.
    C) which
    D) whose
    E) who
-TIP: whose = sahiplik (…’ın).
+TIP: whose = sahiplik (â€¦â€™ın).
 
 173) The company ___ headquarters are in Berlin opened a new branch.
    A) which
@@ -4101,7 +4219,7 @@ TIP: whose = sahiplik (…’ın).
    C) whom
    D) where
    E) whose
-TIP: whose = sahiplik (…’ın).
+TIP: whose = sahiplik (â€¦â€™ın).
 
 174) The experiment ___ results surprised everyone was repeated.
    A) where
@@ -4109,7 +4227,7 @@ TIP: whose = sahiplik (…’ın).
    C) which
    D) whom
    E) who
-TIP: whose = sahiplik (…’ın).
+TIP: whose = sahiplik (â€¦â€™ın).
 
 175) The man ___ I saw at the conference was your colleague.
    A) what
@@ -4141,7 +4259,7 @@ TIP: whom = kişi (nesne), özellikle preposition sonrası.
    C) whose
    D) where
    E) which
-TIP: whose = sahiplik (…’ın).
+TIP: whose = sahiplik (â€¦â€™ın).
 
 179) The only explanation ___ makes sense is the simplest one.
    A) what
@@ -4173,7 +4291,7 @@ TIP: which = cansız/üst cümle; virgüllü yapı sık.
    C) which
    D) who
    E) whose
-TIP: whose = sahiplik (…’ın).
+TIP: whose = sahiplik (â€¦â€™ın).
 
 183) The conference, during ___ several new projects were announced, lasted two days.
    A) where
@@ -4237,16 +4355,16 @@ TIP: that = defining; only/first/superlative ile sık.
    C) where
    D) who
    E) whose
-TIP: whose = sahiplik (…’ın).
+TIP: whose = sahiplik (â€¦â€™ın).
 
-Section: Tense, Passive, Modals, Conditionals (191–250)
+Section: Tense, Passive, Modals, Conditionals (191â€“250)
 191) By the time we arrived, the meeting ___ already ___.
    A) has / started
    B) have / started
    C) is / starting
    D) had / started
    E) was / starting
-TIP: ‘By the time’ + past → Past Perfect (had + V3).
+TIP: â€˜By the timeâ€™ + past â†’ Past Perfect (had + V3).
 
 192) I ___ in this city since 2018.
    A) have lived
@@ -4254,23 +4372,23 @@ TIP: ‘By the time’ + past → Past Perfect (had + V3).
    C) am living
    D) lived
    E) had lived
-TIP: since/for → Present Perfect (have/has + V3).
+TIP: since/for â†’ Present Perfect (have/has + V3).
 
-193) When I called, she ___ dinner, so she couldn’t talk.
+193) When I called, she ___ dinner, so she couldnâ€™t talk.
    A) cooked
    B) is cooking
    C) had cooked
    D) has cooked
    E) was cooking
-TIP: Geçmişte devam eden eylem → was/were + V-ing.
+TIP: Geçmişte devam eden eylem â†’ was/were + V-ing.
 
-194) He ___ his keys, so he couldn’t open the door.
+194) He ___ his keys, so he couldnâ€™t open the door.
    A) has lost
    B) had lost
    C) lost
    D) was losing
    E) loses
-TIP: Önce gerçekleşen geçmiş eylem → Past Perfect.
+TIP: Önce gerçekleşen geçmiş eylem â†’ Past Perfect.
 
 195) This bridge ___ in 2010 and ___ since then.
    A) is built / was repaired
@@ -4294,31 +4412,31 @@ TIP: Gelecek pasif: will be + V3.
    C) buying
    D) bought
    E) buy
-TIP: Modal + passive → must be + V3.
+TIP: Modal + passive â†’ must be + V3.
 
-198) He can’t ___ the truth; he looks too calm.
+198) He canâ€™t ___ the truth; he looks too calm.
    A) have told
    B) told
    C) be telling
    D) tells
    E) tell
-TIP: Şu an çıkarımı: can’t + be + V-ing.
+TIP: Şu an çıkarımı: canâ€™t + be + V-ing.
 
 199) She ___ be at home; the lights are off and her car is gone.
    A) may
    B) should
    C) must
    D) would
-   E) can’t
-TIP: Güçlü olumsuz çıkarım: can’t be.
+   E) canâ€™t
+TIP: Güçlü olumsuz çıkarım: canâ€™t be.
 
 200) You ___ leave early; the meeting ends at five.
-   A) don’t have to
-   B) shouldn’t
-   C) can’t
+   A) donâ€™t have to
+   B) shouldnâ€™t
+   C) canâ€™t
    D) might
-   E) mustn’t
-TIP: Zorunluluk yok: don’t have to.
+   E) mustnâ€™t
+TIP: Zorunluluk yok: donâ€™t have to.
 
 201) If you heat ice, it ___.
    A) will melt
@@ -4336,7 +4454,7 @@ TIP: Zero conditional: If + Present, Present.
    E) have
 TIP: 2nd conditional: If + Past, would + V1.
 
-203) If she ___ earlier, she wouldn’t have missed the bus.
+203) If she ___ earlier, she wouldnâ€™t have missed the bus.
    A) has left
    B) leaves
    C) left
@@ -4350,9 +4468,9 @@ TIP: 3rd conditional: If + had V3, would have V3.
    C) am
    D) were
    E) had been
-TIP: wish (şimdi) → past form; be → were.
+TIP: wish (şimdi) â†’ past form; be â†’ were.
 
-205) It’s essential that he ___ on time.
+205) Itâ€™s essential that he ___ on time.
    A) will be
    B) be
    C) has been
@@ -4392,7 +4510,7 @@ TIP: suggest + V-ing.
    E) to sign
 TIP: deny + V-ing.
 
-210) I’m used to ___ up early on weekdays.
+210) Iâ€™m used to ___ up early on weekdays.
    A) getting
    B) got
    C) have got
@@ -4422,7 +4540,7 @@ TIP: Inversion: Had I known = If I had known.
    C) makes
    D) has made
    E) had made
-TIP: It was the first time + past → Past Perfect.
+TIP: It was the first time + past â†’ Past Perfect.
 
 214) She acts as if she ___ everything.
    A) knows
@@ -4438,7 +4556,7 @@ TIP: as if + past form (gerçek dışı/mesafe).
    C) had been waiting
    D) has waited
    E) had waited
-TIP: Süre + geçmiş ana kadar → Past Perfect Continuous.
+TIP: Süre + geçmiş ana kadar â†’ Past Perfect Continuous.
 
 216) This room ___ cleaned every day.
    A) has
@@ -4459,22 +4577,22 @@ TIP: Şu an pasif: am/is/are being + V3.
 218) You ___ have told me; I already knew.
    A) could
    B) might
-   C) needn’t
+   C) neednâ€™t
    D) should
    E) must
-TIP: needn’t have V3 = gereksiz yaptın.
+TIP: neednâ€™t have V3 = gereksiz yaptın.
 
 219) He ___ have missed the train; he arrived far too early.
-   A) can’t
+   A) canâ€™t
    B) should
    C) might
    D) would
    E) must
-TIP: can’t have V3 = imkânsız.
+TIP: canâ€™t have V3 = imkÃ¢nsız.
 
 220) She ___ be working; her computer is on.
-   A) shouldn’t
-   B) can’t
+   A) shouldnâ€™t
+   B) canâ€™t
    C) would
    D) must
    E) need
@@ -4488,12 +4606,12 @@ TIP: must be + V-ing = güçlü çıkarım.
    E) leave
 TIP: 1st conditional: if/unless + Present.
 
-222) I’d rather you ___ so much noise at night.
-   A) hadn’t made
-   B) don’t make
-   C) didn’t make
-   D) haven’t made
-   E) won’t make
+222) Iâ€™d rather you ___ so much noise at night.
+   A) hadnâ€™t made
+   B) donâ€™t make
+   C) didnâ€™t make
+   D) havenâ€™t made
+   E) wonâ€™t make
 TIP: would rather + past (başkası için).
 
 223) He made me ___ the report again.
@@ -4518,15 +4636,15 @@ TIP: Passive: be made to + V.
    C) finished
    D) will have finished
    E) will finish
-TIP: By + future time → Future Perfect.
+TIP: By + future time â†’ Future Perfect.
 
-226) The letter ___ yesterday, but it still hasn’t arrived.
+226) The letter ___ yesterday, but it still hasnâ€™t arrived.
    A) was sent
    B) had been sent
    C) is sent
    D) sent
    E) has been sent
-TIP: yesterday → simple past passive.
+TIP: yesterday â†’ simple past passive.
 
 227) He said he ___ the document the next day.
    A) has sent
@@ -4534,9 +4652,9 @@ TIP: yesterday → simple past passive.
    C) will send
    D) had sent
    E) sends
-TIP: Reported speech: will → would.
+TIP: Reported speech: will â†’ would.
 
-228) If it ___ tomorrow, we’ll cancel the picnic.
+228) If it ___ tomorrow, weâ€™ll cancel the picnic.
    A) has rained
    B) rained
    C) will rain
@@ -4550,23 +4668,23 @@ TIP: 1st conditional: If + Present, will + V1.
    C) will accept
    D) would accept
    E) accept
-TIP: If I were you → would + V1.
+TIP: If I were you â†’ would + V1.
 
-230) You ___ wear a seatbelt; it’s the law.
+230) You ___ wear a seatbelt; itâ€™s the law.
    A) might
    B) must
    C) would
    D) can
-   E) needn’t
+   E) neednâ€™t
 TIP: Kural/zorunluluk: must.
 
 231) Students ___ submit the assignment after the deadline.
    A) should
-   B) mustn’t
+   B) mustnâ€™t
    C) may
    D) might
-   E) don’t have to
-TIP: Yasak: mustn’t.
+   E) donâ€™t have to
+TIP: Yasak: mustnâ€™t.
 
 232) He ___ speak English fluently when he was ten.
    A) could
@@ -4586,10 +4704,10 @@ TIP: will be + V3 (pasif).
 
 234) She ___ have called you, but her phone battery died.
    A) should
-   B) needn’t
+   B) neednâ€™t
    C) could
    D) must
-   E) can’t
+   E) canâ€™t
 TIP: could have V3 = yapabilirdi ama olmadı.
 
 235) He said he ___ never seen such a place before.
@@ -4598,7 +4716,7 @@ TIP: could have V3 = yapabilirdi ama olmadı.
    C) will have
    D) is
    E) has
-TIP: Reported speech + before → had + V3.
+TIP: Reported speech + before â†’ had + V3.
 
 236) No sooner ___ the class started than the power went out.
    A) was
@@ -4608,13 +4726,13 @@ TIP: Reported speech + before → had + V3.
    E) did
 TIP: No sooner had + S + V3 than ...
 
-237) It’s time we ___ home.
+237) Itâ€™s time we ___ home.
    A) go
    B) went
    C) had gone
    D) will go
    E) have gone
-TIP: It’s time + past (gecikmişlik).
+TIP: Itâ€™s time + past (gecikmişlik).
 
 238) She would rather ___ at home than go out.
    A) stays
@@ -4624,7 +4742,7 @@ TIP: It’s time + past (gecikmişlik).
    E) to stay
 TIP: would rather + V1 (özne aynı).
 
-239) The work ___ by Friday, otherwise we’ll lose the client.
+239) The work ___ by Friday, otherwise weâ€™ll lose the client.
    A) must to finish
    B) must be finished
    C) must finishing
@@ -4646,14 +4764,14 @@ TIP: 3rd conditional if-clause: had + V3.
    C) have seen
    D) will see
    E) had seen
-TIP: wish (geçmiş pişmanlık) → had + V3.
+TIP: wish (geçmiş pişmanlık) â†’ had + V3.
 
 242) They ___ the decision yet, so we should wait.
-   A) haven’t made
-   B) didn’t make
-   C) don’t make
-   D) won’t make
-   E) hadn’t made
+   A) havenâ€™t made
+   B) didnâ€™t make
+   C) donâ€™t make
+   D) wonâ€™t make
+   E) hadnâ€™t made
 TIP: yet + Present Perfect.
 
 243) This is the first time I ___ such a challenging exam.
@@ -4662,7 +4780,7 @@ TIP: yet + Present Perfect.
    C) have taken
    D) am taking
    E) had taken
-TIP: This is the first time → Present Perfect.
+TIP: This is the first time â†’ Present Perfect.
 
 244) The accident ___ by careless driving, according to witnesses.
    A) has caused
@@ -4678,7 +4796,7 @@ TIP: Passive: was caused (agent implied).
    C) becomes
    D) has become
    E) was becoming
-TIP: Tek olay dizisi → simple past.
+TIP: Tek olay dizisi â†’ simple past.
 
 246) If you ___ your password, click 'Forgot password'.
    A) forgot
@@ -4689,12 +4807,12 @@ TIP: Tek olay dizisi → simple past.
 TIP: Talimat/genel durum: present tense.
 
 247) I ___ to the gym lately because of my exams.
-   A) wasn’t going
-   B) didn’t go
-   C) haven’t been going
-   D) don’t go
-   E) hadn’t gone
-TIP: lately + süre → Present Perfect Continuous.
+   A) wasnâ€™t going
+   B) didnâ€™t go
+   C) havenâ€™t been going
+   D) donâ€™t go
+   E) hadnâ€™t gone
+TIP: lately + süre â†’ Present Perfect Continuous.
 
 248) It is believed that the painting ___ stolen years ago.
    A) was
@@ -4702,9 +4820,9 @@ TIP: lately + süre → Present Perfect Continuous.
    C) had been
    D) is
    E) has been
-TIP: years ago → simple past passive.
+TIP: years ago â†’ simple past passive.
 
-249) The suspect ___ released if there isn’t enough evidence.
+249) The suspect ___ released if there isnâ€™t enough evidence.
    A) is
    B) will
    C) has been
@@ -4793,7 +4911,7 @@ TIP: Main clause: would have V3 (burada would).
     C) under / towards
     D) about / onto
     E) for / behind
-    8. Therapeutic dyad is a medical term for the relationship ---- the therapist and the patient, and it is ---- the context of the therapeutic dyad that positive changes in the patient’s outlook and behaviours can take place. (2025 TEMMUZ YÖKDİL SAĞLIK)
+    8. Therapeutic dyad is a medical term for the relationship ---- the therapist and the patient, and it is ---- the context of the therapeutic dyad that positive changes in the patientâ€™s outlook and behaviours can take place. (2025 TEMMUZ YÖKDİL SAĞLIK)
     A) in / for
     B) about / from
     C) between / within
@@ -4805,7 +4923,7 @@ TIP: Main clause: would have V3 (burada would).
     C) through / without
     D) across / on
     E) at / for
-    10. Ready meals labelled ---- phrases like ‘finest’ and ‘best’ are marketed as premium shortcuts ---- a balanced meal, but cooking equivalent dishes from scratch is still a nutritionally better option. (2025 MART YDS)
+    10. Ready meals labelled ---- phrases like â€˜finestâ€™ and â€˜bestâ€™ are marketed as premium shortcuts ---- a balanced meal, but cooking equivalent dishes from scratch is still a nutritionally better option. (2025 MART YDS)
     A) about / over
     B) in / from
     C) for / on
@@ -4829,7 +4947,7 @@ TIP: Main clause: would have V3 (burada would).
     C) at / through
     D) to / on
     E) for / from
-    14. Behaviourist psychologists claim that language is learned ---- the mechanism of reinforcing the contingent association between stimulus and response – the same general-purpose mechanism invoked to explain other learning processes ---- humans. (2024 KASIM YDS)
+    14. Behaviourist psychologists claim that language is learned ---- the mechanism of reinforcing the contingent association between stimulus and response â€“ the same general-purpose mechanism invoked to explain other learning processes ---- humans. (2024 KASIM YDS)
     A) about / at
     B) with / on
     C) for / among
@@ -4889,7 +5007,7 @@ TIP: Main clause: would have V3 (burada would).
     C) with / across
     D) from / towards
     E) about / to
-    24. The Tokyo-Yokohama is the largest urban concentration area in the world, and 70 per cent of Japan’s population live ---- the Pacific coast stretching ---- Tokyo and Kyushu. (2022 YDT)
+    24. The Tokyo-Yokohama is the largest urban concentration area in the world, and 70 per cent of Japanâ€™s population live ---- the Pacific coast stretching ---- Tokyo and Kyushu. (2022 YDT)
     A) at / beyond
     B) under / through
     C) in / towards
@@ -4913,7 +5031,7 @@ TIP: Main clause: would have V3 (burada would).
     C) over / between
     D) about / to
     E) at / across
-    28. Much research suggests that ---- its core, Alzheimer’s disease may be a metabolic disorder, an irregularity in fuel use ---- the brain, a process that loses efficiency with age. (2021 YDT)
+    28. Much research suggests that ---- its core, Alzheimerâ€™s disease may be a metabolic disorder, an irregularity in fuel use ---- the brain, a process that loses efficiency with age. (2021 YDT)
     A) in / from
     B) to / with
     C) on / for
@@ -4985,7 +5103,7 @@ TIP: Main clause: would have V3 (burada would).
     C) Throughout / among
     D) From / against
     E) Across / over
-    40. The word adolescence is Latin ---- origin, derived from the verb adolescere, which means ‘to grow ---- adulthood’. (2019 EYLÜL YDS)
+    40. The word adolescence is Latin ---- origin, derived from the verb adolescere, which means â€˜to grow ---- adulthoodâ€™. (2019 EYLÜL YDS)
     A) through / on
     B) from / to
     C) at / beyond
@@ -5027,7 +5145,7 @@ TIP: Main clause: would have V3 (burada would).
     C) With / for
     D) Through / from
     E) Among / at
-    47. Research ---- media has primarily examined the effects of media on children ---- a developmental perspective with a psychological focus on the correlation or causal variable between the media and children’s behaviour. (2018 EYLÜL YDS)
+    47. Research ---- media has primarily examined the effects of media on children ---- a developmental perspective with a psychological focus on the correlation or causal variable between the media and childrenâ€™s behaviour. (2018 EYLÜL YDS)
     A) against / under
     B) on / from
     C) through / across
@@ -5039,7 +5157,7 @@ TIP: Main clause: would have V3 (burada would).
     C) by / down
     D) on / within
     E) from / through
-    49. The world’s first complex societies arose in the Near East ---- the fertile area, known as Mesopotamia, ---- the Tigris and Euphrates rivers. (2018 ARALIK YDS)
+    49. The worldâ€™s first complex societies arose in the Near East ---- the fertile area, known as Mesopotamia, ---- the Tigris and Euphrates rivers. (2018 ARALIK YDS)
     A) around / to
     B) within / between
     C) about / with
@@ -5093,13 +5211,13 @@ TIP: Main clause: would have V3 (burada would).
     C) along / about
     D) at / on
     E) into / for
-    58. By the middle of the 19th century, the growing acceptance that microbes can kill us had once more focused people’s attention ---- a world only visible ---- a microscope. (2016 MART YDS)
+    58. By the middle of the 19th century, the growing acceptance that microbes can kill us had once more focused peopleâ€™s attention ---- a world only visible ---- a microscope. (2016 MART YDS)
     A) on / through
     B) to / upon
     C) by / over
     D) against / in
     E) of / for
-    59. Education plays an important role ---- improving people’s health, and educated people are more likely to be informed consumers of health care, gathering information ---- diseases and potential treatments. (2016 EYLÜL YDS)
+    59. Education plays an important role ---- improving peopleâ€™s health, and educated people are more likely to be informed consumers of health care, gathering information ---- diseases and potential treatments. (2016 EYLÜL YDS)
     A) to / upon
     B) in / on
     C) at / about
@@ -5141,7 +5259,7 @@ TIP: Main clause: would have V3 (burada would).
     C) into / from
     D) for / beyond
     E) at / behind
-    66. Personality psychology focuses on the consistency in people’s behaviour ---- time and the traits that differentiate one person ---- another. (2015 EYLÜL YDS)
+    66. Personality psychology focuses on the consistency in peopleâ€™s behaviour ---- time and the traits that differentiate one person ---- another. (2015 EYLÜL YDS)
     A) at / for
     B) over / from
     C) in / of
@@ -5182,7 +5300,7 @@ C) thanks to
 D) rather than
 E) for the purpose of
 
-5. Insects do not navigate by scanning their environment and reducing the image to trillions of pixels that they process with supercomputers; ----, their brains are composed of ‘neural networks,’ learning machines that slowly learn how to navigate in a hostile world by bumping into it. (2025 TEMMUZ YDS)
+5. Insects do not navigate by scanning their environment and reducing the image to trillions of pixels that they process with supercomputers; ----, their brains are composed of â€˜neural networks,â€™ learning machines that slowly learn how to navigate in a hostile world by bumping into it. (2025 TEMMUZ YDS)
 A) instead
 B) likewise
 C) for example
@@ -5329,7 +5447,7 @@ C) not only / but also
 D) the more / the more
 E) either / or
 
-26. ---- lung cancer is globally the leading cause of death from cancer, health experts believe it is also the most preventable type due to smoking’s role in its development. (2025 TEMMUZ YÖKDİL SAĞLIK)
+26. ---- lung cancer is globally the leading cause of death from cancer, health experts believe it is also the most preventable type due to smokingâ€™s role in its development. (2025 TEMMUZ YÖKDİL SAĞLIK)
 A) Even though
 B) Since
 C) If
@@ -5378,7 +5496,7 @@ C) because of
 D) unlike
 E) in spite of
 
-33. ---- prescription medications ---- herbal products have the ability to fully restore cognitive functions lost to permanent brain damage caused by Alzheimer’s disease or traumatic brain injury. (2025 TEMMUZ YÖKDİL SAĞLIK)
+33. ---- prescription medications ---- herbal products have the ability to fully restore cognitive functions lost to permanent brain damage caused by Alzheimerâ€™s disease or traumatic brain injury. (2025 TEMMUZ YÖKDİL SAĞLIK)
 A) As / as
 B) Such / that
 C) Whether / or
@@ -5532,14 +5650,14 @@ C) because of
 D) instead of
 E) due to
 
-55. Ancient Egypt has long been considered the domestic cat’s cradle, but when researchers sequenced DNA from more than 200 ancient cats, they discovered that ---- Nile natives formed the most broadly distributed lineage, they were not the first. (2023 EKİM YDS)
+55. Ancient Egypt has long been considered the domestic catâ€™s cradle, but when researchers sequenced DNA from more than 200 ancient cats, they discovered that ---- Nile natives formed the most broadly distributed lineage, they were not the first. (2023 EKİM YDS)
 A) if
 B) because
 C) while
 D) once
 E) just as
 
-56. Many materials labelled as biodegradable or compostable typically will not break down ---- they are subjected to ideal industrial composting conditions, meaning high humidity, temperatures of up to 70°C, and a special cocktail of microbes. (2023 EKİM YDS)
+56. Many materials labelled as biodegradable or compostable typically will not break down ---- they are subjected to ideal industrial composting conditions, meaning high humidity, temperatures of up to 70Â°C, and a special cocktail of microbes. (2023 EKİM YDS)
 A) given that
 B) whether
 C) unless
@@ -5581,7 +5699,7 @@ C) as if
 D) while
 E) just as
 
-62. It is a strange twist of fate that both the Ötzi, an ancient iceman, and Helmut Simon were found dead on the ice ---- Helmut Simon was the man who discovered the Ötzi’s remains in 1991. (2023 NİSAN YDS)
+62. It is a strange twist of fate that both the Ötzi, an ancient iceman, and Helmut Simon were found dead on the ice ---- Helmut Simon was the man who discovered the Ötziâ€™s remains in 1991. (2023 NİSAN YDS)
 A) until
 B) given that
 C) only when
@@ -5630,7 +5748,7 @@ C) due to
 D) along with
 E) by means of
 
-69. In linguistics, the distinction between a word’s sense and reference is a critical one, ---- it allows us to study the many cases where we happily use words, even though they do not naturally correspond to the way things are in the world. (2022 NİSAN YDS)
+69. In linguistics, the distinction between a wordâ€™s sense and reference is a critical one, ---- it allows us to study the many cases where we happily use words, even though they do not naturally correspond to the way things are in the world. (2022 NİSAN YDS)
 A) in order that
 B) so that
 C) because
@@ -5686,7 +5804,7 @@ C) As well as
 D) In spite of
 E) Rather than
 
-77. ---- he was never regarded as a musical genius at a very young age like Mozart or Mendelssohn, Beethoven’s talent was quite impressive. (2021 YDT)
+77. ---- he was never regarded as a musical genius at a very young age like Mozart or Mendelssohn, Beethovenâ€™s talent was quite impressive. (2021 YDT)
 A) As long as
 B) Because
 C) Even though
@@ -5714,7 +5832,7 @@ C) in order that
 D) in case
 E) unless
 
-81. They are some of the oldest monuments in the world, ---- much about Egypt’s pyramids remains a mystery. (2021 YÖKDİL SOSYAL)
+81. They are some of the oldest monuments in the world, ---- much about Egyptâ€™s pyramids remains a mystery. (2021 YÖKDİL SOSYAL)
 A) but
 B) otherwise
 C) as
@@ -5728,7 +5846,7 @@ C) In terms of
 D) Unlike
 E) Together with
 
-83. ---- he was never regarded as a musical genius at a very young age like Mozart or Mendelssohn, Beethoven’s talent was quite impressive. (2021 YDT)
+83. ---- he was never regarded as a musical genius at a very young age like Mozart or Mendelssohn, Beethovenâ€™s talent was quite impressive. (2021 YDT)
 A) As long as
 B) Because
 C) Even though
@@ -5903,7 +6021,7 @@ C) the more / the more
 D) either / or
 E) so / that
 
-108. The numerous Italian princes’ palaces became significant centres of the Renaissance and the Baroque periods ---- their comparatively minor political influence. (2019 YDT)
+108. The numerous Italian princesâ€™ palaces became significant centres of the Renaissance and the Baroque periods ---- their comparatively minor political influence. (2019 YDT)
 A) due to
 B) rather than
 C) in terms of
@@ -5945,7 +6063,7 @@ C) in terms of
 D) despite
 E) along with
 
-114. ---- immigrants to North America’s new colonies were primarily British in the 17th and 18th centuries, significant numbers of people of other nationalities also established a presence in the Americas. (2019 EYLÜL YDS)
+114. ---- immigrants to North Americaâ€™s new colonies were primarily British in the 17th and 18th centuries, significant numbers of people of other nationalities also established a presence in the Americas. (2019 EYLÜL YDS)
 A) Because
 B) While
 C) As long as
@@ -5966,7 +6084,7 @@ C) until
 D) if
 E) as soon as
 
-117. Liquid water covers more than two-thirds of the Blue Planet’s surface, ---- exactly how it got there has always been puzzling. (2019 EYLÜL YDS)
+117. Liquid water covers more than two-thirds of the Blue Planetâ€™s surface, ---- exactly how it got there has always been puzzling. (2019 EYLÜL YDS)
 A) so
 B) instead
 C) but
@@ -5987,7 +6105,7 @@ C) in place of
 D) in spite of
 E) contrary to
 
-120. Among the drawbacks of aging is a creeping tendency to put on weight ---- our resting metabolism slows down – by roughly 1 to 2 percent every decade. (2019 ARALIK YDS)
+120. Among the drawbacks of aging is a creeping tendency to put on weight ---- our resting metabolism slows down â€“ by roughly 1 to 2 percent every decade. (2019 ARALIK YDS)
 A) but
 B) since
 C) as if
@@ -6092,7 +6210,7 @@ C) instead of
 D) in terms of
 E) in case of
 
-135. Most cheesemakers believe that the brilliant nuances of flavour found in raw milk, with its naturally present ‘good’ bacteria, simply cannot be duplicated in a pasteurised milk cheese ---- some well-respected cheeses, including British Stilton, are made only from pasteurised milk. (2018 EYLÜL YDS)
+135. Most cheesemakers believe that the brilliant nuances of flavour found in raw milk, with its naturally present â€˜goodâ€™ bacteria, simply cannot be duplicated in a pasteurised milk cheese ---- some well-respected cheeses, including British Stilton, are made only from pasteurised milk. (2018 EYLÜL YDS)
 A) now that
 B) after
 C) although
@@ -6148,7 +6266,7 @@ C) as if
 D) even though
 E) in case
 
-143. Known as the ‘Lady with the Lamp’ during the Crimean War, Florence Nightingale, the most famous nurse in history, focused her efforts ---- on the prevention of diseases ---- the promotion of healthy living in a more positive way. (2018 ARALIK YDS)
+143. Known as the â€˜Lady with the Lampâ€™ during the Crimean War, Florence Nightingale, the most famous nurse in history, focused her efforts ---- on the prevention of diseases ---- the promotion of healthy living in a more positive way. (2018 ARALIK YDS)
 A) the more / the more
 B) not only / but also
 C) whether / or
@@ -6211,7 +6329,7 @@ C) as / as
 D) the more / the more
 E) either / or
 
-152. ---- its similarities with other Italian cities, it is important to emphasise that Venice’s aquatic environment and associations with foreign lands via the sea endowed it with a uniqueness. (2017 İLKBAHAR YDS)
+152. ---- its similarities with other Italian cities, it is important to emphasise that Veniceâ€™s aquatic environment and associations with foreign lands via the sea endowed it with a uniqueness. (2017 İLKBAHAR YDS)
 A) Due to
 B) By means of
 C) In terms of
@@ -6232,7 +6350,7 @@ C) In case
 D) Once
 E) Even though
 
-155. The story of the cat’s domestication is one of mutual appreciation: early farming communities benefited from cats’ rodent-catching skills ---- cats won themselves protection and shelter without losing their independence. (2017 SONBAHAR YDS)
+155. The story of the catâ€™s domestication is one of mutual appreciation: early farming communities benefited from catsâ€™ rodent-catching skills ---- cats won themselves protection and shelter without losing their independence. (2017 SONBAHAR YDS)
 A) even if
 B) only when
 C) as soon as
@@ -6260,7 +6378,7 @@ C) If
 D) Once
 E) In case
 
-159. Your body’s cells cannot work properly ---- the conditions around them are perfectly balanced. (2016 YDT)
+159. Your bodyâ€™s cells cannot work properly ---- the conditions around them are perfectly balanced. (2016 YDT)
 A) because
 B) unless
 C) whereas
@@ -6337,7 +6455,7 @@ C) so that
 D) even if
 E) now that
 
-170. Leonardo da Vinci’s drawings for machines are ---- accurate ---- it has been possible for modern engineers to build some of them. (2016 SONBAHAR YDS)
+170. Leonardo da Vinciâ€™s drawings for machines are ---- accurate ---- it has been possible for modern engineers to build some of them. (2016 SONBAHAR YDS)
 A) so / that
 B) as / as
 C) either / or
@@ -6407,7 +6525,7 @@ C) whenever
 D) as
 E) in case
 
-180. Japan is enormously centralized, and Tokyo, the capital city, hosts ---- the national government ---- the stock market and the world’s largest companies. (2015 İLKBAHAR YDS)
+180. Japan is enormously centralized, and Tokyo, the capital city, hosts ---- the national government ---- the stock market and the worldâ€™s largest companies. (2015 İLKBAHAR YDS)
 A) not only / but also
 B) whether / or
 C) neither / nor
@@ -6688,7 +6806,7 @@ C) kept / continues
 D) had kept / would continue
 E) would have kept / continued
 
-33. Various lines of evidence suggest that the composition of the Earth’s atmosphere ---- considerably over the history of the Solar System and that the original atmosphere ---- denser than the present day atmosphere and dominated by carbon dioxide. (2022 NİSAN YDS)
+33. Various lines of evidence suggest that the composition of the Earthâ€™s atmosphere ---- considerably over the history of the Solar System and that the original atmosphere ---- denser than the present day atmosphere and dominated by carbon dioxide. (2022 NİSAN YDS)
 A) was evolving / would be
 B) evolves / had been
 C) had been evolving / is
@@ -6702,7 +6820,7 @@ C) having enabled / influenced
 D) being enabled / would have influenced
 E) having been enabled / could influence
 
-35. The moment the first stars ---- is one of the most evocative milestones in the evolution of the cosmos – it marks the beginning of the age of light, the moment when the Universe ---- recognisable to us. (2021 YDT)
+35. The moment the first stars ---- is one of the most evocative milestones in the evolution of the cosmos â€“ it marks the beginning of the age of light, the moment when the Universe ---- recognisable to us. (2021 YDT)
 A) were born / would have become
 B) are being born / might become
 C) had been born / will become
@@ -6730,7 +6848,7 @@ C) have developed / had invaded
 D) developed / could have invaded
 E) had developed / invaded
 
-39. London ----- the oldest and most comprehensive subway system in the world today, and all of the city’s train stations ----- by subway. (2021 YÖKDİL SOSYAL)
+39. London ----- the oldest and most comprehensive subway system in the world today, and all of the cityâ€™s train stations ----- by subway. (2021 YÖKDİL SOSYAL)
 A) had / might be reached
 B) has had / could have been reached
 C) has / can be reached
@@ -6856,7 +6974,7 @@ C) used to go / may have enjoyed
 D) had to go / could enjoy
 E) would go / ought to have enjoyed
 
-57. Humanity’s extraordinary success ---- due to our ingenuity in devising cultural means ---- our physical limitations. (2019 YDS İLKBAHAR)
+57. Humanityâ€™s extraordinary success ---- due to our ingenuity in devising cultural means ---- our physical limitations. (2019 YDS İLKBAHAR)
 A) has been / to overcome
 B) was / having overcome
 C) had been / overcoming
@@ -6884,7 +7002,7 @@ C) showed / is helping
 D) will have shown / was helping
 E) will be showing / has been helping
 
-61. The Martian atmosphere is so thin, and the planet’s temperature so low that liquid water ---- there, and if it ever did in the past, conditions ---- very different. (2019 YDS SONBAHAR)
+61. The Martian atmosphere is so thin, and the planetâ€™s temperature so low that liquid water ---- there, and if it ever did in the past, conditions ---- very different. (2019 YDS SONBAHAR)
 A) might not have existed / were to be
 B) could not exist / may be
 C) would not exist /can be
@@ -6940,14 +7058,14 @@ C) making / could alter
 D) having made / should have altered
 E) to have been making / must have altered
 
-69. For a long time, scientists ---- aware that the Earth’s atmosphere is not static, but is in constant motion, producing areas of ever-changing pressure around the globe, but from 1700 onward, scientists ---- to discover how and why large-scale atmospheric movements occur. (2018 YDS SONBAHAR)
+69. For a long time, scientists ---- aware that the Earthâ€™s atmosphere is not static, but is in constant motion, producing areas of ever-changing pressure around the globe, but from 1700 onward, scientists ---- to discover how and why large-scale atmospheric movements occur. (2018 YDS SONBAHAR)
 A) had been / have begun
 B) would have been / had begun
 C) have been / began
 D) would be / were beginning
 E) were / would have begun
 
-70. Science ---- our every question, but it ---- humanity’s best tool yet for tackling our greatest challenges. (2018 YDS SONBAHAR)
+70. Science ---- our every question, but it ---- humanityâ€™s best tool yet for tackling our greatest challenges. (2018 YDS SONBAHAR)
 A) may not answer / had remained
 B) must not answer / has remained
 C) should not answer / will remain
@@ -7003,7 +7121,7 @@ C) suggested / have turned
 D) has suggested / turn
 E) will suggest / are turning
 
-78. Patients with implants or electronic devices put inside their bodies ---- using magnetic resonance imaging (MRI) because the machine’s magnet ---- these objects within the body, causing damage. (2017 YDS İLKBAHAR)
+78. Patients with implants or electronic devices put inside their bodies ---- using magnetic resonance imaging (MRI) because the machineâ€™s magnet ---- these objects within the body, causing damage. (2017 YDS İLKBAHAR)
 A) should not be examined / must move
 B) could not be examined / had to move
 C) may not be examined / used to move
@@ -7031,7 +7149,7 @@ C) would have been used / might have imagined
 D) were used / could have imagined
 E) must have been used / can imagine
 
-82. Humans ---- 43 percent of the Earth’s surface from its natural state radically, far greater than the smaller changes that ---- trigger the last great planetary shift during the ice ages. (2016 YDT)
+82. Humans ---- 43 percent of the Earthâ€™s surface from its natural state radically, far greater than the smaller changes that ---- trigger the last great planetary shift during the ice ages. (2016 YDT)
 A) would alter / have helped
 B) had altered / help
 C) have altered / helped
@@ -7115,7 +7233,7 @@ C) could prevent / sending
 D) must prevent / having sent
 E) may prevent / to send
 
-94. It ---- fourteen years since his last feature film, Ryan’s Daughter, when David Lean ---- to filmmaking with his 1984 adaptation of E. M. Forster’s celebrated novel, A Passage to India. (2015 YDS İLKBAHAR)
+94. It ---- fourteen years since his last feature film, Ryanâ€™s Daughter, when David Lean ---- to filmmaking with his 1984 adaptation of E. M. Forsterâ€™s celebrated novel, A Passage to India. (2015 YDS İLKBAHAR)
 A) had been / returned
 B) has been / had returned
 C) was / returns
@@ -7129,7 +7247,7 @@ C) had been / would not have been built
 D) was / need not have been built
 E) will be / should not have been built
 
-96. Philosophy did not play a large part in Roman culture, other than Stoicism, which ---- by the Romans for its emphasis on virtuous conduct and ---- one’s duty. (2015 YDS İLKBAHAR)
+96. Philosophy did not play a large part in Roman culture, other than Stoicism, which ---- by the Romans for its emphasis on virtuous conduct and ---- oneâ€™s duty. (2015 YDS İLKBAHAR)
 A) is to be admired / to have done
 B) is admired / to do
 C) had been admired / having done
@@ -7176,7 +7294,7 @@ C) conspire
 D) strive
 E) warrant
 
-6. Cellulose and other complex food constituents that are not susceptible to digestion by the animal’s own digestive enzymes are ---- digestible end-products by bacterial fermentation. (2025 TEMMUZ YDS)
+6. Cellulose and other complex food constituents that are not susceptible to digestion by the animalâ€™s own digestive enzymes are ---- digestible end-products by bacterial fermentation. (2025 TEMMUZ YDS)
 A) found out
 B) converted into
 C) identified with
@@ -7239,14 +7357,14 @@ C) compulsorly
 D) adversely
 E) scarcely
 
-15. Proper nutrition and good medical care, especially during the first year of life, significantly ---- an infant’s cognitive and physical development. (2025 YDT)
+15. Proper nutrition and good medical care, especially during the first year of life, significantly ---- an infantâ€™s cognitive and physical development. (2025 YDT)
 A) constrain
 B) exploit
 C) enhance
 D) overcome
 E) scatter
 
-16. Whale sharks, the world’s largest fish, are regarded as a vulnerable species as their population has been falling dramatically, which ---- strict environmental regulation for their protection. (2025 YDT)
+16. Whale sharks, the worldâ€™s largest fish, are regarded as a vulnerable species as their population has been falling dramatically, which ---- strict environmental regulation for their protection. (2025 YDT)
 A) turns down
 B) calls for
 C) wards off
@@ -7372,14 +7490,14 @@ C) credited with
 D) deprived of
 E) counted against
 
-34. Modern understanding of the structure of Earth is derived in large part from the ---- of seismic studies that examine various features in Earth’s interior. (2023 EKİM YDS)
+34. Modern understanding of the structure of Earth is derived in large part from the ---- of seismic studies that examine various features in Earthâ€™s interior. (2023 EKİM YDS)
 A) extraction
 B) mitigation
 C) alteration
 D) interpretation
 E) compensation
 
-35. A geneticist can calculate with remarkable ---- the likelihood of certain traits passing from parents to offspring, and such calculations accommodate the potential combinations that can arise from each parent’s genotype. (2023 EKİM YDS)
+35. A geneticist can calculate with remarkable ---- the likelihood of certain traits passing from parents to offspring, and such calculations accommodate the potential combinations that can arise from each parentâ€™s genotype. (2023 EKİM YDS)
 A) adversity
 B) abstention
 C) accuracy
@@ -7400,7 +7518,7 @@ C) explicitly
 D) evenly
 E) productively
 
-38. The world-famous explorer Marco Polo is credited with many things, but perhaps the greatest one is ---- one of the world’s first best-selling travelogues. (2023 EKİM YDS)
+38. The world-famous explorer Marco Polo is credited with many things, but perhaps the greatest one is ---- one of the worldâ€™s first best-selling travelogues. (2023 EKİM YDS)
 A) hindering
 B) validating
 C) alienating
@@ -7414,14 +7532,14 @@ C) get over
 D) interfere with
 E) pass down
 
-40. The ---- of chocolate with romance is probably responsible for the creation of boxes in the shape of hearts, filled with chocolates, being the gift of choice for lovers every Valentine’s Day. (2023 NİSAN YDS)
+40. The ---- of chocolate with romance is probably responsible for the creation of boxes in the shape of hearts, filled with chocolates, being the gift of choice for lovers every Valentineâ€™s Day. (2023 NİSAN YDS)
 A) enrichment
 B) association
 C) proposal
 D) advent
 E) resolution
 
-41. A mere 7 percent of the world’s oceans has any protection – mostly weak rules, with multiple exceptions – and only 2.5 percent is highly protected from ----. (2023 NİSAN YDS)
+41. A mere 7 percent of the worldâ€™s oceans has any protection â€“ mostly weak rules, with multiple exceptions â€“ and only 2.5 percent is highly protected from ----. (2023 NİSAN YDS)
 A) exploitation
 B) diversion
 C) fragmentation
@@ -7442,7 +7560,7 @@ C) reluctantly
 D) accurately
 E) implicitly
 
-44. Among the problems stemming from space activity, ‘space junk’ is a growing concern as disused satellites and other objects ---- in our planet’s orbit. (2023 NİSAN YDS)
+44. Among the problems stemming from space activity, â€˜space junkâ€™ is a growing concern as disused satellites and other objects ---- in our planetâ€™s orbit. (2023 NİSAN YDS)
 A) perpetuate
 B) overtake
 C) accumulate
@@ -7456,7 +7574,7 @@ C) take up
 D) draw up
 E) get off
 
-46. Scientists believe an asteroid struck the planet Earth off Mexico’s Yucatán Peninsula some 65 million years ago, bringing about the ---- of almost 50 percent of the plant species then living on Earth. (2023 YDT)
+46. Scientists believe an asteroid struck the planet Earth off Mexicoâ€™s YucatÃ¡n Peninsula some 65 million years ago, bringing about the ---- of almost 50 percent of the plant species then living on Earth. (2023 YDT)
 A) extinction
 B) identification
 C) differentiation
@@ -7498,7 +7616,7 @@ C) references
 D) deformities
 E) obstructions
 
-52. According to Piaget, an infant’s initial knowledge is limited to innate reflexes and is combined with an ---- to actively use and adapt these reflexes as a result of repeated interactions with objects. (2022 NİSAN YDS)
+52. According to Piaget, an infantâ€™s initial knowledge is limited to innate reflexes and is combined with an ---- to actively use and adapt these reflexes as a result of repeated interactions with objects. (2022 NİSAN YDS)
 A) assertion
 B) equivalent
 C) inclination
@@ -7547,7 +7665,7 @@ C) obsolete
 D) futile
 E) implicit
 
-59. Although children’s literature is intended ---- for children, it is more accurate to view such texts as having dual audiences of children and adults. (2022 YDT)
+59. Although childrenâ€™s literature is intended ---- for children, it is more accurate to view such texts as having dual audiences of children and adults. (2022 YDT)
 A) tightly
 B) primarily
 C) vividly
@@ -7568,7 +7686,7 @@ C) took over
 D) turned into
 E) amounted to
 
-62. Attaining ---- in the current job is a basic career strategy, given that organisations make promotion decisions, at least in part, on an employee’s present performance. (2021 EKİM YDS)
+62. Attaining ---- in the current job is a basic career strategy, given that organisations make promotion decisions, at least in part, on an employeeâ€™s present performance. (2021 EKİM YDS)
 A) assurance
 B) competence
 C) balance
@@ -7645,21 +7763,21 @@ C) deception
 D) resistance
 E) nomination
 
-73. In 1558, Queen Mary I of England was persuaded by her husband, King Philip II of Spain, to join him in a renewed war with France, which proved ---- for England as it led to the loss of Calais, England’s last foothold in continental Europe. (2021 YDT)
+73. In 1558, Queen Mary I of England was persuaded by her husband, King Philip II of Spain, to join him in a renewed war with France, which proved ---- for England as it led to the loss of Calais, Englandâ€™s last foothold in continental Europe. (2021 YDT)
 A) compatible
 B) vulnerable
 C) predictable
 D) disastrous
 E) indicative
 
-74. Governments around the world, in partnership with civil society, must continue to act ---- against the tobacco epidemic – the leading global cause of preventable death. (2021 YDT)
+74. Governments around the world, in partnership with civil society, must continue to act ---- against the tobacco epidemic â€“ the leading global cause of preventable death. (2021 YDT)
 A) deficiently
 B) decisively
 C) suspiciously
 D) adversely
 E) roughly
 
-75. The term ‘Geography’ formally applies to an academic discipline that ---- the study of the Earth’s surface, its inhabitants, and more recently, its environment. (2021 YDT)
+75. The term â€˜Geographyâ€™ formally applies to an academic discipline that ---- the study of the Earthâ€™s surface, its inhabitants, and more recently, its environment. (2021 YDT)
 A) attaches
 B) occupies
 C) considers
@@ -7687,7 +7805,7 @@ C) conversion
 D) fluctuation
 E) deviation
 
-79. While newspapers have been in dramatic decline in much of the developed West, the industry is ---- and still growing in many of Asia’s booming cities. (2020 EYLÜL YDS)
+79. While newspapers have been in dramatic decline in much of the developed West, the industry is ---- and still growing in many of Asiaâ€™s booming cities. (2020 EYLÜL YDS)
 A) fragile
 B) profitable
 C) confidential
@@ -7715,7 +7833,7 @@ C) getting away with
 D) looking around for
 E) coming down with
 
-83. Although considering how someone may react to a situation can be worthwhile, making ---- about another person’s behaviour may lead you to the wrong conclusions. (2020 YDT)
+83. Although considering how someone may react to a situation can be worthwhile, making ---- about another personâ€™s behaviour may lead you to the wrong conclusions. (2020 YDT)
 A) promises
 B) assumptions
 C) mistakes
@@ -7792,7 +7910,7 @@ C) make out
 D) take on
 E) bring about
 
-94. Research has found that the typical brain is a ‘mosaic’ combining some features that are more common in males and some that appear more frequently in females, pointing to the ---- that human brains do not belong to two distinct types categorised by gender. (2019 EYLÜL YDS)
+94. Research has found that the typical brain is a â€˜mosaicâ€™ combining some features that are more common in males and some that appear more frequently in females, pointing to the ---- that human brains do not belong to two distinct types categorised by gender. (2019 EYLÜL YDS)
 A) violation
 B) conclusion
 C) development
@@ -7806,7 +7924,7 @@ C) ambiguity
 D) efficacy
 E) uniformity
 
-96. Human accomplishments ---- our ability to acquire knowledge from others and to use that communal store of experience to devise novel solutions to life’s challenges. (2019 EYLÜL YDS)
+96. Human accomplishments ---- our ability to acquire knowledge from others and to use that communal store of experience to devise novel solutions to lifeâ€™s challenges. (2019 EYLÜL YDS)
 A) call off
 B) stem from
 C) bring down
@@ -7834,7 +7952,7 @@ C) provoking
 D) identifying
 E) improving
 
-100. Human accomplishments ---- our ability to acquire knowledge from others and to use that communal store of experience to devise novel solutions to life’s challenges. (2019 EYLÜL YDS)
+100. Human accomplishments ---- our ability to acquire knowledge from others and to use that communal store of experience to devise novel solutions to lifeâ€™s challenges. (2019 EYLÜL YDS)
 A) call off
 B) stem from
 C) bring down
@@ -7855,7 +7973,7 @@ C) incentives
 D) threats
 E) obligations
 
-103. Although empirical studies into the brain’s left and right hemispheric participation in language acquisition are ---- and differ from each other, some observational studies indicate that adults might benefit from right-brain-oriented activities in the foreign language classroom. (2019 NİSAN YDS)
+103. Although empirical studies into the brainâ€™s left and right hemispheric participation in language acquisition are ---- and differ from each other, some observational studies indicate that adults might benefit from right-brain-oriented activities in the foreign language classroom. (2019 NİSAN YDS)
 A) unavailable
 B) indispensable
 C) indestructible
@@ -7876,7 +7994,7 @@ C) reveals
 D) hinders
 E) boosts
 
-106. Parkinson’s disease is a movement disorder that ---- the death of neurons producing dopamine, a neurochemical that dispatches messages to parts of the brain that control motor skills and coordination. (2019 NİSAN YDS)
+106. Parkinsonâ€™s disease is a movement disorder that ---- the death of neurons producing dopamine, a neurochemical that dispatches messages to parts of the brain that control motor skills and coordination. (2019 NİSAN YDS)
 A) takes over
 B) stems from
 C) makes up
@@ -7911,7 +8029,7 @@ C) precedes
 D) counters
 E) provides
 
-111. Although the game of baseball as it is known today is uniquely American, it ---- the popular English children’s bat-and-ball game called rounders. (2019 YDT)
+111. Although the game of baseball as it is known today is uniquely American, it ---- the popular English childrenâ€™s bat-and-ball game called rounders. (2019 YDT)
 A) gets along
 B) derives from
 C) accounts for
@@ -7925,7 +8043,7 @@ C) regulation
 D) clarity
 E) disruption
 
-113. Since the beginning of the Industrial Age, humankind’s ---- of the natural environment has taken a turn for the worse. (2018 ARALIK YDS)
+113. Since the beginning of the Industrial Age, humankindâ€™s ---- of the natural environment has taken a turn for the worse. (2018 ARALIK YDS)
 A) exploitation
 B) contradiction
 C) deprivation
@@ -7946,7 +8064,7 @@ C) reversed
 D) enforced
 E) protected
 
-116. The revolutions and wars of the 20th century ---- affected people’s views of these times and the histories they wrote. (2018 ARALIK YDS)
+116. The revolutions and wars of the 20th century ---- affected peopleâ€™s views of these times and the histories they wrote. (2018 ARALIK YDS)
 A) decently
 B) recklessly
 C) offensively
@@ -7967,7 +8085,7 @@ C) purposes
 D) excuses
 E) features
 
-119. The primary ---- of an organisation’s accounting department are to process financial information and to prepare financial statements at the end of the accounting period. (2018 EYLÜL YDS)
+119. The primary ---- of an organisationâ€™s accounting department are to process financial information and to prepare financial statements at the end of the accounting period. (2018 EYLÜL YDS)
 A) advancements
 B) compensations
 C) obstacles
@@ -8065,14 +8183,14 @@ C) exactly
 D) consistently
 E) partially
 
-133. The continents are the major land masses of the Earth and ---- around 29 per cent of the planet’s surface. (2018 YDT)
+133. The continents are the major land masses of the Earth and ---- around 29 per cent of the planetâ€™s surface. (2018 YDT)
 A) threaten
 B) occupy
 C) maintain
 D) initiate
 E) provide
 
-134. The Hanseatic League, a confederation of North German cities founded in the late 1200’s, ---- special areas in cities across north Europe and controlled most trading routes. (2018 YDT)
+134. The Hanseatic League, a confederation of North German cities founded in the late 1200â€™s, ---- special areas in cities across north Europe and controlled most trading routes. (2018 YDT)
 A) set up
 B) put aside
 C) turned down
@@ -8093,7 +8211,7 @@ C) distribution
 D) fluctuation
 E) reduction
 
-137. An important reason to re-evaluate how we are raising the next generation grows out of an incredibly exciting discovery about brain development: during adolescence, the brain’s potential to change through experience is ----. (2017 EYLÜL YDS)
+137. An important reason to re-evaluate how we are raising the next generation grows out of an incredibly exciting discovery about brain development: during adolescence, the brainâ€™s potential to change through experience is ----. (2017 EYLÜL YDS)
 A) tremendous
 B) frustrating
 C) debatable
@@ -8142,7 +8260,7 @@ C) entitled
 D) vulnerable
 E) accessible
 
-144. IQ tests are often faulted for ignoring cultural or social biases, particularly with regard to schoolchildren, and critics claim they cannot ---- predict a person’s future performance. (2017 NİSAN YDS)
+144. IQ tests are often faulted for ignoring cultural or social biases, particularly with regard to schoolchildren, and critics claim they cannot ---- predict a personâ€™s future performance. (2017 NİSAN YDS)
 A) initially
 B) accurately
 C) conventionally
@@ -8239,7 +8357,7 @@ C) necessities
 D) prospects
 E) permissions
 
-158. From the early 1800s scientists began to gather ---- amounts of data about marine life, paving the way for future knowledge about the importance of the planet’s oceans. (2016 NİSAN YDS)
+158. From the early 1800s scientists began to gather ---- amounts of data about marine life, paving the way for future knowledge about the importance of the planetâ€™s oceans. (2016 NİSAN YDS)
 A) immense
 B) predictable
 C) equivalent
@@ -8386,7 +8504,7 @@ C) putting off
 D) taking apart
 E) pulling up
 
-179. From the ancient pyramids to today’s hi-tech skyscrapers, powerful people have always ---- their status through impressive buildings. (2015 NİSAN YDS)
+179. From the ancient pyramids to todayâ€™s hi-tech skyscrapers, powerful people have always ---- their status through impressive buildings. (2015 NİSAN YDS)
 A) put on
 B) laid out
 C) shown off
@@ -8407,7 +8525,7 @@ C) severe
 D) dependent
 E) consistent
 
-182. No one has to read a textbook to learn that children’s problem solving abilities improve ---- across childhood. (2015 YDT)
+182. No one has to read a textbook to learn that childrenâ€™s problem solving abilities improve ---- across childhood. (2015 YDT)
 A) deliberately
 B) dramatically
 C) approximately
@@ -9047,7 +9165,7 @@ function renderQuestions(qList) {
         }
     }
 
-// --- 1. GÜNCELLENMİŞ HEDEF KUTLAMASI ---
+// --- 1. GÜNCELLENMİŞ HEDEF KUTLAMASI (KO EFEKTİ + SES) ---
 function showGoalCelebration(categoryTitle) {
     // Toast Bildirimi
     const toastEl = document.getElementById('goalToast');
@@ -9057,6 +9175,47 @@ function showGoalCelebration(categoryTitle) {
         const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
         toast.show();
     }
+    
+    // KO Overlay efekti - güm diye vursun
+    showGoalKoOverlay();
+    
+    // KO ses efekti
+    try {
+        var koSound = new Audio('ko.mp3');
+        koSound.volume = 0.8;
+        koSound.play().catch(function(e) { console.log('KO ses çalamadı:', e); });
+    } catch(e) { console.log('Ses hatası:', e); }
+    
+    // Konfeti efekti de ekle
+    if(typeof confetti === 'function') {
+        setTimeout(function() {
+            confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+        }, 300);
+    }
+}
+
+// Hedef KO Overlay (tam ekran ortasında güm diye vurma efekti)
+function showGoalKoOverlay() {
+    var overlay = document.getElementById('goal-ko-overlay');
+    if(!overlay) {
+        // İlk seferde oluştur
+        overlay = document.createElement('div');
+        overlay.id = 'goal-ko-overlay';
+        overlay.innerHTML = '<img src="ko.png" alt="K.O.">';
+        document.body.appendChild(overlay);
+    }
+    
+    // Animasyonu sıfırla ve başlat
+    overlay.classList.remove('d-none', 'goal-ko-anim');
+    overlay.style.display = 'flex';
+    void overlay.offsetWidth; // Force reflow
+    overlay.classList.add('goal-ko-anim');
+    
+    // 4 saniye sonra kaybol
+    setTimeout(function() {
+        overlay.style.display = 'none';
+        overlay.classList.remove('goal-ko-anim');
+    }, 4000);
 }
 
 /* ================= CEVAP KONTROLÜ (TEKRAR TIKLAMA ENGELLİ) ================= */
@@ -9279,8 +9438,8 @@ function saveApiKey() {
             
             ÇIKTI FORMATI (Düz metin, HTML yok):
             Kelime: [Tespit Ettiğin Kelime]
-            🇬🇧 [İngilizce Cümle]
-            🇹🇷 [Türkçe Çevirisi]
+            ðŸ‡¬ðŸ‡§ [İngilizce Cümle]
+            ðŸ‡¹ðŸ‡· [Türkçe Çevirisi]
         `;
 
         try {
@@ -9768,10 +9927,12 @@ function handleVsData(data) {
         case 'OPP_ANSWER':
             oppAnswer = data.ans;
             oppAnswerTime = data.time;
+            clearTimeout(vsAnswerSafetyTimer);
             checkRoundEnd();
             break;
         case 'OPP_READY':
             oppReady = true;
+            clearTimeout(vsReadySafetyTimer);
             checkBothReady();
             break;
         case 'NEXT_QUESTION':
@@ -9817,22 +9978,69 @@ function startGameUI() {
     currentVsIndex = 0;
     p1HP = 100;
     p2HP = 100;
+    prevP1HP = 100;
+    prevP2HP = 100;
     vsMatchEnded = false;
     updateHPBars();
     loadVsQuestion();
 }
 
-// HP BAR UPDATE
+// HP BAR UPDATE (with ghost damage animation)
+var prevP1HP = 100;
+var prevP2HP = 100;
+
 function updateHPBars() {
     var bar1 = document.getElementById('vs-p1-hp-bar');
     var bar2 = document.getElementById('vs-p2-hp-bar');
+    var ghost1 = document.getElementById('vs-p1-hp-ghost');
+    var ghost2 = document.getElementById('vs-p2-hp-ghost');
     var text1 = document.getElementById('vs-p1-hp-text');
     var text2 = document.getElementById('vs-p2-hp-text');
+    var wrap1 = document.getElementById('vs-p1-hp-wrap');
+    var wrap2 = document.getElementById('vs-p2-hp-wrap');
+    
+    var newP1 = Math.max(0, p1HP);
+    var newP2 = Math.max(0, p2HP);
+    
+    // P1 hasar aldiysa
+    if(newP1 < prevP1HP) {
+        // Ghost'u eski seviyede birak, sonra yavasca cek
+        ghost1.style.transition = 'none';
+        ghost1.style.width = prevP1HP + '%';
+        // Actual bar hemen guncelle
+        bar1.style.width = newP1 + '%';
+        // Shake efekti
+        if(wrap1) { wrap1.classList.remove('hp-shake'); void wrap1.offsetWidth; wrap1.classList.add('hp-shake'); }
+        // Ghost'u gecikmeyle cek
+        setTimeout(function() {
+            ghost1.style.transition = 'width 1.8s ease-out';
+            ghost1.style.width = newP1 + '%';
+        }, 400);
+    } else {
+        bar1.style.width = newP1 + '%';
+        ghost1.style.width = newP1 + '%';
+    }
+    
+    // P2 hasar aldiysa
+    if(newP2 < prevP2HP) {
+        ghost2.style.transition = 'none';
+        ghost2.style.width = prevP2HP + '%';
+        bar2.style.width = newP2 + '%';
+        if(wrap2) { wrap2.classList.remove('hp-shake'); void wrap2.offsetWidth; wrap2.classList.add('hp-shake'); }
+        setTimeout(function() {
+            ghost2.style.transition = 'width 1.8s ease-out';
+            ghost2.style.width = newP2 + '%';
+        }, 400);
+    } else {
+        bar2.style.width = newP2 + '%';
+        ghost2.style.width = newP2 + '%';
+    }
+    
+    prevP1HP = newP1;
+    prevP2HP = newP2;
 
-    bar1.style.width = Math.max(0, p1HP) + '%';
-    bar2.style.width = Math.max(0, p2HP) + '%';
-    text1.innerText = Math.max(0, p1HP);
-    text2.innerText = Math.max(0, p2HP);
+    text1.innerText = newP1;
+    text2.innerText = newP2;
 
     [bar1, bar2].forEach(function(bar, i) {
         var hp = i === 0 ? p1HP : p2HP;
@@ -9859,6 +10067,8 @@ function loadVsQuestion() {
     oppReady = false;
     hintRequested = false;
     hintShown = false;
+    clearTimeout(vsAnswerSafetyTimer);
+    clearTimeout(vsReadySafetyTimer);
     
     document.getElementById('vs-ready-screen').classList.add('d-none');
     document.getElementById('vs-hint-area').classList.add('d-none');
@@ -9910,6 +10120,8 @@ function startVsTimer(seconds) {
 }
 
 // CEVAP VERME
+var vsAnswerSafetyTimer = null;
+
 function submitVsAnswer(ans, btnElement) {
     if (myAnswer) return;
     
@@ -9931,7 +10143,19 @@ function submitVsAnswer(ans, btnElement) {
     
     if (!oppAnswer) {
         document.getElementById('vs-status-msg').innerHTML = '<span style="color:#f39c12;"><i class="bi bi-hourglass-split"></i> Rakip bekleniyor...</span>';
+        
+        // SAFETY TIMEOUT: Rakibin cevabi 8 saniye icinde gelmezse otomatik coz
+        clearTimeout(vsAnswerSafetyTimer);
+        vsAnswerSafetyTimer = setTimeout(function() {
+            if(myAnswer && !oppAnswer) {
+                console.log("Safety timeout: opponent answer not received, auto-resolving...");
+                oppAnswer = 'X'; // Timeout olarak isaretle
+                oppAnswerTime = 99999; // En yavas sure
+                checkRoundEnd();
+            }
+        }, 8000);
     } else {
+        clearTimeout(vsAnswerSafetyTimer);
         checkRoundEnd();
     }
 }
@@ -9941,6 +10165,7 @@ function checkRoundEnd() {
     if (!myAnswer || !oppAnswer) return;
     
     clearInterval(vsTimerInterval);
+    clearTimeout(vsAnswerSafetyTimer);
     
     var q = vsQuestions[currentVsIndex];
     var correct = q.correctAnswer;
@@ -10083,6 +10308,8 @@ function showReadyScreen(resultMsg) {
     myReady = false;
 }
 
+var vsReadySafetyTimer = null;
+
 function pressReady() {
     if(myReady) return;
     myReady = true;
@@ -10094,10 +10321,21 @@ function pressReady() {
     
     conn.send({ type: 'OPP_READY' });
     checkBothReady();
+    
+    // Safety: 12 saniye icerisinde rakip hazir olmazsa otomatik ileri gec
+    clearTimeout(vsReadySafetyTimer);
+    vsReadySafetyTimer = setTimeout(function() {
+        if(myReady && !oppReady) {
+            console.log("Ready safety timeout: auto-advancing...");
+            oppReady = true;
+            checkBothReady();
+        }
+    }, 12000);
 }
 
 function checkBothReady() {
     if(myReady && oppReady) {
+        clearTimeout(vsReadySafetyTimer);
         if(amIHost) {
             currentVsIndex++;
             conn.send({ type: 'NEXT_QUESTION' });
