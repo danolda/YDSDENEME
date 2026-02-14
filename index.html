@@ -597,15 +597,16 @@
         box-shadow: 0 0 12px #2ecc71, 0 0 24px rgba(46,204,113,0.3) !important;
     }
 
-    /* VS Ready bar (bottom, not blocking) */
+    /* VS Ready bar (always visible at bottom) */
     .vs-ready-overlay {
         position: relative;
         background: linear-gradient(180deg, rgba(0,0,0,0.85), rgba(0,0,0,0.95));
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 16px 20px;
+        padding: 12px 20px;
         border-top: 2px solid #2ecc71;
+        transition: opacity 0.3s;
     }
     .vs-ready-btn {
         padding: 14px 40px;
@@ -620,12 +621,33 @@
         cursor: pointer;
         transition: all 0.2s;
     }
-    .vs-ready-btn:hover { background: #2ecc71; transform: scale(1.05); }
+    .vs-ready-btn:hover:not(:disabled) { background: #2ecc71; transform: scale(1.05); }
     .vs-ready-btn.done {
         background: #555;
         border-color: #777;
         cursor: default;
         pointer-events: none;
+    }
+    /* Ghost mode - visible but faded and disabled */
+    .vs-ready-btn.vs-ready-ghost {
+        opacity: 0.2;
+        pointer-events: none;
+        background: #333;
+        border-color: #555;
+        color: #777;
+    }
+    /* Active mode - fully visible */
+    .vs-ready-btn.vs-ready-active {
+        opacity: 1;
+        pointer-events: auto;
+        background: #27ae60;
+        border-color: #2ecc71;
+        color: #fff;
+        animation: ready-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes ready-pulse {
+        0%, 100% { box-shadow: 0 0 0px rgba(46,204,113,0.3); }
+        50% { box-shadow: 0 0 20px rgba(46,204,113,0.6); }
     }
 
     /* Damage flash */
@@ -1056,15 +1078,15 @@
             </div>
         </div>
 
-        <!-- Ready overlay (hidden by default) -->
-        <div id="vs-ready-screen" class="vs-ready-overlay d-none">
-            <div class="text-center text-white mb-3">
+        <!-- Ready bar (always visible, ghost when inactive) -->
+        <div id="vs-ready-screen" class="vs-ready-overlay">
+            <div class="text-center text-white mb-2">
                 <div id="vs-round-result-text" style="font-size:1.1rem;font-weight:700;"></div>
             </div>
-            <button class="vs-ready-btn" id="vs-ready-btn" onclick="pressReady()">
+            <button class="vs-ready-btn vs-ready-ghost" id="vs-ready-btn" onclick="pressReady()" disabled>
                 <i class="bi bi-check-circle-fill"></i> HAZIRIM
             </button>
-            <div id="vs-ready-wait" class="d-none text-white mt-3">
+            <div id="vs-ready-wait" class="d-none text-white mt-2">
                 <div class="spinner-border spinner-border-sm text-warning"></div> Rakip bekleniyor...
             </div>
         </div>
@@ -1116,7 +1138,7 @@
                     </div>
                 </div>
 
-                <h6 class="fw-bold border-bottom pb-2">ðŸ† En İyiler (Global Simülasyon)</h6>
+                <h6 class="fw-bold border-bottom pb-2">🏆 En İyiler (Global Simülasyon)</h6>
                 <ul class="list-group list-group-flush" id="leaderboard-list">
                     <!-- JS ile dolacak -->
                 </ul>
@@ -1274,9 +1296,9 @@ async function openLeaderboard() {
             const isMe = p.name === currentUser;
             // Sıralama ikonları
             let rankIcon = `#${index+1}`;
-            if(index === 0) rankIcon = "ðŸ‘‘";
-            if(index === 1) rankIcon = "ðŸ¥ˆ";
-            if(index === 2) rankIcon = "ðŸ¥‰";
+            if(index === 0) rankIcon = "👑";
+            if(index === 1) rankIcon = "🥈";
+            if(index === 2) rankIcon = "🥉";
 
             // Tasarım
             const bgClass = isMe ? "bg-warning bg-opacity-25 border-warning" : "";
@@ -9462,8 +9484,8 @@ function saveApiKey() {
             
             ÇIKTI FORMATI (Düz metin, HTML yok):
             Kelime: [Tespit Ettiğin Kelime]
-            ðŸ‡¬ðŸ‡§ [İngilizce Cümle]
-            ðŸ‡¹ðŸ‡· [Türkçe Çevirisi]
+            🇬🇧 [İngilizce Cümle]
+            🇹🇷 [Türkçe Çevirisi]
         `;
 
         try {
@@ -9993,6 +10015,10 @@ function startGameUI() {
     document.getElementById('vs-lobby').classList.add('d-none');
     document.getElementById('vs-gameplay').classList.remove('d-none');
     
+    // "Lütfen soldan bir bölüm seçin" metnini gizle
+    document.getElementById('questions-area').innerHTML = '';
+    document.getElementById('questions-area').style.display = 'none';
+    
     // P1 = host, P2 = guest
     var p1Name = amIHost ? vsMyName : vsOppName;
     var p2Name = amIHost ? vsOppName : vsMyName;
@@ -10094,7 +10120,16 @@ function loadVsQuestion() {
     clearTimeout(vsAnswerSafetyTimer);
     clearTimeout(vsReadySafetyTimer);
     
-    document.getElementById('vs-ready-screen').classList.add('d-none');
+    document.getElementById('vs-round-result-text').innerHTML = '';
+    document.getElementById('vs-ready-wait').classList.add('d-none');
+    
+    // Ready button ghost moduna al
+    var readyBtn = document.getElementById('vs-ready-btn');
+    readyBtn.classList.remove('vs-ready-active', 'done');
+    readyBtn.classList.add('vs-ready-ghost');
+    readyBtn.disabled = true;
+    readyBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> HAZIRIM';
+    
     document.getElementById('vs-hint-area').classList.add('d-none');
     document.getElementById('vs-hint-content').classList.add('d-none');
     document.getElementById('vs-hint-content').innerHTML = '';
@@ -10152,15 +10187,14 @@ function submitVsAnswer(ans, btnElement) {
     myAnswer = ans;
     myAnswerTime = Date.now() - vsTimerStart;
     
+    // Sadece butonları devre dışı bırak, renklendirme YAPMA (ikisi de cevapladıktan sonra gösterilecek)
     document.querySelectorAll('.vs-opt-btn').forEach(function(btn) {
         btn.style.pointerEvents = 'none';
-        btn.style.opacity = '0.7';
     });
+    // Seçilen butonu hafif işaretle (gri ton, rakibe gösterme)
     if(btnElement) {
-        btnElement.style.opacity = '1';
-        btnElement.style.background = '#3498db';
-        btnElement.style.color = '#fff';
-        btnElement.style.borderColor = '#2980b9';
+        btnElement.style.outline = '2px solid rgba(255,255,255,0.4)';
+        btnElement.style.outlineOffset = '-2px';
     }
 
     conn.send({ type: 'OPP_ANSWER', ans: ans, time: myAnswerTime });
@@ -10318,16 +10352,18 @@ function colorVsButtons(p1Ans, p2Ans, correct) {
 
 // READY SYSTEM
 function showReadyScreen(resultMsg) {
-    var readyScreen = document.getElementById('vs-ready-screen');
     var readyBtn = document.getElementById('vs-ready-btn');
     var readyWait = document.getElementById('vs-ready-wait');
     var resultText = document.getElementById('vs-round-result-text');
     
     resultText.innerHTML = resultMsg;
-    readyBtn.classList.remove('done');
+    
+    // Ghost'tan aktif moda geçir
+    readyBtn.classList.remove('vs-ready-ghost', 'done');
+    readyBtn.classList.add('vs-ready-active');
+    readyBtn.disabled = false;
     readyBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> HAZIRIM';
     readyWait.classList.add('d-none');
-    readyScreen.classList.remove('d-none');
     
     myReady = false;
 }
@@ -10339,7 +10375,9 @@ function pressReady() {
     myReady = true;
     
     var readyBtn = document.getElementById('vs-ready-btn');
+    readyBtn.classList.remove('vs-ready-active');
     readyBtn.classList.add('done');
+    readyBtn.disabled = true;
     readyBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> HAZIR &#10004;';
     document.getElementById('vs-ready-wait').classList.remove('d-none');
     
