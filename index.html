@@ -10163,6 +10163,10 @@ function renderQuestions(qList) {
 
     let dailyData = JSON.parse(localStorage.getItem('yds_daily_goals')) || JSON.parse(JSON.stringify(defaultGoals));
 
+    // Eski kullanıcılar için karma anahtarı yoksa ekle
+    if (dailyData.targets.karma === undefined) dailyData.targets.karma = 20;
+    if (dailyData.current.karma === undefined) dailyData.current.karma = 0;
+
     // Sayfa Yüklendiğinde Tarih Kontrolü
     function checkDateAndReset() {
         const today = new Date().toLocaleDateString();
@@ -10223,7 +10227,7 @@ function renderQuestions(qList) {
 
     // Kullanıcının Girdiği Hedefleri Kaydet
     function saveUserGoals() {
-        const keys = ['prep', 'conj', 'rel', 'tense', 'vocab', 'examVocab'];
+        const keys = ['prep', 'conj', 'rel', 'tense', 'vocab', 'examVocab', 'karma'];
         keys.forEach(key => {
             const val = parseInt(document.getElementById(`goal-input-${key}`).value);
             if (val > 0) dailyData.targets[key] = val;
