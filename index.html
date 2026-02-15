@@ -825,7 +825,23 @@
     body.modal-open-fix {
         overflow: auto !important;
         padding-right: 0 !important;
-    }  
+    }
+
+    /* --- SORU METNİNDEKİ KALIN (STRONG) KELİMELER --- */
+    .question-text strong,
+    #vs-q-text strong {
+        color: #d35400;
+        font-weight: 900;
+        background: linear-gradient(to bottom, transparent 60%, rgba(211, 84, 0, 0.15) 60%);
+        padding: 0 3px;
+        border-radius: 2px;
+        letter-spacing: 0.3px;
+    }
+    [data-theme="dark"] .question-text strong,
+    [data-theme="dark"] #vs-q-text strong {
+        color: #f39c12;
+        background: linear-gradient(to bottom, transparent 60%, rgba(243, 156, 18, 0.2) 60%);
+    }
 </style>
 
 </head>
@@ -2911,7 +2927,7 @@ TIP: Kalıp → depend on/upon + noun/clause.
    C) for
    D) in
    E) to
-TIP: apply to (uygulanmak) ↔ apply for (başvurmak).
+TIP: apply to (uygulanmak) â†” apply for (başvurmak).
 
 5) I'm not accustomed ___ driving in heavy traffic every day.
    A) on
@@ -4634,7 +4650,7 @@ TIP: needn't have V3 = gereksiz yaptın.
    C) might
    D) would
    E) must
-TIP: can't have V3 = imkÃ¢nsız.
+TIP: can't have V3 = imkânsız.
 
 220) She ___ be working; her computer is on.
    A) shouldn't
@@ -5703,7 +5719,7 @@ C) while
 D) once
 E) just as
 
-56. Many materials labelled as biodegradable or compostable typically will not break down ---- they are subjected to ideal industrial composting conditions, meaning high humidity, temperatures of up to 70Â°C, and a special cocktail of microbes. (2023 EKİM YDS)
+56. Many materials labelled as biodegradable or compostable typically will not break down ---- they are subjected to ideal industrial composting conditions, meaning high humidity, temperatures of up to 70°C, and a special cocktail of microbes. (2023 EKİM YDS)
 A) given that
 B) whether
 C) unless
@@ -7620,7 +7636,7 @@ C) take up
 D) draw up
 E) get off
 
-46. Scientists believe an asteroid struck the planet Earth off Mexico's YucatÃ¡n Peninsula some 65 million years ago, bringing about the ---- of almost 50 percent of the plant species then living on Earth. (2023 YDT)
+46. Scientists believe an asteroid struck the planet Earth off Mexico's Yucatán Peninsula some 65 million years ago, bringing about the ---- of almost 50 percent of the plant species then living on Earth. (2023 YDT)
 A) extinction
 B) identification
 C) differentiation
@@ -8603,6 +8619,1061 @@ const rawExamVocabA = `1-C 2-D 3-A 4-A 5-E 6-B 7-E 8-E 9-B 10-A 11-C 12-D 13-C 1
     /* ================= SİSTEM DEĞİŞKENLERİ ================= */
     let allQuestions = [];
     let generatedQuestions = [];
+
+// --- KARMA DENEME (150 Soru) ---
+const rawKarmaQ = `1. The policy aims to <strong>alleviate</strong> poverty in rural areas.
+A) worsen
+B) intensify
+C) ignore
+D) ease
+E) conceal
+
+2. The findings do not necessarily imply a causal relationship.
+A) Bulgular mutlaka nedensel bir ilişkiyi ima eder.
+B) Bulgular, nedensel ilişkiyi kesin olarak kanıtlar.
+C) Bulgular, her zaman nedensel bir ilişki olduğunu göstermez.
+D) Bulgular, nedensel ilişkiyi reddeder.
+E) Bulgular, nedensel ilişkiyi açıklığa kavuşturur.
+
+3. The new evidence ---- doubts on the validity of the previous study.
+A) throws
+B) casts
+C) pushes
+D) drives
+E) drops
+
+4. The policy was introduced in response to growing public concern.
+A) Politika, artan kamu kaygısına tepki olarak yürürlükten kaldırıldı.
+B) Politika, kamu kaygısı azaldığı için ertelendi.
+C) Politika, kamu kaygısını artırmak için tasarlandı.
+D) Politika, kamu kaygısıyla ilgisiz şekilde uygulandı.
+E) Politika, artan kamu kaygısına yanıt olarak devreye sokuldu.
+
+5. The policy was expected to ---- immediate results, but it didn’t.
+A) yield
+B) earn
+C) gain
+D) win
+E) save
+
+6. The results were <strong>inconclusive</strong>, so further research is needed.
+A) decisive
+B) uncertain
+C) irrelevant
+D) sufficient
+E) accurate
+
+7. The city’s water supply is <strong>scarce</strong> during summer.
+A) abundant
+B) stable
+C) pure
+D) accessible
+E) limited
+
+8. The findings have <strong>significant</strong> implications for education.
+A) minor
+B) considerable
+C) trivial
+D) optional
+E) accidental
+
+9. Although the method is efficient, it is not suitable for every context.
+A) Yöntem verimli olsa da her bağlam için uygun değildir.
+B) Yöntem verimli olduğu için her bağlam için uygundur.
+C) Yöntem verimli değildir ama her bağlam için uygundur.
+D) Yöntem her bağlam için uygundur, bu yüzden verimlidir.
+E) Yöntem yalnızca belirli bağlamlarda verimli değildir.
+
+10. The authors ---- attention to the limitations of their research.
+A) pull
+B) take
+C) bring
+D) draw
+E) catch
+
+11. The disease poses a serious ---- to public health.
+A) hazard
+B) risk
+C) harm
+D) damage
+E) threat
+
+12. The author offers a <strong>plausible</strong> explanation.
+A) impossible
+B) unrelated
+C) artificial
+D) temporary
+E) credible
+
+13. The decision was made after careful <strong>scrutiny</strong>.
+A) celebration
+B) hesitation
+C) distraction
+D) assumption
+E) examination
+
+14. A substantial proportion of the participants reported sleep problems.
+A) Katılımcıların küçük bir kısmı uyku sorunları bildirdi.
+B) Katılımcıların tamamı uyku sorunu yaşamadığını söyledi.
+C) Katılımcıların yarısından azı uyku sorunu yaşamadığını belirtti.
+D) Katılımcıların önemli bir bölümü uyku sorunları bildirdi.
+E) Katılımcıların çoğu uyku sorunlarını inkâr etti.
+
+15. The new evidence <strong>contradicts</strong> earlier claims.
+A) supports
+B) repeats
+C) conflicts with
+D) confirms
+E) clarifies
+
+16. The findings may ---- implications for future research.
+A) take
+B) make
+C) do
+D) have
+E) hold
+
+17. The effect of stress on memory is <strong>detrimental</strong>.
+A) beneficial
+B) neutral
+C) predictable
+D) harmful
+E) reversible
+
+18. The new law will ---- into force next year.
+A) come
+B) go
+C) take
+D) put
+E) turn
+
+19. The report provides valuable ---- into consumer behavior.
+A) eyesight
+B) view
+C) insight
+D) scene
+E) outlook
+
+20. The report highlights the need for stricter regulation.
+A) Rapor, daha katı düzenleme ihtiyacını vurgular.
+B) Rapor, daha gevşek düzenleme ihtiyacını vurgular.
+C) Rapor, düzenleme ihtiyacının olmadığını savunur.
+D) Rapor, düzenlemenin etkisiz kaldığını kanıtlar.
+E) Rapor, düzenlemenin hemen kaldırılmasını önerir.
+
+21. The explanation is <strong>vague</strong>, lacking details.
+A) precise
+B) formal
+C) complete
+D) unclear
+E) complex
+
+22. The method is <strong>feasible</strong> in low-resource settings.
+A) impractical
+B) workable
+C) risky
+D) doubtful
+E) illegal
+
+23. The article ---- the question of whether AI can replace teachers.
+A) rises
+B) raises
+C) arouses
+D) grows
+E) lifts
+
+24. The results were consistent with earlier studies.
+A) Sonuçlar önceki çalışmalarla uyumluydu.
+B) Sonuçlar önceki çalışmalarla çelişiyordu.
+C) Sonuçlar önceki çalışmaları geçersiz kıldı.
+D) Sonuçlar önceki çalışmalardan bağımsızdı.
+E) Sonuçlar önceki çalışmaları gereksiz kıldı.
+
+25. The trend is <strong>ubiquitous</strong> across industries.
+A) rare
+B) widespread
+C) outdated
+D) hidden
+E) voluntary
+
+26. The outcome was <strong>unexpected</strong>, given the data.
+A) anticipated
+B) surprising
+C) stable
+D) ordinary
+E) inevitable
+
+27. The team failed to ---- a consensus on the final design.
+A) access
+B) arrive
+C) reach
+D) catch
+E) touch
+
+28. The policy aims to reduce inequality in access to education.
+A) Politika, eğitime erişimdeki eşitsizliği artırmayı amaçlar.
+B) Politika, eğitime erişimi gereksiz kılmayı amaçlar.
+C) Politika, eğitime erişimi sınırlandırmayı amaçlar.
+D) Politika, eğitime erişimi yalnızca belirli gruplara açmayı amaçlar.
+E) Politika, eğitime erişimdeki eşitsizliği azaltmayı amaçlar.
+
+29. The experiment was carried ---- under controlled conditions.
+A) out
+B) on
+C) over
+D) in
+E) up
+
+30. The new approach may ---- the burden on healthcare systems.
+A) loosen
+B) relax
+C) calm
+D) rest
+E) ease
+
+31. The program aims to ---- awareness of climate change.
+A) lift
+B) increase
+C) raise
+D) arise
+E) rise
+
+32. The committee decided to ---- the proposal due to safety concerns.
+A) refuse
+B) deny
+C) resist
+D) reject
+E) neglect
+
+33. The policy was <strong>implemented</strong> nationwide.
+A) abandoned
+B) delayed
+C) carried out
+D) debated
+E) questioned
+
+34. The argument is <strong>flawed</strong> due to bias.
+A) sound
+B) defective
+C) complete
+D) flexible
+E) famous
+
+35. The outcome depends largely on external factors.
+A) Sonuç tamamen iç etkenlerden bağımsızdır.
+B) Sonuç dış etkenleri ortadan kaldırır.
+C) Sonuç dış etkenleri reddeder.
+D) Sonuç büyük ölçüde dış etkenlere bağlıdır.
+E) Sonuç dış etkenleri kanıtlar.
+
+36. The study provides <strong>compelling</strong> evidence.
+A) weak
+B) uncertain
+C) outdated
+D) casual
+E) persuasive
+
+37. The argument is supported by a substantial body of ----.
+A) proof
+B) sign
+C) clue
+D) evidence
+E) mark
+
+38. The changes were <strong>gradual</strong>, not sudden.
+A) abrupt
+B) random
+C) complete
+D) final
+E) steady
+
+39. The plan was put ---- because of budget cuts.
+A) out
+B) down
+C) away
+D) up
+E) off
+
+40. The data were <strong>insufficient</strong> to reach a conclusion.
+A) adequate
+B) lacking
+C) clear
+D) relevant
+E) reliable
+
+41. The study ---- a link between stress and insomnia.
+A) offers
+B) means
+C) intends
+D) suggests
+E) proves
+
+42. The study challenges the assumption that all bacteria are harmful.
+A) Çalışma, tüm bakterilerin zararlı olduğu varsayımını destekler.
+B) Çalışma, tüm bakterilerin zararlı olduğu varsayımına meydan okur.
+C) Çalışma, bakterilerin tamamının zararsız olduğunu kanıtlar.
+D) Çalışma, bakterilerle ilgili varsayımları görmezden gelir.
+E) Çalışma, bakterilerin etkisini reddeder.
+
+43. The report was <strong>biased</strong> toward one viewpoint.
+A) objective
+B) accurate
+C) detailed
+D) partial
+E) polite
+
+44. The survey was conducted on a large ---- of participants.
+A) example
+B) pattern
+C) model
+D) case
+E) sample
+
+45. The device is designed to detect minor deviations.
+A) Cihaz, büyük sapmaları gizlemek üzere tasarlanmıştır.
+B) Cihaz, küçük sapmaları artırmak üzere tasarlanmıştır.
+C) Cihaz, küçük sapmaları tespit etmek üzere tasarlanmıştır.
+D) Cihaz, sapmaları tamamen ortadan kaldırmak üzere tasarlanmıştır.
+E) Cihaz, sapmaları açıklamak üzere tasarlanmıştır.
+
+46. The policy is designed to ---- fraud.
+A) prevent
+B) prohibit
+C) forbid
+D) stop
+E) block
+
+47. The scientists ---- data from multiple sources.
+A) selected
+B) elected
+C) reflected
+D) collected
+E) neglected
+
+48. The proposal was <strong>rejected</strong> by the committee.
+A) approved
+B) discussed
+C) improved
+D) revised
+E) declined
+
+49. The decision was made in ---- with the guidelines.
+A) acceptance
+B) access
+C) allowance
+D) accordance
+E) accuracy
+
+50. The author argues that technology does not guarantee learning.
+A) Yazar, teknolojinin öğrenmeyi garanti ettiğini savunur.
+B) Yazar, teknolojinin öğrenmeyi imkânsız kıldığını savunur.
+C) Yazar, öğrenmenin teknolojiye bağlı olmadığını inkâr eder.
+D) Yazar, teknolojinin öğrenmeyi garanti etmediğini savunur.
+E) Yazar, teknolojinin öğrenmeyi geciktirdiğini kanıtlar.
+
+51. The team will ---- the findings at the conference.
+A) prevent
+B) present
+C) preserve
+D) pretend
+E) predict
+
+52. The solution is <strong>temporary</strong> until funding arrives.
+A) permanent
+B) complex
+C) costly
+D) automatic
+E) short-term
+
+53. The decision was <strong>justified</strong> by the evidence.
+A) supported
+B) criticized
+C) concealed
+D) delayed
+E) simplified
+
+54. The results should be interpreted with caution.
+A) Sonuçlar dikkatle yorumlanmalıdır.
+B) Sonuçlar tereddütsüz yorumlanmalıdır.
+C) Sonuçlar kesinlikle yanlış yorumlanmalıdır.
+D) Sonuçlar yorumlanmadan kabul edilmelidir.
+E) Sonuçlar yorumlanamaz.
+
+55. The article puts forward a ---- explanation for the trend.
+A) plausible
+B) possible
+C) potential
+D) probable
+E) available
+
+56. The approach is <strong>innovative</strong>.
+A) traditional
+B) routine
+C) identical
+D) simple
+E) novel
+
+57. The findings were reviewed by independent experts before publication.
+A) Bulgular yayımlanmadan önce bağımsız uzmanlarca incelendi.
+B) Bulgular yayımlandıktan sonra bağımsız uzmanlarca görmezden gelindi.
+C) Bulgular yayımlanmadan önce bağımsız uzmanlarca reddedildi.
+D) Bulgular yayımlanmadan önce uzmanlara sunulmadı.
+E) Bulgular yayımlanmadan önce uzmanlarca değiştirilmedi.
+
+58. The analysis failed to ---- into account the role of age.
+A) bring
+B) keep
+C) get
+D) set
+E) take
+
+59. The findings were <strong>overlooked</strong> in earlier studies.
+A) emphasized
+B) measured
+C) repeated
+D) published
+E) ignored
+
+60. The proposal was rejected due to budget constraints.
+A) Öneri bütçe kısıtları nedeniyle reddedildi.
+B) Öneri bütçe kısıtları nedeniyle kabul edildi.
+C) Öneri bütçe kısıtları ortadan kalktığı için reddedildi.
+D) Öneri bütçe kısıtlarını artırmak için reddedildi.
+E) Öneri bütçeyle ilgisiz şekilde ertelendi.
+
+61. The researchers ---- data from multiple sources.
+A) selected
+B) elected
+C) reflected
+D) neglected
+E) collected
+
+62. The claim was <strong>refuted</strong> by new data.
+A) confirmed
+B) disproved
+C) explained
+D) repeated
+E) improved
+
+63. The results were <strong>robust</strong> across different samples.
+A) fragile
+B) random
+C) narrow
+D) brief
+E) strong
+
+64. The proposal was postponed until further data became available.
+A) Öneri, veri erişilebilir olduğu için iptal edildi.
+B) Öneri, veri eksikliği nedeniyle kabul edildi.
+C) Öneri, veri erişilebilir olmadan yürürlüğe girdi.
+D) Öneri, daha fazla veri erişilebilir olana kadar ertelendi.
+E) Öneri, veriler geldikten sonra reddedildi.
+
+65. The project will <strong>commence</strong> in March.
+A) begin
+B) postpone
+C) finish
+D) collapse
+E) interrupt
+
+66. The study was limited by a small sample size.
+A) Çalışma, büyük örneklem nedeniyle sınırlıydı.
+B) Çalışma, örneklem büyüklüğüyle ilgisizdi.
+C) Çalışma, küçük örneklem büyüklüğü nedeniyle sınırlıydı.
+D) Çalışma, örneklemi artırdığı için sınırlıydı.
+E) Çalışma, örneklem büyüklüğünü kanıtladı.
+
+67. The evidence is not sufficient to ---- an inference from the data.
+A) reach
+B) draw
+C) raise
+D) take
+E) keep
+
+68. The report gives a brief ---- of the key findings.
+A) overview
+B) overlook
+C) overture
+D) outline
+E) overrun
+
+69. The policy has had an adverse effect on small businesses.
+A) Politika, küçük işletmeler üzerinde olumsuz etki yaratmıştır.
+B) Politika, küçük işletmeler üzerinde olumlu etki yaratmıştır.
+C) Politika, küçük işletmeleri etkilememiştir.
+D) Politika, küçük işletmeleri korumuştur.
+E) Politika, küçük işletmeleri güçlendirmiştir.
+
+70. Sales began to <strong>diminish</strong> after the crisis.
+A) expand
+B) stabilize
+C) recover
+D) multiply
+E) decrease
+
+71. The measure is intended to ---- compliance with the new rules.
+A) ensure
+B) assure
+C) insure
+D) secure
+E) endure
+
+72. The results were unexpected, given the initial hypothesis.
+A) Başlangıç hipotezi nedeniyle sonuçlar beklenen gibiydi.
+B) Başlangıç hipotezi reddedildiği için sonuçlar beklenmedikti.
+C) Hipotez olmadığı için sonuçlar beklenmedi.
+D) Hipotez kanıtlandığı için sonuçlar beklenmedikti.
+E) Başlangıç hipotezi göz önüne alındığında sonuçlar beklenmedikti.
+
+73. The campaign seeks to ---- public support for the reform.
+A) gather
+B) gain
+C) generate
+D) grant
+E) garner
+
+74. The increase in demand is partly due to improved accessibility.
+A) Talepteki artış erişilebilirlikle ilgisizdir.
+B) Talepteki artış, erişilebilirliği ortadan kaldırmıştır.
+C) Talepteki artış yalnızca fiyat düşüşüyle açıklanır.
+D) Talepteki artış kısmen erişilebilirliğin artmasına bağlıdır.
+E) Talepteki artış tamamen erişilebilirliğin azalmasına bağlıdır.
+
+75. The new evidence tends to ---- confidence in the original claim.
+A) undermine
+B) underline
+C) underpay
+D) undertake
+E) undergo
+
+76. The team decided to ---- resources to the most urgent tasks.
+A) allocate
+B) locate
+C) separate
+D) estimate
+E) celebrate
+
+77. The study emphasizes the importance of early intervention.
+A) Çalışma, erken müdahalenin önemini vurgular.
+B) Çalışma, erken müdahalenin gereksiz olduğunu savunur.
+C) Çalışma, müdahalenin geciktirilmesini önerir.
+D) Çalışma, müdahalenin zararlarını kanıtlar.
+E) Çalışma, müdahalenin önemini reddeder.
+
+78. The new training is meant to <strong>enhance</strong> productivity.
+A) delay
+B) reduce
+C) replace
+D) improve
+E) monitor
+
+79. The lecturer ---- emphasis on critical thinking.
+A) lay
+B) take
+C) place
+D) make
+E) give
+
+80. The conclusion is based on assumptions rather than direct evidence.
+A) Sonuç, doğrudan kanıttan ziyade varsayımlara dayanır.
+B) Sonuç, varsayımları reddederek doğrudan kanıta dayanır.
+C) Sonuç, yalnızca doğrudan kanıta dayanır.
+D) Sonuç, varsayımları kanıt olarak kullanmaz.
+E) Sonuç, kanıtları varsayımlardan çıkarır.
+
+81. The findings ---- further investigation.
+A) invite
+B) warrant
+C) include
+D) predict
+E) reflect
+
+82. In light of recent findings, the theory needs to be revised.
+A) Son bulgulara rağmen kuram değiştirilemez.
+B) Son bulgular nedeniyle kuramın değişmesine gerek yoktur.
+C) Son bulgular ışığında, kuramın gözden geçirilmesi gerekir.
+D) Son bulgular sayesinde kuram kesin olarak kanıtlanmıştır.
+E) Son bulguların ardından kuram yürürlükten kaldırılmıştır.
+
+83. Researchers should <strong>refrain</strong> from making unsupported claims.
+A) avoid
+B) prefer
+C) insist
+D) benefit
+E) result
+
+84. The plan is likely to ---- resistance from local communities.
+A) encounter
+B) enter
+C) include
+D) enclose
+E) endorse
+
+85. The decline can be traced back to policy changes in the 1990s.
+A) Düşüşün kökeni, doksanlı yıllardaki politika değişikliklerine dayanır.
+B) Düşüş, doksanlı yıllarda politika değişikliklerinin reddedilmesiyle açıklanır.
+C) Düşüş, politika değişikliklerinden bağımsız olarak ortaya çıkmıştır.
+D) Düşüş, politika değişikliklerini tamamen ortadan kaldırmıştır.
+E) Düşüş, doksanlı yıllarda sona ermiştir.
+
+86. The proposal was accepted only after it ---- rigorous scrutiny.
+A) underwent
+B) undertook
+C) underlined
+D) understood
+E) underpaid
+
+87. The results are unlikely to be replicated under real-world conditions.
+A) Sonuçlar gerçek hayat koşullarında kesinlikle tekrarlanacaktır.
+B) Sonuçların gerçek hayat koşullarında tekrarlanması zorunludur.
+C) Sonuçlar yalnızca gerçek hayat koşullarında ortaya çıkar.
+D) Sonuçların gerçek hayat koşullarında tekrarlanması pek olası değildir.
+E) Sonuçların gerçek hayat koşullarında tekrarlanması önem taşımaz.
+
+88. The initiative is expected to ---- a positive impact on literacy.
+A) have
+B) do
+C) make
+D) take
+E) give
+
+89. Several experts <strong>advocate</strong> stricter controls.
+A) oppose
+B) ignore
+C) predict
+D) delay
+E) support
+
+90. Far from solving the problem, the new rule created additional complications.
+A) Yeni kural, sorunu çözmek bir yana, ek karmaşalar yarattı.
+B) Yeni kural sorunu tamamen çözdü ve karmaşayı azalttı.
+C) Yeni kural, sorunu çözmese de hiçbir ek sorun yaratmadı.
+D) Yeni kural yalnızca eski karmaşaları ortadan kaldırdı.
+E) Yeni kuralın amacı, ek karmaşaları önlemekti.
+
+91. The new framework aims to ---- the reliability of the assessment.
+A) enhance
+B) enlarge
+C) encircle
+D) enforce
+E) engage
+
+92. The program suggests that early exposure may influence later preferences.
+A) Çalışma, erken maruz kalmanın ilerideki tercihleri etkileyebileceğini öne sürer.
+B) Çalışma, erken maruz kalmanın tercihleri asla etkilemeyeceğini kanıtlar.
+C) Çalışma, tercihlerin yalnızca genetikle belirlendiğini savunur.
+D) Çalışma, erken maruz kalmanın tercihleri tamamen ortadan kaldırdığını söyler.
+E) Çalışma, erken maruz kalmanın yalnızca kısa vadede etkili olduğunu belirtir.
+
+93. The new method ---- a significant improvement over the old one.
+A) presents
+B) reports
+C) repeats
+D) represents
+E) results
+
+94. The policy was criticized on the grounds that it lacked transparency.
+A) Politika, şeffaf olduğu gerekçesiyle övüldü.
+B) Politika, şeffaflık sağladığı için kabul edildi.
+C) Politika, eleştirilerden bağımsız olarak yürürlüğe girdi.
+D) Politika, şeffaflıktan yoksun olduğu gerekçesiyle eleştirildi.
+E) Politika, şeffaflık nedeniyle iptal edildi.
+
+95. The company must ---- with safety regulations.
+A) comply
+B) complete
+C) compile
+D) compel
+E) compare
+
+96. Wearing a helmet is <strong>mandatory</strong> in the laboratory.
+A) compulsory
+B) optional
+C) risky
+D) unusual
+E) temporary
+
+97. The team will ---- the findings at the conference.
+A) present
+B) prevent
+C) preserve
+D) pretend
+E) predict
+
+98. The change had only a <strong>marginal</strong> effect on outcomes.
+A) dramatic
+B) central
+C) minor
+D) essential
+E) obvious
+
+99. The software became <strong>obsolete</strong> within two years.
+A) outdated
+B) reliable
+C) flexible
+D) efficient
+E) legal
+
+100. The device is bound to fail if it is not properly maintained.
+A) Cihaz uygun şekilde bakımı yapılmazsa kesinlikle arızalanacaktır.
+B) Cihaz uygun şekilde bakımı yapılmasa bile arızalanmayabilir.
+C) Cihazın bakımı yapılmadığı için başarısı artacaktır.
+D) Cihaz yalnızca düzgün bakım yapıldığında arızalanır.
+E) Cihazın bakımı arızayla hiçbir şekilde ilişkili değildir.
+
+101. The article ---- the question of whether AI can replace teachers.
+A) raises
+B) rises
+C) arouses
+D) grows
+E) lifts
+
+102. Notwithstanding its benefits, the program has several drawbacks.
+A) Programın faydaları dezavantajlarından daha azdır.
+B) Programın yalnızca dezavantajları vardır, faydası yoktur.
+C) Programın dezavantajları tamamen giderilmiştir.
+D) Faydalarına rağmen, programın çeşitli dezavantajları vardır.
+E) Faydaları sayesinde programın dezavantajı yoktur.
+
+103. The conclusion is <strong>tentative</strong> and may change.
+A) provisional
+B) final
+C) certain
+D) obvious
+E) stable
+
+104. The instructions were <strong>explicit</strong>, leaving no ambiguity.
+A) vague
+B) clear
+C) random
+D) careless
+E) brief
+
+105. It is assumed that the sample represents the general population.
+A) Örneklemin genel nüfusu temsil ettiği varsayılmaktadır.
+B) Örneklemin genel nüfusu temsil etmediği kanıtlanmıştır.
+C) Örneklemin genel nüfusu temsil ettiği kesin olarak bilinmektedir.
+D) Örneklemin yalnızca belirli bir grubu temsil ettiği reddedilmektedir.
+E) Örneklemin temsiliyeti araştırma için önemsizdir.
+
+106. The researchers ---- data from multiple sources.
+A) collected
+B) selected
+C) elected
+D) reflected
+E) neglected
+
+107. The report contains <strong>substantial</strong> evidence.
+A) tiny
+B) vague
+C) missing
+D) biased
+E) considerable
+
+108. The new policy could <strong>exacerbate</strong> inequality.
+A) worsen
+B) reduce
+C) clarify
+D) balance
+E) prevent
+
+109. To the extent that funding is available, the project will continue.
+A) Fon bulunduğu ölçüde proje devam edecektir.
+B) Fon bulunsa bile proje devam etmeyecektir.
+C) Fon bulunmadığı için proje kesinlikle devam edecektir.
+D) Fon bulunması, projenin iptal edilmesini gerektirir.
+E) Fonun proje üzerinde hiçbir etkisi yoktur.
+
+110. New measures were introduced to <strong>mitigate</strong> the risks.
+A) increase
+B) reduce
+C) deny
+D) create
+E) expose
+
+111. The rise in temperatures <strong>coincided</strong> with a decline in rainfall.
+A) occurred simultaneously
+B) ended abruptly
+C) was predicted
+D) was prevented
+E) was measured
+
+112. The approach is effective, but only under specific circumstances.
+A) Yaklaşım her koşulda etkilidir ve şartlara bağlı değildir.
+B) Yaklaşım yalnızca koşullar olmadığında etkilidir.
+C) Yaklaşım etkilidir, ancak yalnızca belirli koşullar altında.
+D) Yaklaşımın etkisi koşullardan bağımsız olarak azalır.
+E) Yaklaşım her koşulda etkili değildir, bu yüzden işe yaramaz.
+
+113. The influence of social media is <strong>pervasive</strong>.
+A) widespread
+B) minor
+C) uncertain
+D) temporary
+E) hidden
+
+114. The evidence was dismissed as it relied on self-reported data.
+A) Kanıt, öz-bildirime dayandığı için geçersiz sayıldı.
+B) Kanıt, öz-bildirime dayandığı için güçlü kabul edildi.
+C) Kanıt, öz-bildirimi ortadan kaldırdığı için reddedilmedi.
+D) Kanıtın kaynağı bilinmediği için kesin olarak kabul edildi.
+E) Kanıt, öz-bildirime dayanmadığı için eleştirildi.
+
+115. The findings are consistent with the notion that practice improves performance.
+A) Bulgular, alıştırmanın performansı artırdığı düşüncesiyle uyumludur.
+B) Bulgular, alıştırmanın performansı düşürdüğü düşüncesiyle uyumludur.
+C) Bulgular, alıştırmanın performansla ilgisiz olduğunu kanıtlar.
+D) Bulgular, alıştırmanın etkisini reddeder.
+E) Bulgular, performansın alıştırmayla değişmediğini savunur.
+
+116. The findings ---- further investigation.
+A) invite
+B) include
+C) warrant
+D) predict
+E) reflect
+
+117. The intervention had little effect, if any, on the final outcome.
+A) Müdahalenin nihai sonuç üzerinde büyük bir etkisi oldu.
+B) Müdahalenin nihai sonuç üzerinde, varsa bile, çok az etkisi oldu.
+C) Müdahalenin nihai sonuç üzerinde kesinlikle hiçbir etkisi olmadı.
+D) Müdahale nihai sonucu tamamen değiştirdi.
+E) Müdahale sonuçları iyileştirdiği için etkisiz sayılmadı.
+
+118. The policy aims to <strong>alleviate</strong> poverty in rural areas.
+A) worsen
+B) intensify
+C) ignore
+D) conceal
+E) ease
+
+119. The program was implemented nationwide.
+A) Program ülke genelinde uygulandı.
+B) Program yalnızca küçük bir bölgede iptal edildi.
+C) Program ülke genelinde ertelendi.
+D) Program ülke genelinde reddedildi.
+E) Program ülke genelinde tartışıldı ama uygulanmadı.
+
+120. The results were <strong>inconclusive</strong>, so further research is needed.
+A) decisive
+B) uncertain
+C) irrelevant
+D) sufficient
+E) accurate
+
+121. The conclusion is based on assumptions rather than direct evidence.
+A) Sonuç, varsayımları reddederek doğrudan kanıta dayanır.
+B) Sonuç, yalnızca doğrudan kanıta dayanır.
+C) Sonuç, doğrudan kanıttan ziyade varsayımlara dayanır.
+D) Sonuç, varsayımları kanıt olarak kullanmaz.
+E) Sonuç, kanıtları varsayımlardan çıkarır.
+
+122. The researchers ---- a distinction between correlation and causation.
+A) draw
+B) make
+C) take
+D) do
+E) set
+
+123. The evidence remains <strong>ambiguous</strong>, leaving room for multiple interpretations.
+A) obvious
+B) decisive
+C) detailed
+D) consistent
+E) unclear
+
+124. It remains to be seen whether the new policy will achieve its goals.
+A) Yeni politikanın hedeflerine ulaştığı kesinleşmiştir.
+B) Yeni politikanın hedeflerine ulaşıp ulaşmayacağı henüz belli değildir.
+C) Yeni politikanın hedeflerine ulaşması imkânsızdır.
+D) Yeni politikanın hedefleri zaten değiştirilmiştir.
+E) Yeni politika hedeflerine ulaştığı için iptal edilmiştir.
+
+125. The committee decided to ---- the manuscript for major revisions.
+A) submit
+B) transmit
+C) commit
+D) request
+E) suggest
+
+126. The results are <strong>notable</strong> for their consistency across different groups.
+A) remarkable
+B) minor
+C) accidental
+D) rare
+E) unclear
+
+127. By no means should these findings be taken as final.
+A) Bu bulgular kesinlikle nihai kabul edilmelidir.
+B) Bu bulgular yalnızca nihai kabul edilirse anlamlıdır.
+C) Bu bulguların nihai olduğu kanıtlanmıştır.
+D) Bu bulgular hiçbir şekilde nihai kabul edilmemelidir.
+E) Bu bulgular nihai kabul edilmediği için geçersizdir.
+
+128. The new measures were introduced to ---- the spread of misinformation.
+A) make
+B) curb
+C) cast
+D) compile
+E) trigger
+
+129. The policy has sparked <strong>controversial</strong> debates among experts.
+A) predictable
+B) harmless
+C) outdated
+D) minor
+E) disputable
+
+130. Provided that sufficient funding is secured, the project will continue.
+A) Yeterli fon bulunmadığı için proje devam edecektir.
+B) Proje, fon bulunsa bile devam etmeyecektir.
+C) Yeterli fon sağlanması koşuluyla proje devam edecektir.
+D) Proje, fon sağlandığı için kesinlikle iptal edilmiştir.
+E) Projenin devamı fonla hiçbir şekilde ilgili değildir.
+
+131. The data do not fully ---- for the sharp decline in performance.
+A) count
+B) account
+C) amount
+D) discount
+E) recount
+
+132. The outcomes are <strong>inevitable</strong> given the current trajectory.
+A) avoidable
+B) uncertain
+C) reversible
+D) optional
+E) unavoidable
+
+133. The study was limited by the absence of a control group.
+A) Çalışma, kontrol grubunun olmaması nedeniyle sınırlıydı.
+B) Çalışma, kontrol grubu olduğu için sınırlı değildi.
+C) Çalışma, kontrol grubunu reddettiği için güçlendi.
+D) Çalışma, kontrol grubunu oluşturduğu için sınırlı kaldı.
+E) Çalışma, kontrol grubunun gereksiz olduğunu kanıtladı.
+
+134. The article aims to ---- light on the mechanisms behind learning.
+A) put
+B) set
+C) shed
+D) take
+E) keep
+
+135. The conclusion is <strong>preliminary</strong> and requires further validation.
+A) final
+B) permanent
+C) exhaustive
+D) tentative
+E) obvious
+
+136. Insofar as the data are reliable, the results can be trusted.
+A) Veriler güvenilir olmadığı sürece sonuçlara güvenilir.
+B) Veriler güvenilir olduğu için sonuçlar asla güvenilmez.
+C) Veriler güvenilir olmasa da sonuçlar güvenilirdir.
+D) Verilerin güvenilirliği sonuçlarla ilgisizdir.
+E) Veriler güvenilir olduğu ölçüde sonuçlara güvenilebilir.
+
+137. The policy is intended to ---- public confidence in institutions.
+A) gather
+B) gain
+C) restore
+D) generate
+E) grant
+
+138. The researcher adopted a <strong>meticulous</strong> approach to data collection.
+A) careless
+B) rapid
+C) flexible
+D) thorough
+E) random
+
+139. The study ---- the role of socioeconomic factors in academic success.
+A) highlights
+B) heightens
+C) hides
+D) hits
+E) holds
+
+140. Whereas the first model is simple, the second is more accurate.
+A) İlk model karmaşıkken ikinci model daha basittir.
+B) İlk model basitken ikinci model daha doğrudur.
+C) İkinci model basit olduğu için daha az doğrudur.
+D) İlk model basit olduğu için ikinci modele gerek yoktur.
+E) Modellerin doğrulukları aynıdır.
+
+141. The two events occurred <strong>concurrently</strong>, making causality hard to establish.
+A) separately
+B) randomly
+C) sequentially
+D) simultaneously
+E) rarely
+
+142. The government decided to ---- resources to the most urgent needs.
+A) allocate
+B) locate
+C) duplicate
+D) imitate
+E) circulate
+
+143. The findings call into question the assumption that intelligence is fixed.
+A) Bulgular, zekânın sabit olduğu varsayımını destekler.
+B) Bulgular, zekânın sabit olmadığını kesin olarak kanıtlar.
+C) Bulgular, zekânın sabit olduğu varsayımını sorgulatır.
+D) Bulgular, zekânın sabit olduğunu reddetmez.
+E) Bulgular, zekâ kavramını gereksiz kılar.
+
+144. The intervention had a <strong>negligible</strong> effect on the overall outcome.
+A) dramatic
+B) central
+C) lasting
+D) measurable
+E) trivial
+
+145. The new framework must ---- the criteria set by the accrediting body.
+A) do
+B) meet
+C) hit
+D) fill
+E) suit
+
+146. The evidence was dismissed because it relied on self-reported data.
+A) Kanıt, öz-bildirime dayandığı için geçersiz sayıldı.
+B) Kanıt, öz-bildirime dayanmadığı için eleştirildi.
+C) Kanıt, öz-bildirimi ortadan kaldırdığı için reddedilmedi.
+D) Kanıt, kaynağı bilinmediği için kesin kabul edildi.
+E) Kanıt, öz-bildirime dayandığı için güçlü kabul edildi.
+
+147. The effect is <strong>subtle</strong> and may not be noticed immediately.
+A) obvious
+B) extreme
+C) sudden
+D) temporary
+E) slight
+
+148. The method is effective only under specific conditions.
+A) Yöntem her koşulda etkilidir ve şartlara bağlı değildir.
+B) Yöntem yalnızca koşullar olmadığında etkilidir.
+C) Yöntem koşullardan bağımsız olarak her zaman etkisizdir.
+D) Yöntem yalnızca belirli koşullar altında etkilidir.
+E) Yöntem koşulları ortadan kaldırdığı için etkilidir.
+
+149. The researchers were unable to ---- a definitive conclusion from the data.
+A) do
+B) draw
+C) take
+D) make
+E) bring
+
+150. The regulation imposes <strong>stringent</strong> standards on manufacturers.
+A) optional
+B) flexible
+C) strict
+D) vague
+E) outdated
+
+---`;
+const rawKarmaA = `1-D 2-C 3-B 4-E 5-A 6-B 7-E 8-B 9-A 10-D 11-E 12-E 13-E 14-D 15-C 16-D 17-D 18-A 19-C 20-A 21-D 22-B 23-B 24-A 25-B 26-B 27-C 28-E 29-A 30-E 31-C 32-C 33-C 34-B 35-D 36-E 37-D 38-B 39-E 40-C 41-D 42-B 43-D 44-E 45-B 46-A 47-D 48-D 49-D 50-C 51-B 52-E 53-B 54-A 55-B 56-B 57-C 58-E 59-E 60-A 61-E 62-B 63-E 64-D 65-A 66-C 67-B 68-A 69-A 70-E 71-A 72-E 73-E 74-D 75-A 76-A 77-A 78-D 79-C 80-A 81-B 82-C 83-A 84-A 85-A 86-A 87-D 88-A 89-E 90-A 91-A 92-A 93-D 94-D 95-A 96-A 97-A 98-C 99-A 100-A 101-A 102-D 103-A 104-B 105-A 106-A 107-E 108-A 109-A 110-B 111-A 112-C 113-A 114-A 115-A 116-C 117-B 118-E 119-A 120-B 121-C 122-A 123-E 124-B 125-D 126-A 127-D 128-B 129-E 130-C 131-B 132-E 133-A 134-C 135-D 136-E 137-C 138-D 139-A 140-B 141-D 142-A 143-C 144-E 145-B 146-A 147-E 148-D 149-B 150-C`;
+
     let currentSectionKey = null;
     let wrongBank = [];
     let progressData = {}; 
@@ -8621,7 +9692,8 @@ const rawExamVocabA = `1-C 2-D 3-A 4-A 5-E 6-B 7-E 8-E 9-B 10-A 11-C 12-D 13-C 1
         { key: "secExamPrep", title: "Çıkmış Prepositions (Son 10 Yıl)", start: 3000, end: 3200 },
         { key: "secExamConj", title: "Çıkmış Bağlaçlar (Son 10 Yıl)", start: 3201, end: 3500 },
         { key: "secExamTense", title: "Çıkmış Tense/Modals (Son 10 Yıl)", start: 3501, end: 3800 },
-        { key: "secExamVocab", title: "Çıkmış Kelime (Son 10 Yıl)", start: 3801, end: 4200 }
+        { key: "secExamVocab", title: "Çıkmış Kelime (Son 10 Yıl)", start: 3801, end: 4200 },
+        { key: "secKarma", title: "Karma Deneme", start: 4201, end: 4400 }
     ];
 
     window.onload = function() {
@@ -8775,6 +9847,7 @@ function loadData() {
         if(typeof rawExamConjQ !== 'undefined') allQuestions = allQuestions.concat(parseRawData(rawExamConjQ, rawExamConjA, 3200, true));
         if(typeof rawExamTenseQ !== 'undefined') allQuestions = allQuestions.concat(parseRawData(rawExamTenseQ, rawExamTenseA, 3500, true));
         if(typeof rawExamVocabQ !== 'undefined') allQuestions = allQuestions.concat(parseRawData(rawExamVocabQ, rawExamVocabA, 3800, true));
+        if(typeof rawKarmaQ !== 'undefined') allQuestions = allQuestions.concat(parseRawData(rawKarmaQ, rawKarmaA, 4200, false));
 
         // 3. Kelime Havuzu
         const vocabQuestions = generateVocabQuestions();
@@ -8948,6 +10021,7 @@ function renderQuestions(qList) {
             else if (q.id >= 3201 && q.id <= 3500) { badgeText = "Çıkmış Bağlaçlar"; borderStyle = "border-left: 5px solid var(--exam-color);"; badgeColorStyle = "background-color: var(--exam-color)!important;"; }
             else if (q.id >= 3501 && q.id <= 3800) { badgeText = "Çıkmış Tense/Modals"; borderStyle = "border-left: 5px solid var(--exam-color);"; badgeColorStyle = "background-color: var(--exam-color)!important;"; }
             else if (q.id >= 3801 && q.id <= 4200) { badgeText = "Çıkmış Kelime"; borderStyle = "border-left: 5px solid var(--exam-color);"; badgeColorStyle = "background-color: var(--exam-color)!important;"; }
+            else if (q.id >= 4201 && q.id <= 4400) { badgeText = "Karma"; borderStyle = "border-left: 5px solid #6c757d;"; badgeColorStyle = "background-color: #6c757d!important;"; }
             else if (q.id >= 1 && q.id <= 70) { badgeText = "Prepositions"; borderStyle = "border-left: 5px solid #0d6efd;"; badgeColorStyle = "background-color: #0d6efd!important;"; }
             else if (q.id >= 71 && q.id <= 130) { badgeText = "Conjunctions"; borderStyle = "border-left: 5px solid #0d6efd;"; badgeColorStyle = "background-color: #0d6efd!important;"; }
             else if (q.id >= 131 && q.id <= 190) { badgeText = "Relative Clauses"; borderStyle = "border-left: 5px solid #0d6efd;"; badgeColorStyle = "background-color: #0d6efd!important;"; }
@@ -9072,7 +10146,8 @@ function renderQuestions(qList) {
             rel: 20,
             tense: 20,
             vocab: 50,
-            examVocab: 20
+            examVocab: 20,
+            karma: 20
         },
         current: {
             prep: 0,
@@ -9080,7 +10155,8 @@ function renderQuestions(qList) {
             rel: 0,
             tense: 0,
             vocab: 0,
-            examVocab: 0
+            examVocab: 0,
+            karma: 0
         },
         solvedIds: [] // Aynı gün aynı soruyu tekrar saymamak için
     };
@@ -9093,7 +10169,7 @@ function renderQuestions(qList) {
         if (dailyData.date !== today) {
             // Yeni gün! Sayaçları sıfırla ama hedefleri koru
             dailyData.date = today;
-            dailyData.current = { prep: 0, conj: 0, rel: 0, tense: 0, vocab: 0, examVocab: 0 };
+            dailyData.current = { prep: 0, conj: 0, rel: 0, tense: 0, vocab: 0, examVocab: 0, karma: 0 };
             dailyData.solvedIds = [];
             localStorage.setItem('yds_daily_goals', JSON.stringify(dailyData));
         }
@@ -9112,7 +10188,8 @@ function renderQuestions(qList) {
             { key: 'rel', title: 'Relative Clauses', color: 'warning' },
             { key: 'tense', title: 'Tense & Modals', color: 'danger' },
             { key: 'vocab', title: 'YDS Kelimeler', color: 'success' },
-            { key: 'examVocab', title: 'Çıkmış Kelime', color: 'primary' }
+            { key: 'examVocab', title: 'Çıkmış Kelime', color: 'primary' },
+            { key: 'karma', title: 'Karma Deneme', color: 'secondary' }
         ];
 
         categories.forEach(cat => {
@@ -9163,7 +10240,7 @@ function renderQuestions(qList) {
     // Manuel Sıfırlama
     function resetDailyProgressManual() {
         if(!confirm("Bugünkü ilerlemeniz sıfırlanacak. Onaylıyor musunuz?")) return;
-        dailyData.current = { prep: 0, conj: 0, rel: 0, tense: 0, vocab: 0, examVocab: 0 };
+        dailyData.current = { prep: 0, conj: 0, rel: 0, tense: 0, vocab: 0, examVocab: 0, karma: 0 };
         dailyData.solvedIds = [];
         localStorage.setItem('yds_daily_goals', JSON.stringify(dailyData));
         openDailyGoals(); // Ekranı yenile
@@ -9195,6 +10272,8 @@ function renderQuestions(qList) {
             category = 'vocab'; catTitle = "YDS Kelimeler";
         } else if ( qId >= 3801 && qId <= 4200 ) {
             category = 'examVocab'; catTitle = "Çıkmış Kelimeler";
+        } else if ( qId >= 4201 && qId <= 4400 ) {
+            category = 'karma'; catTitle = "Karma Deneme";
         }
 
         // Eğer geçerli bir kategoriyse artır
@@ -9247,7 +10326,7 @@ function showGoalKoOverlay() {
         // İlk seferde oluştur
         overlay = document.createElement('div');
         overlay.id = 'goal-ko-overlay';
-        overlay.innerHTML = '<img src="ko.png" alt="K.O.">';
+        overlay.innerHTML = '<img src="ko55.png" alt="K.O.">';
         document.body.appendChild(overlay);
     }
     
@@ -10700,7 +11779,7 @@ async function getAiTip(questionId) {
     <i class="bi bi-arrow-up"></i>
 </button>
     <!-- K.O. EFEKTİ İÇİN ELEMENTLER -->
-<div id="ko-overlay" class="d-none"><img src="ko.png" alt="K.O."></div>
+<div id="ko-overlay" class="d-none"><img src="ko55.png" alt="K.O."></div>
     
 </body>
 </html>
