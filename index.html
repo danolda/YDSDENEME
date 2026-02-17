@@ -1178,31 +1178,56 @@
                             <div class="flex-grow-1">
                                 <div class="input-group input-group-sm mb-1">
                                     <span class="input-group-text bg-secondary text-white fw-bold" style="font-size:0.75rem;">Ad:</span>
-                                    <input type="text" id="leaderboard-name" class="form-control fw-bold" placeholder="Adini Gir" onchange="saveUserName()">
-                                </div>
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text bg-success text-white fw-bold" style="font-size:0.7rem;"><i class="bi bi-whatsapp"></i></span>
-                                    <input type="tel" id="leaderboard-phone" class="form-control" placeholder="+90 5XX XXX XXXX" onchange="saveUserPhone()">
+                                    <input type="text" id="leaderboard-name" class="form-control fw-bold" placeholder="Adını Gir" onchange="saveUserName()">
                                 </div>
                             </div>
                         </div>
-                        <small class="text-muted" style="font-size:0.65rem;"><i class="bi bi-info-circle"></i> Telefon: Biri sizi gectiginde WhatsApp bildirimi icin.</small>
                     </div>
                 </div>
 
-                <!-- Bugunun Skoru -->
+                <!-- BİLDİRİM AYARI -->
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body py-2">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <span class="fw-bold small"><i class="bi bi-bell-fill text-danger"></i> Otomatik Bildirim</span>
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" id="notif-toggle" onchange="toggleNotifSetup()">
+                            </div>
+                        </div>
+                        <div id="notif-setup" style="display:none;">
+                            <div class="alert alert-info py-2 px-2 small mb-2" style="font-size:0.72rem;">
+                                <strong>Nasıl çalışır?</strong> Biri seni geçtiğinde telefonuna anında bildirim gelir (site kapalıyken bile!)<br>
+                                <strong>1.</strong> Telefonuna <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" class="fw-bold">ntfy uygulamasını</a> yükle (iOS: App Store'da "ntfy")<br>
+                                <strong>2.</strong> Uygulamada <strong>"+"</strong> bas → aşağıdaki kanal adını yapıştır → Subscribe
+                            </div>
+                            <div class="input-group input-group-sm mb-1">
+                                <span class="input-group-text bg-danger text-white fw-bold" style="font-size:0.7rem;">📢 Kanal:</span>
+                                <input type="text" id="notif-channel" class="form-control fw-bold" readonly style="font-size:0.85rem;letter-spacing:0.5px;">
+                                <button class="btn btn-outline-secondary btn-sm" onclick="copyNotifChannel()" title="Kopyala"><i class="bi bi-clipboard"></i></button>
+                            </div>
+                            <small class="text-muted" style="font-size:0.6rem;">Bu kanalı ntfy uygulamasında subscribe et. Biri seni geçtiğinde otomatik bildirim alırsın.</small>
+                            
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-primary w-100" onclick="testNotification()">
+                                    <i class="bi bi-send-fill"></i> Test Bildirimi Gönder
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bugünün Skoru -->
                 <div class="card bg-white border-0 shadow-sm mb-3">
                     <div class="card-body text-center py-2">
-                        <h6 class="text-muted text-uppercase small fw-bold mb-1">Bugunun Puani</h6>
+                        <h6 class="text-muted text-uppercase small fw-bold mb-1">Bugünün Puanı</h6>
                         <h1 class="display-5 fw-bold text-primary mb-0" id="my-daily-score">0</h1>
-                        <small class="text-muted">Sifirlanma: 00:00</small>
+                        <small class="text-muted">Sıfırlanma: 00:00</small>
                     </div>
                 </div>
 
-                <!-- WhatsApp Bildirim Alani -->
-                <div id="overtake-alert" class="alert alert-warning d-none mb-3 p-2" style="font-size:0.85rem;">
-                    <i class="bi bi-exclamation-triangle-fill"></i> <strong id="overtake-name">---</strong> sizi gecti!
-                    <a id="overtake-wa-link" href="#" target="_blank" class="btn btn-sm btn-success ms-2"><i class="bi bi-whatsapp"></i> Bildir</a>
+                <!-- Geçilme Uyarısı -->
+                <div id="overtake-alert" class="alert alert-danger d-none mb-3 p-2" style="font-size:0.85rem;">
+                    <i class="bi bi-exclamation-triangle-fill"></i> <strong id="overtake-name">---</strong> seni geçti!
                 </div>
 
                 <h6 class="fw-bold border-bottom pb-2">🏆 En Iyiler (Bugun)</h6>
@@ -1229,8 +1254,9 @@ const WEEKLY_BUCKET = "YdsHaftalikMogger";
 // --- YEREL DEĞİŞKENLER ---
 let currentUser = localStorage.getItem('yds_username') || "İsimsiz Komutan";
 let myLocalScore = 0;
-let myAvatar = localStorage.getItem('yds_avatar') || null; // base64
-let myPhone = localStorage.getItem('yds_phone') || "";
+let myAvatar = localStorage.getItem('yds_avatar') || null;
+let myNotifChannel = localStorage.getItem('yds_notif_channel') || "";
+let notifEnabled = localStorage.getItem('yds_notif_enabled') === 'true';
 let previousLeader = localStorage.getItem('yds_prev_leader') || "";
 
 // 1. GÜNLÜK SKORU YERELDEN YÜKLE
@@ -1294,22 +1320,76 @@ function updateMyAvatarDisplay() {
     if (el) el.innerHTML = getAvatarHTML(currentUser, myAvatar, 52);
 }
 
-// 3. TELEFON KAYDET (otomatik format düzeltme)
-function saveUserPhone() {
-    let phone = document.getElementById('leaderboard-phone').value.trim();
-    // Boşlukları, tireleri, parantezleri temizle
-    phone = phone.replace(/[\s\-\(\)]/g, '');
-    // Başında 0 varsa kaldır, +90 ekle
-    if (phone.startsWith('0')) phone = '+90' + phone.substring(1);
-    // Başında 5 ile başlıyorsa (sadece numara girmişse) +90 ekle
-    if (phone.match(/^5\d{9}$/)) phone = '+90' + phone;
-    // +90 yoksa ve 90 ile başlıyorsa + ekle
-    if (phone.startsWith('90') && !phone.startsWith('+')) phone = '+' + phone;
+// 3. NTFY BİLDİRİM SİSTEMİ
+function generateNotifChannel(username) {
+    // Kullanıcı adından benzersiz kanal oluştur
+    const clean = username.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const hash = Math.abs(username.split('').reduce((a, c) => ((a << 5) - a) + c.charCodeAt(0), 0)).toString(36).substring(0, 4);
+    return `yds-lider-${clean}-${hash}`;
+}
+
+function toggleNotifSetup() {
+    const toggle = document.getElementById('notif-toggle');
+    const setup = document.getElementById('notif-setup');
+    notifEnabled = toggle.checked;
+    localStorage.setItem('yds_notif_enabled', notifEnabled);
+    setup.style.display = notifEnabled ? '' : 'none';
     
-    myPhone = phone;
-    localStorage.setItem('yds_phone', myPhone);
-    document.getElementById('leaderboard-phone').value = myPhone;
-    alert("Telefon kaydedildi: " + myPhone);
+    if (notifEnabled && !myNotifChannel) {
+        myNotifChannel = generateNotifChannel(currentUser);
+        localStorage.setItem('yds_notif_channel', myNotifChannel);
+    }
+    document.getElementById('notif-channel').value = myNotifChannel;
+    syncScoreToCloud(0); // Kanalı buluta kaydet
+}
+
+function copyNotifChannel() {
+    const ch = document.getElementById('notif-channel').value;
+    navigator.clipboard.writeText(ch).then(() => {
+        alert("Kanal kopyalandı! ntfy uygulamasında yapıştır.");
+    }).catch(() => {
+        // Fallback
+        const input = document.getElementById('notif-channel');
+        input.select();
+        document.execCommand('copy');
+        alert("Kanal kopyalandı!");
+    });
+}
+
+async function testNotification() {
+    if (!myNotifChannel) {
+        alert("Önce bildirim kanalı oluştur!");
+        return;
+    }
+    try {
+        await fetch(`https://ntfy.sh/${myNotifChannel}`, {
+            method: 'POST',
+            headers: { 'Title': 'YDS Liderlik Test', 'Tags': 'trophy' },
+            body: '🏆 Test bildirimi! Biri seni geçtiğinde böyle bir bildirim alacaksın. 💪'
+        });
+        alert("Test bildirimi gönderildi! Telefonunu kontrol et.");
+    } catch(e) {
+        alert("Bildirim gönderilemedi. İnternet bağlantını kontrol et.\n" + e.message);
+    }
+}
+
+// Rakibi geçtiğinde ona ntfy bildirimi gönder
+async function sendOvertakeNotification(overtakenPlayerName, overtakenChannel, myName) {
+    if (!overtakenChannel) return;
+    try {
+        await fetch(`https://ntfy.sh/${overtakenChannel}`, {
+            method: 'POST',
+            headers: { 
+                'Title': '🚨 Liderliği Kaybettin!', 
+                'Tags': 'rotating_light,trophy',
+                'Priority': '4'
+            },
+            body: `${myName} seni geçti! 😤 Hadi geri al tahtını! 💪🔥`
+        });
+        console.log("Bildirim gönderildi:", overtakenPlayerName);
+    } catch(e) {
+        console.log("Bildirim gönderilemedi:", e);
+    }
 }
 
 // 4. KULLANICI ADINI KAYDETME
@@ -1318,6 +1398,11 @@ function saveUserName() {
     if (inputName && inputName.length > 2) {
         currentUser = inputName;
         localStorage.setItem('yds_username', currentUser);
+        // Bildirim kanalını yeni isme göre güncelle
+        myNotifChannel = generateNotifChannel(currentUser);
+        localStorage.setItem('yds_notif_channel', myNotifChannel);
+        const chInput = document.getElementById('notif-channel');
+        if (chInput) chInput.value = myNotifChannel;
         updateMyAvatarDisplay();
         syncScoreToCloud(0);
         alert("Komutan adı kaydedildi: " + currentUser);
@@ -1338,7 +1423,7 @@ function addScorePoints(amount) {
     syncScoreToCloud(amount);
 }
 
-// 6. BULUT SENKRONİZASYON (avatar + phone dahil)
+// 6. BULUT SENKRONİZASYON (avatar + ntfy channel dahil)
 async function syncScoreToCloud(pointsToAdd) {
     const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BUCKET_NAME}`;
     const todayStr = new Date().toLocaleDateString("tr-TR");
@@ -1354,12 +1439,17 @@ async function syncScoreToCloud(pointsToAdd) {
 
         if (!data.players) data.players = [];
 
-        // Eski lider'i bul (geçiş kontrolü için)
+        // Eski sıralamayı kaydet
         let sortedBefore = [...data.players].sort((a,b) => b.score - a.score);
         let oldLeader = sortedBefore.length > 0 ? sortedBefore[0].name : "";
 
         let idx = data.players.findIndex(p => p.name === currentUser);
-        const playerObj = { name: currentUser, score: myLocalScore, avatar: myAvatar || "", phone: myPhone || "" };
+        const playerObj = { 
+            name: currentUser, 
+            score: myLocalScore, 
+            avatar: myAvatar || "", 
+            ntfyChannel: (notifEnabled && myNotifChannel) ? myNotifChannel : ""
+        };
 
         if (idx > -1) {
             data.players[idx] = playerObj;
@@ -1367,14 +1457,24 @@ async function syncScoreToCloud(pointsToAdd) {
             data.players.push(playerObj);
         }
 
-        // Yeni lider kontrolü (seni biri geçtiyse)
+        // Yeni sıralama
         let sortedAfter = [...data.players].sort((a,b) => b.score - a.score);
         let newLeader = sortedAfter[0]?.name || "";
 
-        // Eğer lider değiştiyse ve yeni lider sen değilsen → geçildin!
-        if (oldLeader === currentUser && newLeader !== currentUser && newLeader !== oldLeader) {
+        // BEN birini geçtiyse → o kişiye ntfy bildirimi gönder!
+        if (pointsToAdd > 0 && newLeader === currentUser && oldLeader !== currentUser && oldLeader !== "") {
+            // Eski lideri bul, ntfy kanalı varsa bildirim at
+            const overtakenPlayer = data.players.find(p => p.name === oldLeader);
+            if (overtakenPlayer && overtakenPlayer.ntfyChannel) {
+                sendOvertakeNotification(oldLeader, overtakenPlayer.ntfyChannel, currentUser);
+            }
+        }
+
+        // BENİ biri geçtiyse → ekranda uyarı göster
+        if (oldLeader === currentUser && newLeader !== currentUser && newLeader !== "") {
             checkOvertakeAlert(newLeader);
         }
+
         previousLeader = newLeader;
         localStorage.setItem('yds_prev_leader', newLeader);
 
@@ -1385,21 +1485,13 @@ async function syncScoreToCloud(pointsToAdd) {
     }
 }
 
-// 7. GEÇİLME KONTROLÜ (Sayfa açılışında + skor güncellemede)
+// 7. GEÇİLME KONTROLÜ
 function checkOvertakeAlert(newLeaderName) {
-    // Modal dışında da büyük bildirim göster
     showOvertakeToast(newLeaderName);
-    
-    // Modal içindeki alert
     const alertEl = document.getElementById('overtake-alert');
     if (!alertEl) return;
     alertEl.classList.remove('d-none');
     document.getElementById('overtake-name').textContent = newLeaderName;
-
-    // WhatsApp link: rakibe mesaj at!
-    const msg = encodeURIComponent(`🏆 YDS Liderlik: ${newLeaderName} beni geçti! Tahtımı geri alıyorum 💪🔥`);
-    document.getElementById('overtake-wa-link').href = `https://wa.me/?text=${msg}`;
-    document.getElementById('overtake-wa-link').style.display = '';
 }
 
 function showOvertakeToast(name) {
@@ -1430,6 +1522,15 @@ async function checkLeadershipOnLoad() {
         if (previousLeader === currentUser && leader !== currentUser && leader !== "") {
             checkOvertakeAlert(leader);
         }
+        
+        // Ben şu an lidersem ve önceki lider ben değildiyse → birini geçtik, ona bildirim at
+        if (leader === currentUser && previousLeader !== currentUser && previousLeader !== "") {
+            const overtakenPlayer = data.players.find(p => p.name === previousLeader);
+            if (overtakenPlayer && overtakenPlayer.ntfyChannel) {
+                sendOvertakeNotification(previousLeader, overtakenPlayer.ntfyChannel, currentUser);
+            }
+        }
+        
         previousLeader = leader;
         localStorage.setItem('yds_prev_leader', leader);
     } catch(e) {}
@@ -1510,9 +1611,20 @@ async function openLeaderboard() {
     modal.show();
 
     document.getElementById('leaderboard-name').value = currentUser;
-    document.getElementById('leaderboard-phone').value = myPhone;
     document.getElementById('my-daily-score').innerText = myLocalScore;
     updateMyAvatarDisplay();
+    
+    // Bildirim ayarlarını yükle
+    const notifToggle = document.getElementById('notif-toggle');
+    const notifSetup = document.getElementById('notif-setup');
+    const notifChannelInput = document.getElementById('notif-channel');
+    notifToggle.checked = notifEnabled;
+    notifSetup.style.display = notifEnabled ? '' : 'none';
+    if (!myNotifChannel && currentUser) {
+        myNotifChannel = generateNotifChannel(currentUser);
+        localStorage.setItem('yds_notif_channel', myNotifChannel);
+    }
+    notifChannelInput.value = myNotifChannel;
 
     const list = document.getElementById('leaderboard-list');
     list.innerHTML = `<div class="text-center p-4"><div class="spinner-border text-warning"></div><p class="mt-2">Yükleniyor...</p></div>`;
