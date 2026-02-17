@@ -173,6 +173,17 @@
                 <div class="text-muted small mt-2 fst-italic text-center">
                     * Yanlış yaptığın sorular <strong><span id="display-days">7</span> gün</strong> sonraya ertelenir.
                 </div>
+
+                <!-- SRS DURUM PANELİ (Açılır/Kapanır) -->
+                <div class="mt-3 border-top pt-2">
+                    <button class="btn btn-sm btn-outline-info w-100" type="button" onclick="toggleSrsDebug()">
+                        <i class="bi bi-bar-chart-line"></i> SRS Durum Paneli (Bekleyenler)
+                        <i class="bi bi-chevron-down" id="srs-debug-chevron"></i>
+                    </button>
+                    <div id="srs-debug-panel" style="display:none;" class="mt-2">
+                        <div id="srs-debug-content" class="small"></div>
+                    </div>
+                </div>
             </div>
 
             <!-- Sorular Alanı -->
@@ -8541,6 +8552,11 @@ function syncWithMainApp() {
         document.getElementById('due-count').innerText = dueList.length;
         document.getElementById('wait-count').innerText = waitCount;
 
+        // Debug paneli açıksa güncelle
+        if (document.getElementById('srs-debug-panel') && document.getElementById('srs-debug-panel').style.display !== 'none') {
+            renderSrsDebug();
+        }
+
         if (dueList.length === 0) {
             container.innerHTML = `
                 <div class="waiting-box">
@@ -8598,6 +8614,85 @@ function syncWithMainApp() {
                 </div>
             `);
         });
+    }
+
+    // --- SRS DURUM PANELİ FONKSİYONLARI ---
+    function toggleSrsDebug() {
+        const panel = document.getElementById('srs-debug-panel');
+        const chevron = document.getElementById('srs-debug-chevron');
+        if (panel.style.display === 'none') {
+            panel.style.display = '';
+            chevron.className = 'bi bi-chevron-up';
+            renderSrsDebug();
+        } else {
+            panel.style.display = 'none';
+            chevron.className = 'bi bi-chevron-down';
+        }
+    }
+
+    function renderSrsDebug() {
+        const container = document.getElementById('srs-debug-content');
+        const now = Date.now();
+        const entries = Object.entries(srsSchedule);
+
+        if (entries.length === 0) {
+            container.innerHTML = '<div class="text-center text-muted p-2">Henüz bekleyen soru yok.</div>';
+            return;
+        }
+
+        // Soruları durumlarına göre grupla
+        const dueItems = [];   // Çözülecek (süresi dolmuş)
+        const waitItems = [];  // Bekleyen (henüz süresi dolmamış)
+
+        entries.forEach(([id, targetTime]) => {
+            const q = allQuestions.find(x => x.id == id);
+            const label = q ? (q.text || '').substring(0, 50) + '...' : `Soru #${id}`;
+            if (targetTime <= now) {
+                dueItems.push({ id, label, date: new Date(targetTime) });
+            } else {
+                waitItems.push({ id, label, date: new Date(targetTime) });
+            }
+        });
+
+        // Bekleyenleri tarihe göre sırala
+        waitItems.sort((a, b) => a.date - b.date);
+
+        // Güne göre grupla
+        const byDay = {};
+        waitItems.forEach(item => {
+            const dayStr = item.date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+            if (!byDay[dayStr]) byDay[dayStr] = [];
+            byDay[dayStr].push(item);
+        });
+
+        let html = '';
+
+        // Çözülecekler
+        if (dueItems.length > 0) {
+            html += `<div class="mb-2 p-2 rounded" style="background:#dc354520;">
+                <div class="fw-bold text-danger"><i class="bi bi-exclamation-circle"></i> Çözülecek (Süresi Dolmuş): ${dueItems.length} soru</div>
+            </div>`;
+        }
+
+        // Bekleyenler güne göre
+        const dayKeys = Object.keys(byDay);
+        if (dayKeys.length > 0) {
+            html += `<div class="fw-bold mb-1"><i class="bi bi-calendar-event"></i> Bekleyen Sorular (Güne Göre):</div>`;
+            html += '<div class="table-responsive"><table class="table table-sm table-bordered mb-0" style="font-size:0.78rem;">';
+            html += '<thead><tr><th>Çözülecek Gün</th><th>Soru Sayısı</th></tr></thead><tbody>';
+            dayKeys.forEach(day => {
+                const count = byDay[day].length;
+                html += `<tr><td><i class="bi bi-calendar3"></i> ${day}</td><td><span class="badge bg-info">${count}</span></td></tr>`;
+            });
+            html += '</tbody></table></div>';
+        }
+
+        // Özet
+        html += `<div class="text-muted text-center mt-2" style="font-size:0.7rem;">
+            Toplam: ${entries.length} soru | Çözülecek: ${dueItems.length} | Bekleyen: ${waitItems.length}
+        </div>`;
+
+        container.innerHTML = html;
     }
 
     // --- CEVAP KONTROLÜ (DÜZELTİLMİŞ HALİ) ---
