@@ -1254,23 +1254,23 @@ let dailyScoreData = JSON.parse(localStorage.getItem('yds_daily_score_v2')) || {
 function handleAvatarUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
-    if (file.size > 150000) {
-        alert("Resim çok büyük! Max 150KB olmalı.");
-        return;
-    }
+    // Boyut limiti YOK - canvas ile otomatik küçültüyoruz
     const reader = new FileReader();
     reader.onload = function(e) {
-        // Küçük canvas ile sıkıştır (64x64)
         const img = new Image();
         img.onload = function() {
             const canvas = document.createElement('canvas');
-            canvas.width = 48; canvas.height = 48;
+            canvas.width = 64; canvas.height = 64;
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, 48, 48);
-            myAvatar = canvas.toDataURL('image/jpeg', 0.7);
+            // Kare kırpma (ortadan)
+            const size = Math.min(img.width, img.height);
+            const sx = (img.width - size) / 2;
+            const sy = (img.height - size) / 2;
+            ctx.drawImage(img, sx, sy, size, size, 0, 0, 64, 64);
+            myAvatar = canvas.toDataURL('image/jpeg', 0.6);
             localStorage.setItem('yds_avatar', myAvatar);
             updateMyAvatarDisplay();
-            syncScoreToCloud(0); // Avatar'ı buluta gönder
+            syncScoreToCloud(0);
             alert("Profil fotoğrafı kaydedildi!");
         };
         img.src = e.target.result;
@@ -1294,11 +1294,22 @@ function updateMyAvatarDisplay() {
     if (el) el.innerHTML = getAvatarHTML(currentUser, myAvatar, 52);
 }
 
-// 3. TELEFON KAYDET
+// 3. TELEFON KAYDET (otomatik format düzeltme)
 function saveUserPhone() {
-    const phone = document.getElementById('leaderboard-phone').value.trim();
+    let phone = document.getElementById('leaderboard-phone').value.trim();
+    // Boşlukları, tireleri, parantezleri temizle
+    phone = phone.replace(/[\s\-\(\)]/g, '');
+    // Başında 0 varsa kaldır, +90 ekle
+    if (phone.startsWith('0')) phone = '+90' + phone.substring(1);
+    // Başında 5 ile başlıyorsa (sadece numara girmişse) +90 ekle
+    if (phone.match(/^5\d{9}$/)) phone = '+90' + phone;
+    // +90 yoksa ve 90 ile başlıyorsa + ekle
+    if (phone.startsWith('90') && !phone.startsWith('+')) phone = '+' + phone;
+    
     myPhone = phone;
     localStorage.setItem('yds_phone', myPhone);
+    document.getElementById('leaderboard-phone').value = myPhone;
+    alert("Telefon kaydedildi: " + myPhone);
 }
 
 // 4. KULLANICI ADINI KAYDETME
@@ -1362,7 +1373,7 @@ async function syncScoreToCloud(pointsToAdd) {
 
         // Eğer lider değiştiyse ve yeni lider sen değilsen → geçildin!
         if (oldLeader === currentUser && newLeader !== currentUser && newLeader !== oldLeader) {
-            checkOvertakeAlert(newLeader, sortedAfter);
+            checkOvertakeAlert(newLeader);
         }
         previousLeader = newLeader;
         localStorage.setItem('yds_prev_leader', newLeader);
@@ -1374,23 +1385,59 @@ async function syncScoreToCloud(pointsToAdd) {
     }
 }
 
-// 7. GEÇİLME UYARISI (WhatsApp link)
-function checkOvertakeAlert(newLeaderName, players) {
+// 7. GEÇİLME KONTROLÜ (Sayfa açılışında + skor güncellemede)
+function checkOvertakeAlert(newLeaderName) {
+    // Modal dışında da büyük bildirim göster
+    showOvertakeToast(newLeaderName);
+    
+    // Modal içindeki alert
     const alertEl = document.getElementById('overtake-alert');
     if (!alertEl) return;
     alertEl.classList.remove('d-none');
     document.getElementById('overtake-name').textContent = newLeaderName;
 
-    // Geçilen kişi (ben) telefon kayıtlıysa WhatsApp linki oluştur
-    if (myPhone) {
-        const msg = encodeURIComponent(`🏆 YDS Liderlik: ${newLeaderName} seni geçti! Hadi geri al tahtını! 💪`);
-        const cleanPhone = myPhone.replace(/\s+/g, '').replace('+', '');
-        document.getElementById('overtake-wa-link').href = `https://wa.me/${cleanPhone}?text=${msg}`;
-        document.getElementById('overtake-wa-link').style.display = '';
-    } else {
-        document.getElementById('overtake-wa-link').style.display = 'none';
-    }
+    // WhatsApp link: rakibe mesaj at!
+    const msg = encodeURIComponent(`🏆 YDS Liderlik: ${newLeaderName} beni geçti! Tahtımı geri alıyorum 💪🔥`);
+    document.getElementById('overtake-wa-link').href = `https://wa.me/?text=${msg}`;
+    document.getElementById('overtake-wa-link').style.display = '';
 }
+
+function showOvertakeToast(name) {
+    const existing = document.querySelector('.overtake-toast');
+    if (existing) existing.remove();
+    const div = document.createElement('div');
+    div.className = 'overtake-toast';
+    div.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;padding:12px 24px;border-radius:12px;font-weight:800;font-size:1rem;box-shadow:0 8px 32px rgba(0,0,0,0.4);animation:slideDown 0.5s;text-align:center;max-width:90vw;';
+    div.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${name} seni geçti! 😤<br><small style="font-weight:400;">Liderlik tahtını geri al!</small>`;
+    document.body.appendChild(div);
+    setTimeout(() => { if (div.parentNode) div.remove(); }, 6000);
+}
+
+// Sayfa açılışında liderliği kontrol et
+async function checkLeadershipOnLoad() {
+    const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BUCKET_NAME}`;
+    const todayStr = new Date().toLocaleDateString("tr-TR");
+    try {
+        let resp = await fetch(url, { method: "GET", headers: { "Content-Type": "application/json" } });
+        if (!resp.ok) return;
+        let data = await resp.json();
+        if (!data.players || data.date !== todayStr) return;
+        
+        data.players.sort((a,b) => b.score - a.score);
+        const leader = data.players[0]?.name || "";
+        
+        // Eğer önceki lider bendim ama artık değilsem → geçildim!
+        if (previousLeader === currentUser && leader !== currentUser && leader !== "") {
+            checkOvertakeAlert(leader);
+        }
+        previousLeader = leader;
+        localStorage.setItem('yds_prev_leader', leader);
+    } catch(e) {}
+}
+// Sayfa yüklendiğinde kontrol et
+setTimeout(checkLeadershipOnLoad, 3000);
+// Her 2 dakikada bir kontrol et
+setInterval(checkLeadershipOnLoad, 120000);
 
 // 8. HAFTALIK MOGGER SİSTEMİ
 function getWeekKey() {
@@ -1472,7 +1519,6 @@ async function openLeaderboard() {
 
     // Haftalık mogger'ı yükle
     const weeklyData = await loadWeeklyMogger();
-    renderWeeklySection(weeklyData);
 
     // Günlük veri
     const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BUCKET_NAME}`;
@@ -1482,6 +1528,7 @@ async function openLeaderboard() {
         let response = await fetch(url);
         if (!response.ok) {
             list.innerHTML = `<li class="list-group-item text-center">Henüz kayıtlı skor yok. İlk sen ol!</li>`;
+            renderWeeklySection(weeklyData, null);
             syncScoreToCloud(0);
             return;
         }
@@ -1489,10 +1536,16 @@ async function openLeaderboard() {
         let data = await response.json();
         if (!data.date || data.date !== todayStr) {
             list.innerHTML = `<li class="list-group-item text-center">Bugün henüz kimse puan almadı.</li>`;
+            renderWeeklySection(weeklyData, null);
             return;
         }
 
         data.players.sort((a, b) => b.score - a.score);
+        
+        // Bugünün liderini MOGGER alanına göster
+        const todayLeader = data.players.length > 0 && data.players[0].score > 0 ? data.players[0] : null;
+        renderWeeklySection(weeklyData, todayLeader);
+
         list.innerHTML = "";
 
         data.players.forEach((p, index) => {
@@ -1525,7 +1578,7 @@ async function openLeaderboard() {
         if (data.players.length > 0 && data.players[0].name !== currentUser) {
             const myIdx = data.players.findIndex(p => p.name === currentUser);
             if (myIdx > 0 && previousLeader === currentUser) {
-                checkOvertakeAlert(data.players[0].name, data.players);
+                checkOvertakeAlert(data.players[0].name);
             }
         }
 
@@ -1535,39 +1588,48 @@ async function openLeaderboard() {
 }
 
 // 10. HAFTALIK MOGGER RENDER
-function renderWeeklySection(weeklyData) {
+function renderWeeklySection(weeklyData, todayLeader) {
     const banner = document.getElementById('mogger-banner');
     const section = document.getElementById('weekly-wins-section');
     const winsList = document.getElementById('weekly-wins-list');
 
-    if (!weeklyData || !weeklyData.winners || weeklyData.winners.length === 0) {
+    const hasWeeklyData = weeklyData && weeklyData.winners && weeklyData.winners.length > 0;
+
+    if (hasWeeklyData) {
+        // Haftalık veri var → en çok gün kazanan = MOGGER
+        weeklyData.winners.sort((a,b) => b.wins - a.wins);
+        const mogger = weeklyData.winners[0];
+
+        banner.style.display = '';
+        document.getElementById('mogger-avatar').innerHTML = getAvatarHTML(mogger.name, mogger.avatar, 64);
+        document.getElementById('mogger-name').textContent = mogger.name;
+        document.getElementById('mogger-wins').textContent = `${mogger.wins} gün birinci 🔥`;
+
+        // Herkesin haftalık gün sayısı
+        section.style.display = '';
+        winsList.innerHTML = '';
+        weeklyData.winners.forEach(w => {
+            const isMe = w.name === currentUser;
+            winsList.innerHTML += `
+            <div class="d-flex align-items-center gap-1 px-2 py-1 rounded ${isMe ? 'bg-warning bg-opacity-25' : 'bg-light'}" style="font-size:0.8rem;">
+                ${getAvatarHTML(w.name, w.avatar, 24)}
+                <span class="fw-bold">${w.name}</span>
+                <span class="badge bg-info">${w.wins} gün</span>
+            </div>`;
+        });
+    } else if (todayLeader) {
+        // Haftalık veri yok ama bugünün lideri var → günlük lider olarak göster
+        banner.style.display = '';
+        document.getElementById('mogger-avatar').innerHTML = getAvatarHTML(todayLeader.name, todayLeader.avatar, 64);
+        document.getElementById('mogger-name').textContent = todayLeader.name;
+        document.getElementById('mogger-wins').textContent = `Bugünün lideri 👑 (${todayLeader.score} P)`;
+
+        section.style.display = 'none';
+        winsList.innerHTML = '';
+    } else {
         banner.style.display = 'none';
         section.style.display = 'none';
-        return;
     }
-
-    // En çok gün kazanan = MOGGER
-    weeklyData.winners.sort((a,b) => b.wins - a.wins);
-    const mogger = weeklyData.winners[0];
-
-    // Banner
-    banner.style.display = '';
-    document.getElementById('mogger-avatar').innerHTML = getAvatarHTML(mogger.name, mogger.avatar, 64);
-    document.getElementById('mogger-name').textContent = mogger.name;
-    document.getElementById('mogger-wins').textContent = `${mogger.wins} gün birinci 🔥`;
-
-    // Herkesin haftalık gün sayısı
-    section.style.display = '';
-    winsList.innerHTML = '';
-    weeklyData.winners.forEach(w => {
-        const isMe = w.name === currentUser;
-        winsList.innerHTML += `
-        <div class="d-flex align-items-center gap-1 px-2 py-1 rounded ${isMe ? 'bg-warning bg-opacity-25' : 'bg-light'}" style="font-size:0.8rem;">
-            ${getAvatarHTML(w.name, w.avatar, 24)}
-            <span class="fw-bold">${w.name}</span>
-            <span class="badge bg-info">${w.wins} gün</span>
-        </div>`;
-    });
 }
 
 // 11. TOAST BİLDİRİMİ
