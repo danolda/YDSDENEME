@@ -1141,28 +1141,71 @@
 
     <!-- LEADERBOARD MODAL -->
 <div class="modal fade" id="leaderboardModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-dark text-white border-bottom-0">
-                <h5 class="modal-title fw-bold"><i class="bi bi-trophy text-warning"></i> GÜNLÜK SKOR TABLOSU</h5>
+                <h5 class="modal-title fw-bold"><i class="bi bi-trophy text-warning"></i> LİDERLİK TABLOSU</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body bg-light">
-                <!-- Kullanıcı İsmi Girişi -->
-                <div class="input-group mb-3">
-                    <span class="input-group-text bg-secondary text-white fw-bold">Komutan Adı:</span>
-                    <input type="text" id="leaderboard-name" class="form-control fw-bold" placeholder="Adını Gir" onchange="saveUserName()">
+            <div class="modal-body bg-light" style="max-height:80vh;overflow-y:auto;">
+
+                <!-- MOGGER BANNER -->
+                <div id="mogger-banner" class="text-center p-3 mb-3 rounded-3" style="background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);border:2px solid #e94560;display:none;">
+                    <div class="text-warning fw-bold text-uppercase small mb-1" style="letter-spacing:3px;">Bu Haftanin MOGGER'i</div>
+                    <div id="mogger-avatar" style="width:64px;height:64px;border-radius:50%;margin:0 auto 8px;border:3px solid #f1c40f;overflow:hidden;background:#334155;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#f1c40f;font-weight:900;"></div>
+                    <div id="mogger-name" class="text-white fw-bold fs-5"></div>
+                    <div id="mogger-wins" class="text-warning small"></div>
                 </div>
 
-                <div class="card bg-white border-0 shadow-sm mb-3">
-                    <div class="card-body text-center">
-                        <h6 class="text-muted text-uppercase small fw-bold">Bugünkü Puanın</h6>
-                        <h1 class="display-4 fw-bold text-primary mb-0" id="my-daily-score">0</h1>
-                        <small class="text-muted">Sıfırlanma: 00:00</small>
+                <!-- Haftalik Kazanimlar -->
+                <div id="weekly-wins-section" class="mb-3" style="display:none;">
+                    <h6 class="fw-bold border-bottom pb-2"><i class="bi bi-calendar-week text-info"></i> Haftalik Gun Birincilikleri</h6>
+                    <div id="weekly-wins-list" class="d-flex flex-wrap gap-2"></div>
+                </div>
+
+                <!-- Profil Ayarlari -->
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <!-- Avatar -->
+                            <div style="position:relative;cursor:pointer;" onclick="document.getElementById('avatar-upload').click()">
+                                <div id="my-avatar-display" style="width:52px;height:52px;border-radius:50%;background:#334155;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#fff;font-weight:800;overflow:hidden;border:2px solid #3498db;"></div>
+                                <div style="position:absolute;bottom:-2px;right:-2px;background:#3498db;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;">
+                                    <i class="bi bi-camera-fill" style="font-size:0.55rem;color:#fff;"></i>
+                                </div>
+                                <input type="file" id="avatar-upload" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)">
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="input-group input-group-sm mb-1">
+                                    <span class="input-group-text bg-secondary text-white fw-bold" style="font-size:0.75rem;">Ad:</span>
+                                    <input type="text" id="leaderboard-name" class="form-control fw-bold" placeholder="Adini Gir" onchange="saveUserName()">
+                                </div>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-success text-white fw-bold" style="font-size:0.7rem;"><i class="bi bi-whatsapp"></i></span>
+                                    <input type="tel" id="leaderboard-phone" class="form-control" placeholder="+90 5XX XXX XXXX" onchange="saveUserPhone()">
+                                </div>
+                            </div>
+                        </div>
+                        <small class="text-muted" style="font-size:0.65rem;"><i class="bi bi-info-circle"></i> Telefon: Biri sizi gectiginde WhatsApp bildirimi icin.</small>
                     </div>
                 </div>
 
-                <h6 class="fw-bold border-bottom pb-2">🏆 En İyiler (Global Simülasyon)</h6>
+                <!-- Bugunun Skoru -->
+                <div class="card bg-white border-0 shadow-sm mb-3">
+                    <div class="card-body text-center py-2">
+                        <h6 class="text-muted text-uppercase small fw-bold mb-1">Bugunun Puani</h6>
+                        <h1 class="display-5 fw-bold text-primary mb-0" id="my-daily-score">0</h1>
+                        <small class="text-muted">Sifirlanma: 00:00</small>
+                    </div>
+                </div>
+
+                <!-- WhatsApp Bildirim Alani -->
+                <div id="overtake-alert" class="alert alert-warning d-none mb-3 p-2" style="font-size:0.85rem;">
+                    <i class="bi bi-exclamation-triangle-fill"></i> <strong id="overtake-name">---</strong> sizi gecti!
+                    <a id="overtake-wa-link" href="#" target="_blank" class="btn btn-sm btn-success ms-2"><i class="bi bi-whatsapp"></i> Bildir</a>
+                </div>
+
+                <h6 class="fw-bold border-bottom pb-2">🏆 En Iyiler (Bugun)</h6>
                 <ul class="list-group list-group-flush" id="leaderboard-list">
                     <!-- JS ile dolacak -->
                 </ul>
@@ -1176,179 +1219,361 @@
     
 <script>
     
-/* ================= ONLINE LEADERBOARD & PUAN SİSTEMİ (FIXED ID) ================= */
+/* ================= ONLINE LEADERBOARD & PUAN SİSTEMİ (V2 - MOGGER) ================= */
 
-// --- SENİN ID'N BURAYA GÖMÜLDÜ ---
+// --- PANTRY API ---
 const PANTRY_ID = "41e0725c-beab-4cea-9de2-ed320c7b115a"; 
-const BUCKET_NAME = "YdsLiderlikTablosu"; // Sepet ismi
+const BUCKET_NAME = "YdsLiderlikTablosu";
+const WEEKLY_BUCKET = "YdsHaftalikMogger";
 
-// Yerel Değişkenler
+// --- YEREL DEĞİŞKENLER ---
 let currentUser = localStorage.getItem('yds_username') || "İsimsiz Komutan";
-let myLocalScore = 0; // Anlık takip
+let myLocalScore = 0;
+let myAvatar = localStorage.getItem('yds_avatar') || null; // base64
+let myPhone = localStorage.getItem('yds_phone') || "";
+let previousLeader = localStorage.getItem('yds_prev_leader') || "";
 
-// 1. GÜNLÜK SKORU YERELDEN YÜKLE (Sayfa Yenilenince Puan Gitmesin)
+// 1. GÜNLÜK SKORU YERELDEN YÜKLE
 let dailyScoreData = JSON.parse(localStorage.getItem('yds_daily_score_v2')) || { date: new Date().toLocaleDateString(), score: 0 };
 
-// Gün değiştiyse yerel skoru sıfırla
-if (dailyScoreData.date !== new Date().toLocaleDateString()) {
-    dailyScoreData = { date: new Date().toLocaleDateString(), score: 0 };
-    localStorage.setItem('yds_daily_score_v2', JSON.stringify(dailyScoreData));
-}
-myLocalScore = dailyScoreData.score; // Yerel değişkeni güncelle
+// Gün değiştiyse → gün birincisini kaydet, sonra sıfırla
+(async function checkDayReset() {
+    const today = new Date().toLocaleDateString();
+    if (dailyScoreData.date !== today) {
+        // Eski günün birincisini haftalık tabloya yaz
+        await recordDailyWinner();
+        dailyScoreData = { date: today, score: 0 };
+        localStorage.setItem('yds_daily_score_v2', JSON.stringify(dailyScoreData));
+        previousLeader = "";
+        localStorage.setItem('yds_prev_leader', "");
+    }
+    myLocalScore = dailyScoreData.score;
+})();
 
-// 2. KULLANICI ADINI KAYDETME
+// 2. AVATAR SİSTEMİ
+function handleAvatarUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (file.size > 150000) {
+        alert("Resim çok büyük! Max 150KB olmalı.");
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        // Küçük canvas ile sıkıştır (64x64)
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 48; canvas.height = 48;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, 48, 48);
+            myAvatar = canvas.toDataURL('image/jpeg', 0.7);
+            localStorage.setItem('yds_avatar', myAvatar);
+            updateMyAvatarDisplay();
+            syncScoreToCloud(0); // Avatar'ı buluta gönder
+            alert("Profil fotoğrafı kaydedildi!");
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function getAvatarHTML(name, avatarData, size) {
+    size = size || 40;
+    if (avatarData) {
+        return `<img src="${avatarData}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;">`;
+    }
+    const initial = (name || "?").charAt(0).toUpperCase();
+    const colors = ['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#e91e63'];
+    const colorIdx = name ? name.charCodeAt(0) % colors.length : 0;
+    return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${colors[colorIdx]};display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:${size*0.45}px;">${initial}</div>`;
+}
+
+function updateMyAvatarDisplay() {
+    const el = document.getElementById('my-avatar-display');
+    if (el) el.innerHTML = getAvatarHTML(currentUser, myAvatar, 52);
+}
+
+// 3. TELEFON KAYDET
+function saveUserPhone() {
+    const phone = document.getElementById('leaderboard-phone').value.trim();
+    myPhone = phone;
+    localStorage.setItem('yds_phone', myPhone);
+}
+
+// 4. KULLANICI ADINI KAYDETME
 function saveUserName() {
     const inputName = document.getElementById('leaderboard-name').value.trim();
-    if(inputName && inputName.length > 2) {
+    if (inputName && inputName.length > 2) {
         currentUser = inputName;
         localStorage.setItem('yds_username', currentUser);
-        syncScoreToCloud(0); // İsmi sunucuya kaydet
+        updateMyAvatarDisplay();
+        syncScoreToCloud(0);
         alert("Komutan adı kaydedildi: " + currentUser);
     } else {
         alert("Lütfen en az 3 harfli bir isim gir.");
     }
 }
 
-// 3. PUAN EKLEME (YEREL + ONLINE)
+// 5. PUAN EKLEME
 function addScorePoints(amount) {
-    // A) Yerel Depolama (Hız için)
     if (dailyScoreData.date !== new Date().toLocaleDateString()) {
         dailyScoreData = { date: new Date().toLocaleDateString(), score: 0 };
     }
     dailyScoreData.score += amount;
     myLocalScore = dailyScoreData.score;
     localStorage.setItem('yds_daily_score_v2', JSON.stringify(dailyScoreData));
-
-    // B) Ekrana Bildirim
-    showScoreToast(`+${amount} PUAN! (Kaydediliyor...)`);
-    
-    // C) Buluta Gönder
+    showScoreToast(`+${amount} PUAN!`);
     syncScoreToCloud(amount);
 }
 
-// 4. BULUT İLE SENKRONİZE ET (GÜNCELLENMİŞ)
+// 6. BULUT SENKRONİZASYON (avatar + phone dahil)
 async function syncScoreToCloud(pointsToAdd) {
     const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BUCKET_NAME}`;
     const todayStr = new Date().toLocaleDateString("tr-TR");
-
     try {
-        // 1. Mevcut listeyi çekmeye çalış
         let data = { date: todayStr, players: [] };
-        
         try {
-            let response = await fetch(url, { 
-                method: "GET", 
-                headers: { "Content-Type": "application/json" }
-            });
-            if (response.ok) {
-                let json = await response.json();
-                // Eğer veri boş değilse ve tarih bugüne aitse kullan
-                if(json.date === todayStr) {
-                    data = json;
-                }
+            let resp = await fetch(url, { method: "GET", headers: { "Content-Type": "application/json" } });
+            if (resp.ok) {
+                let json = await resp.json();
+                if (json.date === todayStr) data = json;
             }
-        } catch(e) {
-            console.log("Sepet henüz yok veya okuma hatası, yeni oluşturulacak.");
-        }
+        } catch(e) {}
 
-        // 2. Listeyi Güncelle
-        // Mevcut oyuncular dizisinde bizi bul
         if (!data.players) data.players = [];
-        
-        let playerIndex = data.players.findIndex(p => p.name === currentUser);
-        
-        if (playerIndex > -1) {
-            // Oyuncu varsa: Yerel skor ile sunucu skorunu karşılaştır, büyük olanı al
-            // (Senkron hatasını önlemek için yerel skoru baz alıyoruz çünkü en güncel bizde)
-            data.players[playerIndex].score = myLocalScore; 
+
+        // Eski lider'i bul (geçiş kontrolü için)
+        let sortedBefore = [...data.players].sort((a,b) => b.score - a.score);
+        let oldLeader = sortedBefore.length > 0 ? sortedBefore[0].name : "";
+
+        let idx = data.players.findIndex(p => p.name === currentUser);
+        const playerObj = { name: currentUser, score: myLocalScore, avatar: myAvatar || "", phone: myPhone || "" };
+
+        if (idx > -1) {
+            data.players[idx] = playerObj;
         } else {
-            // Oyuncu yoksa ekle
-            data.players.push({ name: currentUser, score: myLocalScore });
+            data.players.push(playerObj);
         }
 
-        // 3. Güncellenmiş listeyi sunucuya gönder (POST = Create/Update)
-        await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        });
+        // Yeni lider kontrolü (seni biri geçtiyse)
+        let sortedAfter = [...data.players].sort((a,b) => b.score - a.score);
+        let newLeader = sortedAfter[0]?.name || "";
 
-        console.log("Skor başarıyla buluta işlendi: " + myLocalScore);
+        // Eğer lider değiştiyse ve yeni lider sen değilsen → geçildin!
+        if (oldLeader === currentUser && newLeader !== currentUser && newLeader !== oldLeader) {
+            checkOvertakeAlert(newLeader, sortedAfter);
+        }
+        previousLeader = newLeader;
+        localStorage.setItem('yds_prev_leader', newLeader);
+
+        await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
 
     } catch (error) {
         console.error("Online skor hatası:", error);
     }
 }
 
-// 5. LEADERBOARD AÇMA (GÜNCELLENMİŞ)
+// 7. GEÇİLME UYARISI (WhatsApp link)
+function checkOvertakeAlert(newLeaderName, players) {
+    const alertEl = document.getElementById('overtake-alert');
+    if (!alertEl) return;
+    alertEl.classList.remove('d-none');
+    document.getElementById('overtake-name').textContent = newLeaderName;
+
+    // Geçilen kişi (ben) telefon kayıtlıysa WhatsApp linki oluştur
+    if (myPhone) {
+        const msg = encodeURIComponent(`🏆 YDS Liderlik: ${newLeaderName} seni geçti! Hadi geri al tahtını! 💪`);
+        const cleanPhone = myPhone.replace(/\s+/g, '').replace('+', '');
+        document.getElementById('overtake-wa-link').href = `https://wa.me/${cleanPhone}?text=${msg}`;
+        document.getElementById('overtake-wa-link').style.display = '';
+    } else {
+        document.getElementById('overtake-wa-link').style.display = 'none';
+    }
+}
+
+// 8. HAFTALIK MOGGER SİSTEMİ
+function getWeekKey() {
+    const d = new Date();
+    const jan1 = new Date(d.getFullYear(), 0, 1);
+    const weekNum = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+    return `${d.getFullYear()}-W${weekNum}`;
+}
+
+async function recordDailyWinner() {
+    // Eski günün verilerini çek ve birinciye +1 haftalık puan ver
+    const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BUCKET_NAME}`;
+    const weeklyUrl = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${WEEKLY_BUCKET}`;
+    const weekKey = getWeekKey();
+
+    try {
+        // Günlük veriyi oku
+        let resp = await fetch(url, { method: "GET", headers: { "Content-Type": "application/json" } });
+        if (!resp.ok) return;
+        let dailyData = await resp.json();
+        if (!dailyData.players || dailyData.players.length === 0) return;
+
+        // Birincisi
+        dailyData.players.sort((a,b) => b.score - a.score);
+        const winner = dailyData.players[0];
+        if (winner.score === 0) return; // 0 puanla birinci olmaz
+
+        // Haftalık veriyi oku/oluştur
+        let weeklyData = { week: weekKey, winners: [] };
+        try {
+            let wr = await fetch(weeklyUrl, { method: "GET", headers: { "Content-Type": "application/json" } });
+            if (wr.ok) {
+                let wj = await wr.json();
+                if (wj.week === weekKey) weeklyData = wj;
+            }
+        } catch(e) {}
+
+        if (!weeklyData.winners) weeklyData.winners = [];
+
+        // Gün birincisine +1
+        let wIdx = weeklyData.winners.findIndex(w => w.name === winner.name);
+        if (wIdx > -1) {
+            weeklyData.winners[wIdx].wins++;
+            weeklyData.winners[wIdx].avatar = winner.avatar || weeklyData.winners[wIdx].avatar || "";
+        } else {
+            weeklyData.winners.push({ name: winner.name, wins: 1, avatar: winner.avatar || "" });
+        }
+
+        await fetch(weeklyUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(weeklyData) });
+    } catch(e) {
+        console.error("Haftalık mogger kaydı hatası:", e);
+    }
+}
+
+async function loadWeeklyMogger() {
+    const weeklyUrl = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${WEEKLY_BUCKET}`;
+    const weekKey = getWeekKey();
+    try {
+        let resp = await fetch(weeklyUrl, { method: "GET", headers: { "Content-Type": "application/json" } });
+        if (!resp.ok) return null;
+        let data = await resp.json();
+        if (data.week !== weekKey) return null;
+        return data;
+    } catch(e) { return null; }
+}
+
+// 9. LEADERBOARD AÇMA (MEGA UPDATE)
 async function openLeaderboard() {
     const modal = new bootstrap.Modal(document.getElementById('leaderboardModal'));
     modal.show();
-    
-    document.getElementById('leaderboard-name').value = currentUser;
-    document.getElementById('my-daily-score').innerText = myLocalScore;
-    const list = document.getElementById('leaderboard-list');
-    
-    list.innerHTML = `<div class="text-center p-4"><div class="spinner-border text-warning"></div><p class="mt-2">Sıralama Yükleniyor...</p></div>`;
 
+    document.getElementById('leaderboard-name').value = currentUser;
+    document.getElementById('leaderboard-phone').value = myPhone;
+    document.getElementById('my-daily-score').innerText = myLocalScore;
+    updateMyAvatarDisplay();
+
+    const list = document.getElementById('leaderboard-list');
+    list.innerHTML = `<div class="text-center p-4"><div class="spinner-border text-warning"></div><p class="mt-2">Yükleniyor...</p></div>`;
+
+    // Haftalık mogger'ı yükle
+    const weeklyData = await loadWeeklyMogger();
+    renderWeeklySection(weeklyData);
+
+    // Günlük veri
     const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BUCKET_NAME}`;
     const todayStr = new Date().toLocaleDateString("tr-TR");
 
     try {
         let response = await fetch(url);
-        
         if (!response.ok) {
             list.innerHTML = `<li class="list-group-item text-center">Henüz kayıtlı skor yok. İlk sen ol!</li>`;
-            // İlk açılışta sepet yoksa senkronize et ki oluşsun
             syncScoreToCloud(0);
             return;
         }
-        
-        let data = await response.json();
 
-        // Tarih kontrolü
+        let data = await response.json();
         if (!data.date || data.date !== todayStr) {
             list.innerHTML = `<li class="list-group-item text-center">Bugün henüz kimse puan almadı.</li>`;
             return;
         }
 
-        // Puanı yüksekten düşüğe sırala
         data.players.sort((a, b) => b.score - a.score);
-
         list.innerHTML = "";
+
         data.players.forEach((p, index) => {
             const isMe = p.name === currentUser;
-            // Sıralama ikonları
-            let rankIcon = `#${index+1}`;
-            if(index === 0) rankIcon = "👑";
-            if(index === 1) rankIcon = "🥈";
-            if(index === 2) rankIcon = "🥉";
+            let rankIcon = `<span class="badge bg-secondary">#${index+1}</span>`;
+            if (index === 0) rankIcon = "👑";
+            if (index === 1) rankIcon = "🥈";
+            if (index === 2) rankIcon = "🥉";
 
-            // Tasarım
             const bgClass = isMe ? "bg-warning bg-opacity-25 border-warning" : "";
-            const textClass = document.body.getAttribute('data-theme') === 'dark' ? "text-white" : "text-dark";
-            
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            const textClass = isDark ? "text-white" : "text-dark";
+            const avatarHtml = getAvatarHTML(p.name, p.avatar, 36);
+
             list.innerHTML += `
-            <li class="list-group-item d-flex justify-content-between align-items-center mb-1 rounded ${bgClass} ${textClass}" style="background-color: ${isMe ? '' : 'transparent'}; border-bottom: 1px solid #ccc;">
-                <div>
-                    <span class="fw-bold me-2 fs-5">${rankIcon}</span> 
-                    <span class="fw-bold text-uppercase">${p.name}</span>
-                    ${isMe ? '<span class="badge bg-danger ms-2" style="font-size:0.6rem">SEN</span>' : ''}
+            <li class="list-group-item d-flex justify-content-between align-items-center mb-1 rounded ${bgClass} ${textClass}" style="border-bottom:1px solid #ccc;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fw-bold fs-5" style="min-width:28px;text-align:center;">${rankIcon}</span>
+                    ${avatarHtml}
+                    <div>
+                        <span class="fw-bold text-uppercase" style="font-size:0.9rem;">${p.name}</span>
+                        ${isMe ? '<span class="badge bg-danger ms-1" style="font-size:0.55rem;">SEN</span>' : ''}
+                    </div>
                 </div>
-                <span class="badge bg-primary rounded-pill p-2 fs-6" style="min-width: 60px;">${p.score} P</span>
+                <span class="badge bg-primary rounded-pill p-2 fs-6" style="min-width:55px;">${p.score} P</span>
             </li>`;
         });
+
+        // Geçilme kontrolü
+        if (data.players.length > 0 && data.players[0].name !== currentUser) {
+            const myIdx = data.players.findIndex(p => p.name === currentUser);
+            if (myIdx > 0 && previousLeader === currentUser) {
+                checkOvertakeAlert(data.players[0].name, data.players);
+            }
+        }
 
     } catch (error) {
         list.innerHTML = `<div class="text-center text-danger">Veri alınamadı.<br><small>${error.message}</small></div>`;
     }
 }
 
-// 6. TOAST BİLDİRİMİ
+// 10. HAFTALIK MOGGER RENDER
+function renderWeeklySection(weeklyData) {
+    const banner = document.getElementById('mogger-banner');
+    const section = document.getElementById('weekly-wins-section');
+    const winsList = document.getElementById('weekly-wins-list');
+
+    if (!weeklyData || !weeklyData.winners || weeklyData.winners.length === 0) {
+        banner.style.display = 'none';
+        section.style.display = 'none';
+        return;
+    }
+
+    // En çok gün kazanan = MOGGER
+    weeklyData.winners.sort((a,b) => b.wins - a.wins);
+    const mogger = weeklyData.winners[0];
+
+    // Banner
+    banner.style.display = '';
+    document.getElementById('mogger-avatar').innerHTML = getAvatarHTML(mogger.name, mogger.avatar, 64);
+    document.getElementById('mogger-name').textContent = mogger.name;
+    document.getElementById('mogger-wins').textContent = `${mogger.wins} gün birinci 🔥`;
+
+    // Herkesin haftalık gün sayısı
+    section.style.display = '';
+    winsList.innerHTML = '';
+    weeklyData.winners.forEach(w => {
+        const isMe = w.name === currentUser;
+        winsList.innerHTML += `
+        <div class="d-flex align-items-center gap-1 px-2 py-1 rounded ${isMe ? 'bg-warning bg-opacity-25' : 'bg-light'}" style="font-size:0.8rem;">
+            ${getAvatarHTML(w.name, w.avatar, 24)}
+            <span class="fw-bold">${w.name}</span>
+            <span class="badge bg-info">${w.wins} gün</span>
+        </div>`;
+    });
+}
+
+// 11. TOAST BİLDİRİMİ
 function showScoreToast(msg) {
     const existing = document.querySelector('.score-toast');
-    if(existing) existing.remove();
-
+    if (existing) existing.remove();
     const div = document.createElement('div');
     div.className = 'score-toast';
     div.innerHTML = `<i class="bi bi-lightning-fill"></i> ${msg}`;
