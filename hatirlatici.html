@@ -91,6 +91,23 @@
         
         .disabled-opts { pointer-events: none; opacity: 0.7; }
         
+        .score-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f59e0b;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            z-index: 9999;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            animation: slideDown 0.5s ease-out, fadeOut 0.5s ease-in 2s forwards;
+        }
+        @keyframes slideDown { from {top: -50px;} to {top: 20px;} }
+        @keyframes fadeOut { from {opacity: 1;} to {opacity: 0;} }
+        
         .waiting-box { 
             padding: 40px; text-align: center; 
             color: var(--text-color); 
@@ -8697,6 +8714,106 @@ function syncWithMainApp() {
     }
 
     // --- CEVAP KONTROLÜ (DÜZELTİLMİŞ HALİ) ---
+    // === PUAN SİSTEMİ (150 PUAN) ===
+    const PANTRY_ID = "41e0725c-beab-4cea-9de2-ed320c7b115a"; 
+    const BUCKET_NAME = "YdsLiderlikTablosu";
+
+    let currentUser = localStorage.getItem('yds_username') || "İsimsiz Komutan";
+    let myLocalScore = 0;
+    let myAvatar = localStorage.getItem('yds_avatar') || null;
+    let myNotifChannel = localStorage.getItem('yds_notif_channel') || "";
+    let notifEnabled = localStorage.getItem('yds_notif_enabled') === 'true';
+    let previousLeader = localStorage.getItem('yds_prev_leader') || "";
+
+    let dailyScoreData = JSON.parse(localStorage.getItem('yds_daily_score_v2')) || { date: new Date().toLocaleDateString(), score: 0 };
+    (function() {
+        const today = new Date().toLocaleDateString();
+        if (dailyScoreData.date !== today) {
+            dailyScoreData = { date: today, score: 0 };
+            localStorage.setItem('yds_daily_score_v2', JSON.stringify(dailyScoreData));
+        }
+        myLocalScore = dailyScoreData.score;
+    })();
+
+    function showScoreToast(msg) {
+        const existing = document.querySelector('.score-toast');
+        if (existing) existing.remove();
+        const div = document.createElement('div');
+        div.className = 'score-toast';
+        div.innerHTML = `<i class="bi bi-lightning-fill"></i> ${msg}`;
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 2500);
+    }
+
+    function addScorePoints(amount) {
+        if (dailyScoreData.date !== new Date().toLocaleDateString()) {
+            dailyScoreData = { date: new Date().toLocaleDateString(), score: 0 };
+        }
+        dailyScoreData.score += amount;
+        myLocalScore = dailyScoreData.score;
+        localStorage.setItem('yds_daily_score_v2', JSON.stringify(dailyScoreData));
+        showScoreToast(`+${amount} PUAN!`);
+        syncScoreToCloud(amount);
+    }
+
+    async function syncScoreToCloud(pointsToAdd) {
+        const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BUCKET_NAME}`;
+        const todayStr = new Date().toLocaleDateString("tr-TR");
+        try {
+            let data = { date: todayStr, players: [] };
+            try {
+                let resp = await fetch(url, { method: "GET", headers: { "Content-Type": "application/json" } });
+                if (resp.ok) {
+                    let json = await resp.json();
+                    if (json.date === todayStr) data = json;
+                }
+            } catch(e) {}
+
+            if (!data.players) data.players = [];
+
+            let sortedBefore = [...data.players].sort((a,b) => b.score - a.score);
+            let oldLeader = sortedBefore.length > 0 ? sortedBefore[0].name : "";
+
+            let idx = data.players.findIndex(p => p.name === currentUser);
+            const playerObj = { 
+                name: currentUser, 
+                score: myLocalScore, 
+                avatar: myAvatar || "", 
+                ntfyChannel: (notifEnabled && myNotifChannel) ? myNotifChannel : ""
+            };
+
+            if (idx > -1) {
+                data.players[idx] = playerObj;
+            } else {
+                data.players.push(playerObj);
+            }
+
+            let sortedAfter = [...data.players].sort((a,b) => b.score - a.score);
+            let newLeader = sortedAfter[0]?.name || "";
+
+            if (pointsToAdd > 0 && newLeader === currentUser && oldLeader !== currentUser && oldLeader !== "") {
+                const overtakenPlayer = data.players.find(p => p.name === oldLeader);
+                if (overtakenPlayer && overtakenPlayer.ntfyChannel) {
+                    try {
+                        await fetch(`https://ntfy.sh/${overtakenPlayer.ntfyChannel}`, {
+                            method: 'POST',
+                            headers: { 'Title': '🚨 Liderliği Kaybettin!', 'Tags': 'rotating_light,trophy', 'Priority': '4' },
+                            body: `${currentUser} seni geçti! 😤 Hadi geri al tahtını! 💪🔥`
+                        });
+                    } catch(e) {}
+                }
+            }
+
+            previousLeader = newLeader;
+            localStorage.setItem('yds_prev_leader', newLeader);
+
+            await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+        } catch (error) {
+            console.error("Online skor hatası:", error);
+        }
+    }
+    // === PUAN SİSTEMİ SONU ===
+
     function checkAnswer(qId, selectedOpt, correctOpt) {
         const card = document.getElementById(`card-${qId}`);
         const feedback = document.getElementById(`feedback-${qId}`);
@@ -8715,6 +8832,9 @@ function syncWithMainApp() {
             // DOĞRU: Soruyu hem takvimden hem de ana yanlış listesinden SİL.
             // Böylece sayfa yenilendiğinde "Bekleyenler" arasına tekrar girmez.
             feedback.innerHTML = `<span class="text-success"><i class="bi bi-check-circle"></i> Tebrikler! Soru listeden tamamen silindi.</span>`;
+            
+            // +150 PUAN ekle ve sunucuya gönder
+            addScorePoints(150);
             
             // 1. SRS Takviminden sil
             delete srsSchedule[qId];
