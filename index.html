@@ -273,6 +273,7 @@
 
     @keyframes slideDown { from {top: -50px;} to {top: 20px;} }
     @keyframes fadeOut { from {opacity: 1;} to {opacity: 0;} }
+    @keyframes levelPop { from {transform:translate(-50%,-50%) scale(0.3);opacity:0;} to {transform:translate(-50%,-50%) scale(1);opacity:1;} }
 
         /* --- ŞIKLAR İÇİN DARK MODE DÜZELTMESİ (EN ALTA EKLE) --- */
 
@@ -1216,12 +1217,30 @@
                     </div>
                 </div>
 
-                <!-- Bugünün Skoru -->
+                <!-- Bugünün Skoru + Level -->
                 <div class="card bg-white border-0 shadow-sm mb-3">
                     <div class="card-body text-center py-2">
-                        <h6 class="text-muted text-uppercase small fw-bold mb-1">Bugünün Puanı</h6>
-                        <h1 class="display-5 fw-bold text-primary mb-0" id="my-daily-score">0</h1>
-                        <small class="text-muted">Sıfırlanma: 00:00</small>
+                        <div class="row">
+                            <div class="col-6 border-end">
+                                <h6 class="text-muted text-uppercase small fw-bold mb-1">Bugünün Puanı</h6>
+                                <h1 class="display-5 fw-bold text-primary mb-0" id="my-daily-score">0</h1>
+                                <small class="text-muted">Sıfırlanma: 00:00</small>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="text-muted text-uppercase small fw-bold mb-1">Level</h6>
+                                <h1 class="display-5 fw-bold mb-0" id="my-level-display" style="color:#2563eb;">0</h1>
+                                <small class="fw-bold" id="my-level-title" style="letter-spacing:1px;">---</small>
+                            </div>
+                        </div>
+                        <div class="mt-2 px-2">
+                            <div class="d-flex justify-content-between" style="font-size:0.65rem;">
+                                <span class="text-muted" id="my-total-score-label">Toplam: 0 P</span>
+                                <span class="text-muted" id="my-next-level-label">Sonraki: 0 P kaldı</span>
+                            </div>
+                            <div class="progress" style="height:8px;border-radius:4px;">
+                                <div class="progress-bar" id="my-level-progress" role="progressbar" style="width:0%;background:linear-gradient(90deg,#2563eb,#7c3aed);border-radius:4px;"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1260,11 +1279,11 @@ let notifEnabled = localStorage.getItem('yds_notif_enabled') === 'true';
 let previousLeader = localStorage.getItem('yds_prev_leader') || "";
 
 // 1. GÜNLÜK SKORU YERELDEN YÜKLE
-let dailyScoreData = JSON.parse(localStorage.getItem('yds_daily_score_v2')) || { date: new Date().toLocaleDateString(), score: 0 };
+let dailyScoreData = JSON.parse(localStorage.getItem('yds_daily_score_v2')) || { date: new Date().toLocaleDateString("tr-TR"), score: 0 };
 
 // Gün değiştiyse → gün birincisini kaydet, sonra sıfırla
 (async function checkDayReset() {
-    const today = new Date().toLocaleDateString();
+    const today = new Date().toLocaleDateString("tr-TR");
     if (dailyScoreData.date !== today) {
         // Eski günün birincisini haftalık tabloya yaz
         await recordDailyWinner();
@@ -1411,14 +1430,85 @@ function saveUserName() {
     }
 }
 
+// === LEVEL SİSTEMİ ===
+const LEVEL_TITLES = {
+    1: "Faggot", 10: "Loser", 20: "Çaylak", 30: "Grinder",
+    40: "Sigma", 50: "Alpha", 60: "Gigachad", 70: "Goat",
+    80: "Terrachad", 90: "TRUECHAD", 100: "TOPG"
+};
+
+function getLevelTitle(level) {
+    if (level >= 100) return LEVEL_TITLES[100];
+    if (level >= 90) return LEVEL_TITLES[90];
+    if (level >= 80) return LEVEL_TITLES[80];
+    if (level >= 70) return LEVEL_TITLES[70];
+    if (level >= 60) return LEVEL_TITLES[60];
+    if (level >= 50) return LEVEL_TITLES[50];
+    if (level >= 40) return LEVEL_TITLES[40];
+    if (level >= 30) return LEVEL_TITLES[30];
+    if (level >= 20) return LEVEL_TITLES[20];
+    if (level >= 10) return LEVEL_TITLES[10];
+    return LEVEL_TITLES[1];
+}
+
+function getLevelTitleColor(level) {
+    if (level >= 100) return "#ff0000";
+    if (level >= 90) return "#ff4500";
+    if (level >= 80) return "#ff6347";
+    if (level >= 70) return "#ffd700";
+    if (level >= 60) return "#9b59b6";
+    if (level >= 50) return "#3498db";
+    if (level >= 40) return "#2ecc71";
+    if (level >= 30) return "#e67e22";
+    if (level >= 20) return "#1abc9c";
+    if (level >= 10) return "#95a5a6";
+    return "#7f8c8d";
+}
+
+// Toplam puan -> Level hesapla (cumulative: 500 * L^1.8)
+function getCumulativePointsForLevel(level) {
+    if (level <= 0) return 0;
+    return Math.floor(500 * Math.pow(level, 1.8));
+}
+
+function getLevelFromTotalPoints(totalPoints) {
+    let lvl = 0;
+    for (let i = 1; i <= 100; i++) {
+        if (totalPoints >= getCumulativePointsForLevel(i)) {
+            lvl = i;
+        } else {
+            break;
+        }
+    }
+    return lvl;
+}
+
+// TOPLAM PUAN YÜKLEME
+let totalScoreData = JSON.parse(localStorage.getItem('yds_total_score')) || { total: 0 };
+let myTotalScore = totalScoreData.total || 0;
+let myLevel = getLevelFromTotalPoints(myTotalScore);
+
 // 5. PUAN EKLEME
 function addScorePoints(amount) {
-    if (dailyScoreData.date !== new Date().toLocaleDateString()) {
-        dailyScoreData = { date: new Date().toLocaleDateString(), score: 0 };
+    if (dailyScoreData.date !== new Date().toLocaleDateString("tr-TR")) {
+        dailyScoreData = { date: new Date().toLocaleDateString("tr-TR"), score: 0 };
     }
     dailyScoreData.score += amount;
     myLocalScore = dailyScoreData.score;
     localStorage.setItem('yds_daily_score_v2', JSON.stringify(dailyScoreData));
+
+    // TOPLAM PUAN (asla sıfırlanmaz)
+    const oldLevel = myLevel;
+    myTotalScore += amount;
+    totalScoreData.total = myTotalScore;
+    localStorage.setItem('yds_total_score', JSON.stringify(totalScoreData));
+    myLevel = getLevelFromTotalPoints(myTotalScore);
+
+    // LEVEL ATLADI MI?
+    if (myLevel > oldLevel) {
+        showLevelUpNotification(myLevel);
+    }
+
     showScoreToast(`+${amount} PUAN!`);
     syncScoreToCloud(amount);
 }
@@ -1447,6 +1537,8 @@ async function syncScoreToCloud(pointsToAdd) {
         const playerObj = { 
             name: currentUser, 
             score: myLocalScore, 
+            totalScore: myTotalScore,
+            level: myLevel,
             avatar: myAvatar || "", 
             ntfyChannel: (notifEnabled && myNotifChannel) ? myNotifChannel : ""
         };
@@ -1553,6 +1645,7 @@ async function recordDailyWinner() {
     const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BUCKET_NAME}`;
     const weeklyUrl = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${WEEKLY_BUCKET}`;
     const weekKey = getWeekKey();
+    const todayStr = new Date().toLocaleDateString("tr-TR");
 
     try {
         // Günlük veriyi oku
@@ -1560,6 +1653,10 @@ async function recordDailyWinner() {
         if (!resp.ok) return;
         let dailyData = await resp.json();
         if (!dailyData.players || dailyData.players.length === 0) return;
+
+        // ÖNEMLİ FIX: Sadece eski günün verisini kaydet! Eğer bucket tarihi zaten bugünse,
+        // birisi zaten sıfırlamış demektir. Eski günün birincisi zaten kaydedilmiştir.
+        if (dailyData.date === todayStr) return; // Bugünün verisi - kaydetme, çoktan yapılmış!
 
         // Birincisi
         dailyData.players.sort((a,b) => b.score - a.score);
@@ -1578,6 +1675,10 @@ async function recordDailyWinner() {
 
         if (!weeklyData.winners) weeklyData.winners = [];
 
+        // Aynı gün için tekrar kayıt yapmayı önle (son kayıt tarihini kontrol et)
+        const lastRecordedDate = weeklyData.lastRecordedDate || "";
+        if (lastRecordedDate === dailyData.date) return; // Bu günün birincisi zaten kaydedilmiş
+
         // Gün birincisine +1
         let wIdx = weeklyData.winners.findIndex(w => w.name === winner.name);
         if (wIdx > -1) {
@@ -1586,6 +1687,7 @@ async function recordDailyWinner() {
         } else {
             weeklyData.winners.push({ name: winner.name, wins: 1, avatar: winner.avatar || "" });
         }
+        weeklyData.lastRecordedDate = dailyData.date; // Bu günü kaydettik
 
         await fetch(weeklyUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(weeklyData) });
     } catch(e) {
@@ -1613,6 +1715,27 @@ async function openLeaderboard() {
     document.getElementById('leaderboard-name').value = currentUser;
     document.getElementById('my-daily-score').innerText = myLocalScore;
     updateMyAvatarDisplay();
+    
+    // Level bilgilerini güncelle
+    document.getElementById('my-level-display').innerText = myLevel;
+    const titleEl = document.getElementById('my-level-title');
+    const titleText = getLevelTitle(Math.max(myLevel, 1));
+    const titleColor = getLevelTitleColor(Math.max(myLevel, 1));
+    titleEl.innerText = titleText;
+    titleEl.style.color = titleColor;
+    document.getElementById('my-total-score-label').innerText = `Toplam: ${myTotalScore.toLocaleString('tr-TR')} P`;
+    
+    if (myLevel < 100) {
+        const nextLvlPts = getCumulativePointsForLevel(myLevel + 1);
+        const currLvlPts = getCumulativePointsForLevel(myLevel);
+        const remaining = nextLvlPts - myTotalScore;
+        const progressPct = Math.min(100, Math.max(0, ((myTotalScore - currLvlPts) / (nextLvlPts - currLvlPts)) * 100));
+        document.getElementById('my-next-level-label').innerText = `Lv.${myLevel+1}: ${remaining.toLocaleString('tr-TR')} P kaldı`;
+        document.getElementById('my-level-progress').style.width = progressPct + '%';
+    } else {
+        document.getElementById('my-next-level-label').innerText = 'MAX LEVEL! 🏆';
+        document.getElementById('my-level-progress').style.width = '100%';
+    }
     
     // Bildirim ayarlarını yükle
     const notifToggle = document.getElementById('notif-toggle');
@@ -1672,14 +1795,23 @@ async function openLeaderboard() {
             const textClass = isDark ? "text-white" : "text-dark";
             const avatarHtml = getAvatarHTML(p.name, p.avatar, 36);
 
+            // Level bilgisi
+            const pLevel = p.level || 0;
+            const pTitle = getLevelTitle(Math.max(pLevel, 1));
+            const pTitleColor = getLevelTitleColor(Math.max(pLevel, 1));
+
             list.innerHTML += `
             <li class="list-group-item d-flex justify-content-between align-items-center mb-1 rounded ${bgClass} ${textClass}" style="border-bottom:1px solid #ccc;">
                 <div class="d-flex align-items-center gap-2">
                     <span class="fw-bold fs-5" style="min-width:28px;text-align:center;">${rankIcon}</span>
                     ${avatarHtml}
                     <div>
-                        <span class="fw-bold text-uppercase" style="font-size:0.9rem;">${p.name}</span>
-                        ${isMe ? '<span class="badge bg-danger ms-1" style="font-size:0.55rem;">SEN</span>' : ''}
+                        <div class="d-flex align-items-center gap-1 flex-wrap">
+                            <span class="badge" style="background:${pTitleColor};font-size:0.55rem;letter-spacing:0.5px;">${pTitle}</span>
+                            <span class="fw-bold text-uppercase" style="font-size:0.9rem;">${p.name}</span>
+                            ${isMe ? '<span class="badge bg-danger ms-1" style="font-size:0.55rem;">SEN</span>' : ''}
+                        </div>
+                        <small style="font-size:0.65rem;color:#64748b;">Lv.${pLevel}${p.totalScore ? ' • ' + p.totalScore.toLocaleString('tr-TR') + ' TP' : ''}</small>
                     </div>
                 </div>
                 <span class="badge bg-primary rounded-pill p-2 fs-6" style="min-width:55px;">${p.score} P</span>
@@ -1753,6 +1885,35 @@ function showScoreToast(msg) {
     div.innerHTML = `<i class="bi bi-lightning-fill"></i> ${msg}`;
     document.body.appendChild(div);
     setTimeout(() => div.remove(), 2500);
+}
+
+// LEVEL UP BİLDİRİMİ
+function showLevelUpNotification(newLevel) {
+    const title = getLevelTitle(newLevel);
+    const color = getLevelTitleColor(newLevel);
+    const nextLvlPts = newLevel < 100 ? getCumulativePointsForLevel(newLevel + 1) : null;
+    const nextInfo = nextLvlPts ? `<br><small style="font-weight:400;font-size:0.75rem;">Sonraki seviye: ${(nextLvlPts - myTotalScore).toLocaleString('tr-TR')} puan kaldı</small>` : `<br><small style="font-weight:400;font-size:0.75rem;">MAKSIMUM SEVİYE! 🏆</small>`;
+
+    const existing = document.querySelector('.levelup-toast');
+    if (existing) existing.remove();
+    const div = document.createElement('div');
+    div.className = 'levelup-toast';
+    div.style.cssText = `position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:99999;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;padding:28px 40px;border-radius:16px;font-weight:800;font-size:1.2rem;box-shadow:0 12px 60px rgba(0,0,0,0.6);text-align:center;border:3px solid ${color};animation:levelPop 0.6s cubic-bezier(0.175,0.885,0.32,1.275);max-width:90vw;`;
+    div.innerHTML = `
+        <div style="font-size:2.5rem;margin-bottom:8px;">🎉🔥🎉</div>
+        <div style="color:${color};font-size:1.6rem;text-transform:uppercase;letter-spacing:2px;">LEVEL UP!</div>
+        <div style="font-size:2rem;margin:8px 0;">Level ${newLevel}</div>
+        <div style="color:${color};font-size:1.3rem;text-transform:uppercase;letter-spacing:3px;text-shadow:0 0 10px ${color};">${title}</div>
+        <div style="font-size:0.85rem;color:#94a3b8;margin-top:8px;">Toplam: ${myTotalScore.toLocaleString('tr-TR')} puan${nextInfo}</div>
+    `;
+    document.body.appendChild(div);
+
+    // Konfeti
+    if (typeof confetti === 'function') {
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+    }
+
+    setTimeout(() => { if (div.parentNode) div.remove(); }, 5000);
 }
 
 // 7. CEVAP KONTROL (PUANLAMA İÇERİR)
@@ -10428,7 +10589,7 @@ function renderQuestions(qList) {
     
     // Varsayılan Hedef Yapısı
     const defaultGoals = {
-        date: new Date().toLocaleDateString(),
+        date: new Date().toLocaleDateString("tr-TR"),
         targets: {
             prep: 20,
             conj: 20,
@@ -10458,7 +10619,7 @@ function renderQuestions(qList) {
 
     // Sayfa Yüklendiğinde Tarih Kontrolü
     function checkDateAndReset() {
-        const today = new Date().toLocaleDateString();
+        const today = new Date().toLocaleDateString("tr-TR");
         if (dailyData.date !== today) {
             // Yeni gün! Sayaçları sıfırla ama hedefleri koru
             dailyData.date = today;
