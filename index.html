@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YDS Mega Test (MelihBABA Edition)</title>
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="./icon-192.png">
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- İkonlar -->
@@ -1284,7 +1284,7 @@
 
 // ============ PWA & WEB BİLDİRİM SİSTEMİ ============
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').then(async (reg) => {
+    navigator.serviceWorker.register('./sw.js').then(async (reg) => {
         console.log('SW kayıt oldu');
         if ('periodicSync' in reg) {
             try {
@@ -1309,6 +1309,7 @@ function requestNotificationPermission() {
         if (perm === 'granted') {
             alert('✅ Bildirimler açıldı! Biri seni geçince bildirim alacaksın.');
             localStorage.setItem('yds_web_notif', 'true');
+            updateNotifStatusBadge();
         } else {
             alert('❌ Bildirim izni reddedildi. Ayarlardan açabilirsin.');
         }
@@ -1320,12 +1321,12 @@ function sendLocalNotification(title, body) {
     if (navigator.serviceWorker && navigator.serviceWorker.controller) {
         navigator.serviceWorker.ready.then(reg => {
             reg.showNotification(title, {
-                body: body, icon: 'icon-192.png', badge: 'icon-192.png',
+                body: body, icon: './icon-192.png', badge: './icon-192.png',
                 vibrate: [200, 100, 200], tag: 'leaderboard-alert', renotify: true
             });
         });
     } else {
-        try { new Notification(title, { body: body, icon: 'icon-192.png' }); } catch(e) {}
+        try { new Notification(title, { body: body, icon: './icon-192.png' }); } catch(e) {}
     }
 }
 
@@ -1353,7 +1354,60 @@ function updateNotifStatusBadge() {
         badge.className = 'badge bg-warning text-dark'; badge.textContent = '⚠️ İzin verilmedi';
     }
 }
-// ============ PWA SONU ============
+
+// ============ CROSS-TAB SYNC (Hatırlatıcı ↔ Index Anlık Senkronizasyon) ============
+// Başka sekme localStorage değiştirince → bu sekmedeki in-memory değişkenleri güncelle
+window.addEventListener('storage', function(e) {
+    if (e.key === 'yds_daily_score_v2' && e.newValue) {
+        try {
+            const fresh = JSON.parse(e.newValue);
+            const todayStr = new Date().toLocaleDateString("tr-TR");
+            if (fresh.date === todayStr) {
+                dailyScoreData = fresh;
+                myLocalScore = fresh.score;
+            }
+        } catch(ex) {}
+    }
+    if (e.key === 'yds_total_score' && e.newValue) {
+        try {
+            const fresh = JSON.parse(e.newValue);
+            totalScoreData = fresh;
+            myTotalScore = fresh.total || 0;
+            myLevel = getLevelFromTotalPoints(myTotalScore);
+        } catch(ex) {}
+    }
+});
+
+// Sekme tekrar görünür olunca → localStorage'dan taze veriyi oku
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        refreshFromLocalStorage();
+    }
+});
+
+// Sayfa odaklanınca da güncelle (mobilde daha güvenilir)
+window.addEventListener('focus', function() {
+    refreshFromLocalStorage();
+});
+
+function refreshFromLocalStorage() {
+    const todayStr = new Date().toLocaleDateString("tr-TR");
+    try {
+        const freshDaily = JSON.parse(localStorage.getItem('yds_daily_score_v2'));
+        if (freshDaily && freshDaily.date === todayStr) {
+            dailyScoreData = freshDaily;
+            myLocalScore = freshDaily.score;
+        }
+    } catch(e) {}
+    try {
+        const freshTotal = JSON.parse(localStorage.getItem('yds_total_score'));
+        if (freshTotal) {
+            myTotalScore = freshTotal.total || 0;
+            myLevel = getLevelFromTotalPoints(myTotalScore);
+        }
+    } catch(e) {}
+}
+// ============ SYNC SONU ============
 
 // --- PANTRY API ---
 const PANTRY_ID = "41e0725c-beab-4cea-9de2-ed320c7b115a"; 
@@ -1800,6 +1854,9 @@ async function loadWeeklyMogger() {
 
 // 9. LEADERBOARD AÇMA (MEGA UPDATE)
 async function openLeaderboard() {
+    // Her açılışta localStorage'dan taze veriyi oku
+    refreshFromLocalStorage();
+
     const modal = new bootstrap.Modal(document.getElementById('leaderboardModal'));
     modal.show();
 
