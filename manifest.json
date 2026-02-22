@@ -2,7 +2,7 @@
   "name": "YDS Mega Test",
   "short_name": "YDS Test",
   "description": "YDS Mega Test - MelihBABA Edition",
-  "start_url": "./index__13_.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
