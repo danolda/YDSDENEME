@@ -211,12 +211,8 @@
 </div>
 
 <script>
-    // ============================================================
-    // VERİ ALANI: BURAYA index.html İÇİNDEKİ VERİLERİ YAPIŞTIR
-    // ============================================================
-    
-   // 1. KELİME LİSTESİ (ydsVocabDB)
-     const ydsVocabDB = [
+/* ================= YDS MEGA KELİME HAVUZU (GÜNCELLENMİŞ - 1200+ KELİME) ================= */
+    const ydsVocabDB = [
         // --- A GRUBU ---
         { en: "Abandon", tr: "Terk etmek, vazgeçmek" },
         { en: "Abolition", tr: "Yürürlükten kaldırma, iptal" },
@@ -337,7 +333,7 @@
         { en: "Bring back", tr: "Geri getirmek, hatırlatmak" },
         { en: "Bring down", tr: "Devirmek, azaltmak, indirmek" },
         { en: "Bring in", tr: "Kazandırmak, getirmek" },
-        { en: "Bring out", tr: "Ortaya çıkarmak, yayımlamak" },
+        { en: "Bring out", tr: "Ortaya çık, yayımlamak" },
         { en: "Bring up", tr: "Büyütmek (çocuk), gündeme getirmek" },
         { en: "Broad", tr: "Geniş" },
 
@@ -1695,8 +1691,9 @@
         { en: "Yield", tr: "Ürün vermek / Teslim olmak" }
     ];
 
-  const rawQuestionsText = `
-Section: Prepositions & Collocations (1–70)
+    /* ================= GRAMER SORULARI (RAW TEXT) ================= */
+    const rawQuestionsText = `
+Section: Prepositions & Collocations (1—70)
 1) She insisted ___ paying for the damage, even though it wasn't her fault.
    A) at
    B) to
@@ -2257,7 +2254,7 @@ TIP: so = sonuç; so that = amaç.
    E) so that
 TIP: in case = olur da ... diye (ihtimale karşı).
 
-Section: Conjunctions & Linkers (71–130)
+Section: Conjunctions & Linkers (71—130)
 71) She spoke quietly ___ nobody would overhear the conversation.
    A) because
    B) unless
@@ -3100,7 +3097,7 @@ Section: Relative Clauses & Reduced Structures (131—190)
    D) for which
    E) when
 
-Section: Tense, Passive, Modals, Conditionals (191–250)
+Section: Tense, Passive, Modals, Conditionals (191—250)
 191) By the time we arrived, the meeting ___ already ___.
    A) has / started
    B) have / started
@@ -3581,6 +3578,34 @@ TIP: will be + V3 (released).
    E) must
 TIP: Main clause: would have V3 (burada would).
 `;
+
+    const rawAnswersText = `
+1:E  2:E  3:C  4:E  5:B  6:E  7:E  8:E  9:B  10:B
+11:C  12:C  13:D  14:A  15:C  16:B  17:C  18:A  19:A  20:D
+21:B  22:D  23:E  24:D  25:B  26:B  27:E  28:B  29:C  30:A
+31:B  32:C  33:D  34:C  35:B  36:A  37:C  38:E  39:C  40:B
+41:C  42:A  43:D  44:A  45:A  46:C  47:A  48:C  49:D  50:E
+51:B  52:D  53:D  54:E  55:E  56:A  57:B  58:A  59:E  60:D
+61:E  62:E  63:A  64:D  65:C  66:C  67:C  68:B  69:C  70:A
+71:E  72:C  73:A  74:B  75:A  76:D  77:E  78:B  79:D  80:C
+81:B  82:A  83:C  84:B  85:A  86:A  87:A  88:C  89:C  90:A
+91:E  92:A  93:D  94:E  95:D  96:A  97:A  98:A  99:E  100:B
+101:B  102:B  103:D  104:C  105:D  106:A  107:E  108:E  109:B  110:C
+111:C  112:E  113:C  114:E  115:C  116:C  117:D  118:A  119:B  120:D
+121:B  122:D  123:E  124:B  125:A  126:B  127:E  128:E  129:E  130:C
+131:D  132:B  133:E  134:A  135:B  136:B  137:E  138:E  139:C  140:B
+141:A  142:D  143:C  144:D  145:C  146:E  147:A  148:B  149:E  150:A
+151:C  152:A  153:E  154:B  155:D  156:C  157:A  158:D  159:C  160:E
+161:B  162:C  163:D  164:C  165:E  166:B  167:C  168:D  169:C  170:E
+171:B  172:D  173:E  174:A  175:C  176:D  177:A  178:C  179:E  180:D
+181:A  182:E  183:A  184:B  185:B  186:B  187:D  188:A  189:A  190:D
+191:D  192:A  193:E  194:B  195:B  196:B  197:A  198:C  199:E  200:A
+201:E  202:A  203:E  204:D  205:B  206:C  207:D  208:D  209:C  210:A
+211:C  212:C  213:E  214:E  215:C  216:D  217:E  218:C  219:A  220:D
+221:E  222:C  223:E  224:D  225:D  226:A  227:B  228:E  229:D  230:B
+231:B  232:A  233:D  234:C  235:B  236:B  237:B  238:B  239:B  240:E
+241:E  242:A  243:C  244:C  245:A  246:C  247:C  248:A  249:E  250:A
+`;
     
 // 1. PREPOSITIONS
     const rawExamPrepQ = `
@@ -3662,7 +3687,7 @@ TIP: Main clause: would have V3 (burada would).
     C) at / through
     D) to / on
     E) for / from
-    14. Behaviourist psychologists claim that language is learned ---- the mechanism of reinforcing the contingent association between stimulus and response – the same general-purpose mechanism invoked to explain other learning processes ---- humans. (2024 KASIM YDS)
+    14. Behaviourist psychologists claim that language is learned ---- the mechanism of reinforcing the contingent association between stimulus and response — the same general-purpose mechanism invoked to explain other learning processes ---- humans. (2024 KASIM YDS)
     A) about / at
     B) with / on
     C) for / among
@@ -3758,7 +3783,7 @@ TIP: Main clause: would have V3 (burada would).
     C) from / at
     D) on / to
     E) with / on
-    30. Anorexia nervosa is a severe eating disorder, usually involving excessive weight loss ---- selfâ€starvation, most often found ---- teenage girls. (2021 NİSAN YDS)
+    30. Anorexia nervosa is a severe eating disorder, usually involving excessive weight loss ---- self-starvation, most often found ---- teenage girls. (2021 NİSAN YDS)
     A) at / with
     B) from / of
     C) for / between
@@ -4820,7 +4845,7 @@ C) in place of
 D) in spite of
 E) contrary to
 
-120. Among the drawbacks of aging is a creeping tendency to put on weight ---- our resting metabolism slows down – by roughly 1 to 2 percent every decade. (2019 ARALIK YDS)
+120. Among the drawbacks of aging is a creeping tendency to put on weight ---- our resting metabolism slows down — by roughly 1 to 2 percent every decade. (2019 ARALIK YDS)
 A) but
 B) since
 C) as if
@@ -4981,7 +5006,7 @@ C) as if
 D) even though
 E) in case
 
-143. Known as the `ady with the Lamp' during the Crimean War, Florence Nightingale, the most famous nurse in history, focused her efforts ---- on the prevention of diseases ---- the promotion of healthy living in a more positive way. (2018 ARALIK YDS)
+143. Known as the 'Lady with the Lamp' during the Crimean War, Florence Nightingale, the most famous nurse in history, focused her efforts ---- on the prevention of diseases ---- the promotion of healthy living in a more positive way. (2018 ARALIK YDS)
 A) the more / the more
 B) not only / but also
 C) whether / or
@@ -5535,7 +5560,7 @@ C) having enabled / influenced
 D) being enabled / would have influenced
 E) having been enabled / could influence
 
-35. The moment the first stars ---- is one of the most evocative milestones in the evolution of the cosmos – it marks the beginning of the age of light, the moment when the Universe ---- recognisable to us. (2021 YDT)
+35. The moment the first stars ---- is one of the most evocative milestones in the evolution of the cosmos — it marks the beginning of the age of light, the moment when the Universe ---- recognisable to us. (2021 YDT)
 A) were born / would have become
 B) are being born / might become
 C) had been born / will become
@@ -6254,7 +6279,7 @@ C) proposal
 D) advent
 E) resolution
 
-41. A mere 7 percent of the world's oceans has any protection – mostly weak rules, with multiple exceptions – and only 2.5 percent is highly protected from ----. (2023 NİSAN YDS)
+41. A mere 7 percent of the world's oceans has any protection — mostly weak rules, with multiple exceptions — and only 2.5 percent is highly protected from ----. (2023 NİSAN YDS)
 A) exploitation
 B) diversion
 C) fragmentation
@@ -6485,7 +6510,7 @@ C) predictable
 D) disastrous
 E) indicative
 
-74. Governments around the world, in partnership with civil society, must continue to act ---- against the tobacco epidemic – the leading global cause of preventable death. (2021 YDT)
+74. Governments around the world, in partnership with civil society, must continue to act ---- against the tobacco epidemic — the leading global cause of preventable death. (2021 YDT)
 A) deficiently
 B) decisively
 C) suspiciously
@@ -7265,6 +7290,13 @@ const rawExamVocabA = `1-C 2-D 3-A 4-A 5-E 6-B 7-E 8-E 9-B 10-A 11-C 12-D 13-C 1
 48-C 49-A 50-A 51-B 52-C 53-B 54-D 55-C 56-B 57-B 58-B 59-B 60-B 61-A 62-B 63-D 64-A 65-B 66-C 67-E 68-C 69-E 70-A 71-E 72-A 73-D 74-B 75-E 76-A 77-A 78-B 79-B 80-A 81-D 82-E 83-B 84-D 85-A 86-A 87-C 88-A 89-C 90-A 91-B 92-C 93-D 94-B 95-D 96-B 97-E
 98-B 99-D 100-B 101-C 102-D 103-D 104-D 105-E 106-B 107-D 108-C 109-B 110-E 111-B 112-B 113-A 114-E 115-A 116-E 117-A 118-A 119-D 120-A 121-C 122-B 123-B 124-C 125-B 126-B 127-B 128-A 129-C 130-B 131-C 132-D 133-E 134-E 135-C 136-E 137-B 138-C 139-C 140-D
 141-D 142-B 143-B 144-E 145-C 146-A 147-D 148-B 149-C 150-C 151-E 152-E 153-D 154-E 155-D 156-C 157-D 158-D 159-B 160-C 161-B 162-A 163-A 164-B 165-E 166-D 167-D 168-C 169-E 170-C 171-A 172-A 173-B 174-A 175-A 176-A 177-D 178-A 179-C 180-D 181-A 182-B 183-C 184-D`;
+
+    
+    
+
+    /* ================= SİSTEM DEĞİŞKENLERİ ================= */
+    let allQuestions = [];
+    let generatedQuestions = [];
 
 
 // --- KARMA DENEME (150 Soru) ---
@@ -8321,35 +8353,6 @@ E) outdated
 ---`;
 const rawKarmaA = `1-D 2-C 3-B 4-E 5-A 6-B 7-E 8-B 9-A 10-D 11-E 12-E 13-E 14-D 15-C 16-D 17-D 18-A 19-C 20-A 21-D 22-B 23-B 24-A 25-B 26-B 27-C 28-E 29-A 30-E 31-C 32-D 33-C 34-B 35-D 36-E 37-D 38-E 39-E 40-B 41-D 42-B 43-D 44-E 45-C 46-A 47-D 48-E 49-D 50-D 51-B 52-E 53-A 54-A 55-A 56-E 57-A 58-E 59-E 60-A 61-E 62-B 63-E 64-D 65-A 66-C 67-B 68-A 69-A 70-E 71-A 72-E 73-E 74-D 75-A 76-A 77-A 78-D 79-C 80-A 81-B 82-C 83-A 84-A 85-A 86-A 87-D 88-A 89-E 90-A 91-A 92-A 93-D 94-D 95-A 96-A 97-A 98-C 99-A 100-A 101-A 102-D 103-A 104-B 105-A 106-A 107-E 108-A 109-A 110-B 111-A 112-C 113-A 114-A 115-A 116-C 117-B 118-E 119-A 120-B 121-C 122-A 123-E 124-B 125-D 126-A 127-D 128-B 129-E 130-C 131-B 132-E 133-A 134-C 135-D 136-E 137-C 138-D 139-A 140-B 141-D 142-A 143-C 144-E 145-B 146-A 147-E 148-D 149-B 150-C`;
 
-
-    
-    const rawAnswersText = `
-1:E  2:E  3:C  4:E  5:B  6:E  7:E  8:D  9:B  10:B
-11:C  12:C  13:D  14:A  15:C  16:B  17:C  18:A  19:A  20:D
-21:B  22:D  23:E  24:D  25:B  26:B  27:E  28:B  29:C  30:A
-31:B  32:C  33:D  34:C  35:B  36:A  37:C  38:E  39:C  40:B
-41:C  42:A  43:D  44:A  45:A  46:C  47:A  48:C  49:D  50:E
-51:B  52:D  53:D  54:E  55:E  56:A  57:B  58:A  59:E  60:D
-61:E  62:E  63:A  64:D  65:C  66:C  67:C  68:B  69:C  70:A
-71:E  72:C  73:A  74:B  75:A  76:D  77:E  78:B  79:D  80:C
-81:B  82:A  83:C  84:B  85:A  86:A  87:A  88:C  89:C  90:A
-91:E  92:A  93:D  94:E  95:D  96:A  97:A  98:A  99:E  100:B
-101:B  102:B  103:D  104:C  105:D  106:A  107:E  108:E  109:B  110:C
-111:C  112:E  113:C  114:E  115:C  116:C  117:D  118:A  119:B  120:D
-121:B  122:D  123:E  124:B  125:A  126:B  127:E  128:E  129:E  130:C
-131:D  132:B  133:E  134:A  135:B  136:B  137:E  138:E  139:C  140:B
-141:A  142:D  143:C  144:D  145:C  146:E  147:A  148:B  149:E  150:A
-151:C  152:A  153:E  154:B  155:D  156:C  157:A  158:D  159:C  160:E
-161:B  162:C  163:D  164:C  165:E  166:B  167:C  168:D  169:C  170:E
-171:B  172:D  173:E  174:A  175:C  176:D  177:A  178:C  179:E  180:D
-181:A  182:E  183:A  184:B  185:B  186:B  187:D  188:A  189:A  190:D
-191:D  192:A  193:E  194:B  195:B  196:B  197:A  198:C  199:E  200:A
-201:E  202:A  203:E  204:D  205:B  206:C  207:D  208:D  209:C  210:A
-211:C  212:C  213:E  214:E  215:C  216:D  217:E  218:C  219:A  220:D
-221:E  222:C  223:E  224:D  225:D  226:A  227:B  228:E  229:D  230:B
-231:B  232:A  233:D  234:C  235:B  236:B  237:B  238:B  239:B  240:E
-241:E  242:A  243:C  244:C  245:A  246:C  247:C  248:A  249:E  250:A
-`;
 
 
     // ============================================================
