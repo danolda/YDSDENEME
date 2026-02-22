@@ -1563,10 +1563,16 @@ async function testNotification() {
         return;
     }
     try {
-        await fetch(`https://ntfy.sh/${myNotifChannel}`, {
+        await fetch('https://ntfy.sh/', {
             method: 'POST',
-            headers: { 'Title': 'YDS Liderlik Test', 'Tags': 'trophy' },
-            body: '🏆 Test bildirimi! Biri seni geçtiğinde böyle bir bildirim alacaksın. 💪'
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                topic: myNotifChannel,
+                title: "🏆 YDS Liderlik Test",
+                message: "Test bildirimi! Biri seni geçtiğinde böyle bir bildirim alacaksın. 💪",
+                tags: ["trophy"],
+                priority: 3
+            })
         });
         alert("Test bildirimi gönderildi! Telefonunu kontrol et.");
     } catch(e) {
@@ -1574,18 +1580,20 @@ async function testNotification() {
     }
 }
 
-// Rakibi geçtiğinde ona ntfy bildirimi gönder
+// Rakibi geçtiğinde ona ntfy bildirimi gönder (JSON formatı ile emojiler sorunsuz çalışır)
 async function sendOvertakeNotification(overtakenPlayerName, overtakenChannel, myName) {
     if (!overtakenChannel) return;
     try {
-        await fetch(`https://ntfy.sh/${overtakenChannel}`, {
+        await fetch('https://ntfy.sh/', {
             method: 'POST',
-            headers: { 
-                'Title': '🚨 Liderliği Kaybettin!', 
-                'Tags': 'rotating_light,trophy',
-                'Priority': '4'
-            },
-            body: `${myName} seni geçti! 😤 Hadi geri al tahtını! 💪🔥`
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                topic: overtakenChannel,
+                title: "🚨 Liderliği Kaybettin!",
+                message: `${myName} seni geçti! 😤 Hadi geri al tahtını! 💪🔥`,
+                tags: ["rotating_light", "trophy"],
+                priority: 4
+            })
         });
         console.log("Bildirim gönderildi:", overtakenPlayerName);
     } catch(e) {
