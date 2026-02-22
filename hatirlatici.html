@@ -8901,6 +8901,52 @@ function syncWithMainApp() {
     }
     // === PUAN SİSTEMİ SONU ===
 
+    // ============ CROSS-TAB SYNC (Hatırlatıcı ↔ Index Anlık Senkronizasyon) ============
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'yds_daily_score_v2' && e.newValue) {
+            try {
+                const fresh = JSON.parse(e.newValue);
+                const todayStr = new Date().toLocaleDateString("tr-TR");
+                if (fresh.date === todayStr) {
+                    dailyScoreData = fresh;
+                    myLocalScore = fresh.score;
+                }
+            } catch(ex) {}
+        }
+        if (e.key === 'yds_total_score' && e.newValue) {
+            try {
+                const fresh = JSON.parse(e.newValue);
+                totalScoreData = fresh;
+                myTotalScore = fresh.total || 0;
+                myLevel = getLevelFromTotalPoints(myTotalScore);
+            } catch(ex) {}
+        }
+    });
+
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) { refreshFromLocalStorage(); }
+    });
+    window.addEventListener('focus', function() { refreshFromLocalStorage(); });
+
+    function refreshFromLocalStorage() {
+        const todayStr = new Date().toLocaleDateString("tr-TR");
+        try {
+            const freshDaily = JSON.parse(localStorage.getItem('yds_daily_score_v2'));
+            if (freshDaily && freshDaily.date === todayStr) {
+                dailyScoreData = freshDaily;
+                myLocalScore = freshDaily.score;
+            }
+        } catch(e) {}
+        try {
+            const freshTotal = JSON.parse(localStorage.getItem('yds_total_score'));
+            if (freshTotal) {
+                myTotalScore = freshTotal.total || 0;
+                myLevel = getLevelFromTotalPoints(myTotalScore);
+            }
+        } catch(e) {}
+    }
+    // ============ SYNC SONU ============
+
     function checkAnswer(qId, selectedOpt, correctOpt) {
         const card = document.getElementById(`card-${qId}`);
         const feedback = document.getElementById(`feedback-${qId}`);
