@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YDS Mega Test (MelihBABA Edition)</title>
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- İkonlar -->
@@ -1186,31 +1192,42 @@
                     </div>
                 </div>
 
-                <!-- BİLDİRİM AYARI -->
+                <!-- BİLDİRİM AYARI (WEB PUSH + NTFY) -->
                 <div class="card border-0 shadow-sm mb-3">
                     <div class="card-body py-2">
-                        <div class="d-flex align-items-center justify-content-between mb-1">
-                            <span class="fw-bold small"><i class="bi bi-bell-fill text-danger"></i> Otomatik Bildirim</span>
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" id="notif-toggle" onchange="toggleNotifSetup()">
-                            </div>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="fw-bold small"><i class="bi bi-bell-fill text-danger"></i> Bildirimler</span>
+                            <button class="btn btn-sm btn-danger" onclick="requestNotificationPermission()">
+                                <i class="bi bi-bell"></i> Bildirimleri Aç
+                            </button>
                         </div>
-                        <div id="notif-setup" style="display:none;">
-                            <div class="alert alert-info py-2 px-2 small mb-2" style="font-size:0.72rem;">
-                                <strong>Nasıl çalışır?</strong> Biri seni geçtiğinde telefonuna anında bildirim gelir (site kapalıyken bile!)<br>
-                                <strong>1.</strong> Telefonuna <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" class="fw-bold">ntfy uygulamasını</a> yükle (iOS: App Store'da "ntfy")<br>
-                                <strong>2.</strong> Uygulamada <strong>"+"</strong> bas → aşağıdaki kanal adını yapıştır → Subscribe
+                        <div id="notif-status" class="mb-2">
+                            <span class="badge bg-secondary" id="notif-status-badge">Kontrol ediliyor...</span>
+                        </div>
+                        <small class="text-muted" style="font-size:0.7rem;">
+                            Biri seni geçtiğinde telefon/bilgisayar bildirimi alırsın.<br>
+                            📱 PWA olarak kuruluysa arka planda da çalışır!
+                        </small>
+
+                        <!-- Eski NTFY sistemi (opsiyonel, aşağıda gizli) -->
+                        <div class="mt-2 border-top pt-2">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="small text-muted"><i class="bi bi-broadcast"></i> ntfy (Alternatif)</span>
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" id="notif-toggle" onchange="toggleNotifSetup()">
+                                </div>
                             </div>
-                            <div class="input-group input-group-sm mb-1">
-                                <span class="input-group-text bg-danger text-white fw-bold" style="font-size:0.7rem;">📢 Kanal:</span>
-                                <input type="text" id="notif-channel" class="form-control fw-bold" readonly style="font-size:0.85rem;letter-spacing:0.5px;">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="copyNotifChannel()" title="Kopyala"><i class="bi bi-clipboard"></i></button>
-                            </div>
-                            <small class="text-muted" style="font-size:0.6rem;">Bu kanalı ntfy uygulamasında subscribe et. Biri seni geçtiğinde otomatik bildirim alırsın.</small>
-                            
-                            <div class="mt-2">
-                                <button class="btn btn-sm btn-outline-primary w-100" onclick="testNotification()">
-                                    <i class="bi bi-send-fill"></i> Test Bildirimi Gönder
+                            <div id="notif-setup" style="display:none;">
+                                <div class="alert alert-info py-2 px-2 small mb-2 mt-2" style="font-size:0.72rem;">
+                                    <strong>1.</strong> <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" class="fw-bold">ntfy</a> yükle → <strong>"+"</strong> bas → kanal yapıştır
+                                </div>
+                                <div class="input-group input-group-sm mb-1">
+                                    <span class="input-group-text bg-danger text-white fw-bold" style="font-size:0.7rem;">📢</span>
+                                    <input type="text" id="notif-channel" class="form-control fw-bold" readonly style="font-size:0.85rem;">
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="copyNotifChannel()" title="Kopyala"><i class="bi bi-clipboard"></i></button>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary w-100 mt-1" onclick="testNotification()">
+                                    <i class="bi bi-send-fill"></i> Test
                                 </button>
                             </div>
                         </div>
@@ -1264,6 +1281,79 @@
 <script>
     
 /* ================= ONLINE LEADERBOARD & PUAN SİSTEMİ (V2 - MOGGER) ================= */
+
+// ============ PWA & WEB BİLDİRİM SİSTEMİ ============
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').then(async (reg) => {
+        console.log('SW kayıt oldu');
+        if ('periodicSync' in reg) {
+            try {
+                await reg.periodicSync.register('check-leaderboard', { minInterval: 2 * 60 * 1000 });
+            } catch (e) { console.log('Periodic sync desteklenmiyor'); }
+        }
+    }).catch(err => console.log('SW hata:', err));
+
+    navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data.type === 'LEADERBOARD_UPDATE') {
+            handleLeaderboardUpdate(event.data.players);
+        }
+    });
+}
+
+let notificationPermission = ('Notification' in window) ? Notification.permission : 'denied';
+
+function requestNotificationPermission() {
+    if (!('Notification' in window)) { alert('Bu tarayıcı bildirimleri desteklemiyor.'); return; }
+    Notification.requestPermission().then(perm => {
+        notificationPermission = perm;
+        if (perm === 'granted') {
+            alert('✅ Bildirimler açıldı! Biri seni geçince bildirim alacaksın.');
+            localStorage.setItem('yds_web_notif', 'true');
+        } else {
+            alert('❌ Bildirim izni reddedildi. Ayarlardan açabilirsin.');
+        }
+    });
+}
+
+function sendLocalNotification(title, body) {
+    if (notificationPermission !== 'granted') return;
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.ready.then(reg => {
+            reg.showNotification(title, {
+                body: body, icon: 'icon-192.png', badge: 'icon-192.png',
+                vibrate: [200, 100, 200], tag: 'leaderboard-alert', renotify: true
+            });
+        });
+    } else {
+        try { new Notification(title, { body: body, icon: 'icon-192.png' }); } catch(e) {}
+    }
+}
+
+function handleLeaderboardUpdate(players) {
+    if (!players || players.length === 0) return;
+    const leader = players[0].name;
+    if (previousLeader === currentUser && leader !== currentUser && leader !== "") {
+        sendLocalNotification('🚨 Liderliği Kaybettin!', `${leader} seni günlük puanda geçti! Hadi geri al! 💪`);
+        checkOvertakeAlert(leader);
+    }
+    previousLeader = leader;
+    localStorage.setItem('yds_prev_leader', leader);
+}
+
+function updateNotifStatusBadge() {
+    const badge = document.getElementById('notif-status-badge');
+    if (!badge) return;
+    if (!('Notification' in window)) {
+        badge.className = 'badge bg-secondary'; badge.textContent = 'Desteklenmiyor';
+    } else if (Notification.permission === 'granted') {
+        badge.className = 'badge bg-success'; badge.textContent = '✅ Aktif';
+    } else if (Notification.permission === 'denied') {
+        badge.className = 'badge bg-danger'; badge.textContent = '❌ Kapalı (Tarayıcı ayarlarından aç)';
+    } else {
+        badge.className = 'badge bg-warning text-dark'; badge.textContent = '⚠️ İzin verilmedi';
+    }
+}
+// ============ PWA SONU ============
 
 // --- PANTRY API ---
 const PANTRY_ID = "41e0725c-beab-4cea-9de2-ed320c7b115a"; 
@@ -1580,6 +1670,7 @@ async function syncScoreToCloud(pointsToAdd) {
 // 7. GEÇİLME KONTROLÜ
 function checkOvertakeAlert(newLeaderName) {
     showOvertakeToast(newLeaderName);
+    sendLocalNotification('🚨 Liderliği Kaybettin!', `${newLeaderName} seni geçti! Hadi geri al tahtını! 💪`);
     const alertEl = document.getElementById('overtake-alert');
     if (!alertEl) return;
     alertEl.classList.remove('d-none');
@@ -1748,6 +1839,7 @@ async function openLeaderboard() {
         localStorage.setItem('yds_notif_channel', myNotifChannel);
     }
     notifChannelInput.value = myNotifChannel;
+    updateNotifStatusBadge();
 
     const list = document.getElementById('leaderboard-list');
     list.innerHTML = `<div class="text-center p-4"><div class="spinner-border text-warning"></div><p class="mt-2">Yükleniyor...</p></div>`;
