@@ -895,6 +895,41 @@
     </div>
 </div>
     
+    <!-- Veri Aktarım (Export/Import) Modalı -->
+<div class="modal fade" id="transferModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: var(--card-bg); color: var(--text-main);">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="bi bi-cloud-arrow-up-fill"></i> Veri Taşıma (PWA)</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs mb-3" id="transferTabs">
+                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#exportTab">Dışa Aktar (Eski Tel)</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#importTab">İçe Aktar (Yeni Tel/App)</a></li>
+                </ul>
+                <div class="tab-content">
+                    <!-- DIŞA AKTAR -->
+                    <div class="tab-pane fade show active" id="exportTab">
+                        <p class="small text-muted">Mevcut verilerinizi şifreleyerek bir koda dönüştürün. Bu kodu yeni uygulamada kullanacaksınız.</p>
+                        <input type="text" id="exportPass" class="form-control mb-2" placeholder="Bir Şifre Belirleyin">
+                        <button class="btn btn-primary w-100 mb-2" onclick="exportData()">Kodu Oluştur</button>
+                        <textarea id="exportCode" class="form-control" rows="3" readonly placeholder="Oluşturulan kod burada görünecek..."></textarea>
+                        <button class="btn btn-outline-secondary w-100 mt-2 btn-sm" onclick="copyTransferCode()"><i class="bi bi-clipboard"></i> Kodu Kopyala</button>
+                    </div>
+                    <!-- İÇE AKTAR -->
+                    <div class="tab-pane fade" id="importTab">
+                        <p class="small text-muted">Eski tarayıcıdan kopyaladığınız kodu ve belirlediğiniz şifreyi girerek verilerinizi geri yükleyin.</p>
+                        <textarea id="importCode" class="form-control mb-2" rows="3" placeholder="Kodu Buraya Yapıştırın"></textarea>
+                        <input type="text" id="importPass" class="form-control mb-2" placeholder="Kodu Oluştururken Girdiğiniz Şifre">
+                        <button class="btn btn-success w-100" onclick="importData()">Verileri Geri Yükle</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
 <!-- Günlük Hedefler Modalı -->
 <div class="modal fade" id="goalModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -948,6 +983,9 @@
             <button class="btn btn-primary btn-sm mx-1" onclick="openSettings()">
                 <i class="bi bi-gear-fill"></i> API
             </button>
+            <button class="btn btn-info btn-sm mx-1 text-white" onclick="openDataTransfer()">
+            <i class="bi bi-cloud-arrow-up-fill"></i> Veri Aktar
+        </button>
             <button class="btn btn-danger btn-sm mx-1" onclick="fullReset()">
                 <i class="bi bi-trash"></i> Sıfırla
             </button>
@@ -12356,6 +12394,72 @@ async function getAiTip(questionId) {
         showTipBox(q.id, "Altın Tüyo", "bi-stars", q.aiTipData);
     } catch (e) { showError(q.id, e.message); }
 }    
+
+    /* ================= VERİ AKTARIM (EXPORT/IMPORT) FONKSİYONLARI ================= */
+function openDataTransfer() {
+    new bootstrap.Modal(document.getElementById('transferModal')).show();
+}
+
+function exportData() {
+    const pass = document.getElementById('exportPass').value.trim();
+    if (pass.length < 3) return alert("Lütfen en az 3 haneli bir şifre belirleyin!");
+
+    let dataObj = {};
+    // Sadece yds ile başlayan bizim uygulamaya ait verileri al
+    for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        if (key.startsWith('yds_')) {
+            dataObj[key] = localStorage.getItem(key);
+        }
+    }
+
+    try {
+        const payload = { password: pass, data: dataObj };
+        // Türkçe karakter hatası almamak için encodeURIComponent kullanıyoruz
+        const encoded = btoa(encodeURIComponent(JSON.stringify(payload)));
+        document.getElementById('exportCode').value = encoded;
+    } catch (e) {
+        alert("Kod oluşturulurken hata oluştu!");
+    }
+}
+
+function copyTransferCode() {
+    const codeInput = document.getElementById('exportCode');
+    if (!codeInput.value) return alert("Önce kod oluşturun!");
+    codeInput.select();
+    document.execCommand('copy');
+    alert("Kod kopyalandı! Şimdi PWA uygulamasını (Ana ekrandaki) açıp İçe Aktar bölümüne yapıştırın.");
+}
+
+function importData() {
+    const code = document.getElementById('importCode').value.trim();
+    const pass = document.getElementById('importPass').value.trim();
+
+    if (!code || !pass) return alert("Lütfen hem kodu hem de şifreyi girin!");
+
+    try {
+        const decoded = JSON.parse(decodeURIComponent(atob(code)));
+        
+        if (decoded.password !== pass) {
+            return alert("Hatalı şifre! Lütfen kodu oluştururken verdiğiniz şifreyi girin.");
+        }
+
+        if (!decoded.data || Object.keys(decoded.data).length === 0) {
+            return alert("Geçersiz veya boş kod!");
+        }
+
+        // Eski verileri temizlemeden üstüne yazıyoruz (Güvenli geçiş)
+        for (const [key, value] of Object.entries(decoded.data)) {
+            localStorage.setItem(key, value);
+        }
+
+        alert("Veriler başarıyla aktarıldı! Uygulama yeniden başlatılıyor...");
+        window.location.reload();
+
+    } catch (e) {
+        alert("Kod çözülemedi! Lütfen kodu eksiksiz kopyaladığınızdan emin olun.");
+    }
+}
 </script>
     
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
