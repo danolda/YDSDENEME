@@ -1557,28 +1557,41 @@ let dailyScoreData = JSON.parse(localStorage.getItem('yds_daily_score_v2')) || {
     myLocalScore = dailyScoreData.score;
 })();
 
-// 2. AVATAR SİSTEMİ
+// 2. AVATAR SİSTEMİ (YÜKSEK KALİTE)
 function handleAvatarUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
-    // Boyut limiti YOK - canvas ile otomatik küçültüyoruz
+    
     const reader = new FileReader();
     reader.onload = function(e) {
         const img = new Image();
         img.onload = function() {
             const canvas = document.createElement('canvas');
-            canvas.width = 64; canvas.height = 64;
+            // Çözünürlüğü 64'ten 256'ya çıkardık (Çok daha net görünür)
+            canvas.width = 256; 
+            canvas.height = 256;
+            
             const ctx = canvas.getContext('2d');
+            // Görüntü iyileştirme (Anti-aliasing) ayarlarını açtık
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = "high";
+
             // Kare kırpma (ortadan)
             const size = Math.min(img.width, img.height);
             const sx = (img.width - size) / 2;
             const sy = (img.height - size) / 2;
-            ctx.drawImage(img, sx, sy, size, size, 0, 0, 64, 64);
-            myAvatar = canvas.toDataURL('image/jpeg', 0.6);
+            
+            // Resmi canvas'a yüksek boyutta çiz
+            ctx.drawImage(img, sx, sy, size, size, 0, 0, 256, 256);
+            
+            // Formatı JPEG yapıp, Kaliteyi 0.6'dan 0.9'a (%90) çıkardık
+            myAvatar = canvas.toDataURL('image/jpeg', 0.9);
+            
             localStorage.setItem('yds_avatar', myAvatar);
             updateMyAvatarDisplay();
-            syncScoreToCloud(0);
-            alert("Profil fotoğrafı kaydedildi!");
+            syncScoreToCloud(0); // Buluta yeni yüksek kaliteli resmi gönder
+            
+            alert("Profil fotoğrafı yüksek kalitede kaydedildi!");
         };
         img.src = e.target.result;
     };
@@ -1717,9 +1730,9 @@ function saveUserName() {
 
 // === LEVEL SİSTEMİ ===
 const LEVEL_TITLES = {
-    1: "Faggot", 10: "Loser", 20: "Çaylak", 30: "Grinder",
-    40: "Sigma", 50: "Alpha", 60: "Gigachad", 70: "Goat",
-    80: "Terrachad", 90: "TRUECHAD", 100: "TOPG"
+    1: "Faggot", 10: "Gooner", 20: "Sedanter", 30: "Grinder",
+    40: "Alpha", 50: "Sigma", 60: "Gigachad", 70: "Goat",
+    80: "TerraChad", 90: "TRUECHAD", 100: "TOPG"
 };
 
 function getLevelTitle(level) {
