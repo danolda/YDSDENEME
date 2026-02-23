@@ -935,7 +935,33 @@
         .blb-level-badge { font-size: 0.85rem; padding: 0 8px; }
         .blb-progress-text { font-size: 0.7rem; }
     }
-        
+/* --- PROFIL VE VS COMPARE STİLLERİ --- */
+    .stat-bar-bg { background: #e2e8f0; height: 10px; border-radius: 5px; overflow: hidden; width: 100%; margin-top: 4px; }
+    .stat-bar-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.5s; }
+    
+    [data-theme="dark"] .stat-bar-bg { background: #334155; }
+    [data-theme="dark"] .vs-compare-row { border-color: #475569 !important; }
+
+    .vs-compare-row { border-bottom: 1px solid #cbd5e1; padding: 12px 0; }
+    .vs-winner-hl { font-weight: 900; color: #10b981; }
+    .vs-loser-hl { font-weight: 600; color: #ef4444; opacity: 0.7; }
+    .vs-tie-hl { font-weight: 700; color: #f59e0b; }
+
+    .domination-text {
+        font-size: 2.2rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        text-align: center;
+        background: linear-gradient(90deg, #ff0000, #ff7300);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: pulseGlow 1.5s infinite;
+        margin-top: 15px;
+    }
+    @keyframes pulseGlow {
+        0%, 100% { filter: drop-shadow(0 0 10px rgba(255,0,0,0.5)); transform: scale(1); }
+        50% { filter: drop-shadow(0 0 25px rgba(255,0,0,0.8)); transform: scale(1.05); }
+    }        
 </style>
 
 </head>
@@ -1046,6 +1072,9 @@
             <button class="btn btn-warning btn-sm fw-bold" onclick="openLeaderboard()">
                 <i class="bi bi-trophy-fill"></i> Liderlik Tablosu
             </button>
+            <button class="btn btn-secondary btn-sm fw-bold" onclick="openProfileModal()">
+            <i class="bi bi-person-lines-fill"></i> Profil & VS
+            </button>
             <!-- YENİ EKLENEN HEDEFLER BUTONU -->
             <button class="btn btn-outline-success btn-sm" onclick="openDailyGoals()">
                 <i class="bi bi-graph-up-arrow"></i> Hedefler
@@ -1135,6 +1164,57 @@
                 </div>
             </div>
             
+            <!-- Profil ve İstatistik Modalı -->
+<div class="modal fade" id="profileModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white border-bottom-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-person-lines-fill text-info"></i> KARİYER & VS KIYASLAMA</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="background-color: var(--bg-body); color: var(--text-main);">
+                <ul class="nav nav-pills nav-fill mb-3" id="profileTabs">
+                    <li class="nav-item"><a class="nav-link active fw-bold" data-bs-toggle="pill" href="#myStatsTab">Benim İstatistiklerim</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="pill" href="#compareTab">Başkayla Kıyasla (VS)</a></li>
+                </ul>
+                <div class="tab-content">
+                    <!-- BENİM İSTATİSTİKLERİM -->
+                    <div class="tab-pane fade show active" id="myStatsTab">
+                        <div id="my-stats-container">
+                            <!-- JS ile dolacak -->
+                        </div>
+                    </div>
+                    <!-- KARŞILAŞTIRMA (VS) -->
+                    <div class="tab-pane fade" id="compareTab">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text bg-primary text-white"><i class="bi bi-search"></i></span>
+                            <input type="text" id="vs-opponent-name" class="form-control fw-bold" placeholder="Kıyaslanacak Rakibin Adı (Tam yazın)">
+                            <button class="btn btn-danger fw-bold" onclick="compareWithOpponent()">MEYDAN OKU</button>
+                        </div>
+                        <div id="vs-compare-result" class="d-none">
+                            <!-- Üst Başlık: Avatarlar ve İsimler -->
+                            <div class="d-flex justify-content-between align-items-center mb-4 p-3 rounded" style="background: rgba(0,0,0,0.05); border: 2px solid #ccc;">
+                                <div class="text-center" style="width: 40%;">
+                                    <div id="vs-my-avatar" class="mb-1 d-flex justify-content-center"></div>
+                                    <h5 class="fw-bold m-0 text-primary" id="vs-my-name-display">BEN</h5>
+                                </div>
+                                <div class="text-center fw-bold fs-2 text-danger" style="width: 20%;">VS</div>
+                                <div class="text-center" style="width: 40%;">
+                                    <div id="vs-opp-avatar" class="mb-1 d-flex justify-content-center"></div>
+                                    <h5 class="fw-bold m-0 text-danger" id="vs-opp-name-display">RAKİP</h5>
+                                </div>
+                            </div>
+                            <!-- Sonuç Listesi -->
+                            <div id="vs-compare-list"></div>
+                            <!-- Domination Text -->
+                            <div id="vs-domination-text" class="domination-text"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
             <!-- GUEST KISMI -->
             <div class="col-md-6">
                 <h5>Odaya Katıl (Guest)</h5>
@@ -1855,7 +1935,8 @@ async function syncScoreToCloud(pointsToAdd) {
             totalScore: myTotalScore,
             level: myLevel,
             avatar: myAvatar || "", 
-            ntfyChannel: (notifEnabled && myNotifChannel) ? myNotifChannel : ""
+            ntfyChannel: (notifEnabled && myNotifChannel) ? myNotifChannel : "",
+            stats: calculateMyStats() // YENİ EKLENEN İSTATİSTİK VERİSİ
         };
 
         if (idx > -1) { data.players[idx] = playerObj; } 
@@ -12638,6 +12719,174 @@ function updateBottomLevelBar() {
         blbText.innerText = "MAX SEVİYE 🏆";
     }
 }
+/* ================= PROFIL & VS STATS SİSTEMİ ================= */
+
+// Anlık olarak çözülmüş/hatalı soruları sayıp istatistik objesi döndürür
+function calculateMyStats() {
+    let stats = {};
+    sections.forEach(sec => {
+        if (sec.key === 'secAi' || sec.key === 'secMistakes') return; 
+        
+        let c = 0; let w = 0;
+        const secQs = allQuestions.filter(q => q.id >= sec.start && q.id <= sec.end);
+        
+        secQs.forEach(q => {
+            if (progressData[q.id] === 'correct') c++;
+            else if (progressData[q.id] === 'wrong') w++;
+        });
+        
+        stats[sec.key] = { c: c, w: w };
+    });
+    return stats;
+}
+
+// Profil modalını açar ve "Benim İstatistiklerim" sekmesini doldurur
+function openProfileModal() {
+    const stats = calculateMyStats();
+    const container = document.getElementById('my-stats-container');
+    container.innerHTML = "";
+
+    sections.forEach(sec => {
+        if (sec.key === 'secAi' || sec.key === 'secMistakes') return;
+        
+        let c = stats[sec.key].c;
+        let w = stats[sec.key].w;
+        let totalSolved = c + w;
+        let ratio = totalSolved > 0 ? Math.round((c / totalSolved) * 100) : 0;
+
+        container.innerHTML += `
+        <div class="card mb-3 shadow-sm border-0">
+            <div class="card-body py-2">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong style="font-size: 0.9rem;">${sec.title}</strong>
+                    <span class="badge ${ratio >= 80 ? 'bg-success' : (ratio >= 50 ? 'bg-warning text-dark' : 'bg-danger')}">
+                        %${ratio} Kavrama
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between text-muted" style="font-size: 0.75rem;">
+                    <span><i class="bi bi-check-circle-fill text-success"></i> ${c} Doğru</span>
+                    <span><i class="bi bi-x-circle-fill text-danger"></i> ${w} Yanlış</span>
+                </div>
+                <div class="stat-bar-bg">
+                    <div class="stat-bar-fill" style="width: ${ratio}%; background: ${ratio >= 80 ? '#10b981' : (ratio >= 50 ? '#f59e0b' : '#ef4444')}"></div>
+                </div>
+            </div>
+        </div>`;
+    });
+
+    // Buluta da anlık yedekle
+    syncScoreToCloud(0); 
+
+    new bootstrap.Modal(document.getElementById('profileModal')).show();
+}
+
+// Rakiple kıyaslama mantığı
+async function compareWithOpponent() {
+    const oppName = document.getElementById('vs-opponent-name').value.trim();
+    if (!oppName) return alert("Lütfen bir rakip adı girin!");
+    if (oppName.toLowerCase() === currentUser.toLowerCase()) return alert("Kendinizle kapışamazsınız! Şizofreni mi var? :)");
+
+    document.getElementById('vs-compare-list').innerHTML = `<div class="text-center my-4"><div class="spinner-border text-danger"></div><br>Rakibin verileri çekiliyor...</div>`;
+    document.getElementById('vs-compare-result').classList.remove('d-none');
+    document.getElementById('vs-domination-text').innerText = "";
+
+    const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BUCKET_NAME}`;
+    
+    try {
+        let resp = await fetch(url);
+        if (!resp.ok) throw new Error("Veritabanına ulaşılamadı.");
+        let data = await resp.json();
+
+        const oppData = data.players.find(p => p.name.toLowerCase() === oppName.toLowerCase());
+        
+        if (!oppData) {
+            document.getElementById('vs-compare-list').innerHTML = `<div class="alert alert-warning text-center"><strong>${oppName}</strong> adlı komutan bulunamadı. İsmi tam ve doğru yazdığınızdan emin olun.</div>`;
+            return;
+        }
+
+        // Avatarları ve İsimleri Bas
+        document.getElementById('vs-my-name-display').innerText = currentUser;
+        document.getElementById('vs-my-avatar').innerHTML = getAvatarHTML(currentUser, myAvatar, 64);
+        
+        document.getElementById('vs-opp-name-display').innerText = oppData.name;
+        document.getElementById('vs-opp-avatar').innerHTML = getAvatarHTML(oppData.name, oppData.avatar, 64);
+
+        const myStats = calculateMyStats();
+        const oppStats = oppData.stats || {}; // Rakibin eski sürümde kalmış olma ihtimali
+        
+        let myWins = 0;
+        let oppWins = 0;
+        
+        let htmlContent = "";
+
+        sections.forEach(sec => {
+            if (sec.key === 'secAi' || sec.key === 'secMistakes') return;
+
+            let mC = myStats[sec.key].c; let mW = myStats[sec.key].w;
+            let oC = (oppStats[sec.key] && oppStats[sec.key].c) ? oppStats[sec.key].c : 0;
+            let oW = (oppStats[sec.key] && oppStats[sec.key].w) ? oppStats[sec.key].w : 0;
+
+            let mTotal = mC + mW;
+            let oTotal = oC + oW;
+
+            let mRatio = mTotal > 0 ? (mC / mTotal) * 100 : 0;
+            let oRatio = oTotal > 0 ? (oC / oTotal) * 100 : 0;
+
+            let winner = "tie";
+            
+            // 1. Kural: Kavrama Oranı (Yüzde)
+            if (mRatio > oRatio) winner = "me";
+            else if (oRatio > mRatio) winner = "opp";
+            else {
+                // 2. Kural: Oran eşitse çok doğru yapan kazanır (Daha tecrübeli olan)
+                if (mC > oC) winner = "me";
+                else if (oC > mC) winner = "opp";
+            }
+
+            if (winner === "me") myWins++;
+            else if (winner === "opp") oppWins++;
+
+            // Stillendirme atamaları
+            let myClass = winner === "me" ? "vs-winner-hl" : (winner === "opp" ? "vs-loser-hl" : "vs-tie-hl");
+            let oppClass = winner === "opp" ? "vs-winner-hl" : (winner === "me" ? "vs-loser-hl" : "vs-tie-hl");
+
+            htmlContent += `
+            <div class="vs-compare-row d-flex justify-content-between align-items-center">
+                <div class="text-center ${myClass}" style="width:25%; font-size:0.85rem;">
+                    %${Math.round(mRatio)}<br><small class="text-muted">${mC}D ${mW}Y</small>
+                </div>
+                <div class="text-center fw-bold" style="width:50%; font-size:0.75rem; text-transform:uppercase;">
+                    ${sec.title}
+                </div>
+                <div class="text-center ${oppClass}" style="width:25%; font-size:0.85rem;">
+                    %${Math.round(oRatio)}<br><small class="text-muted">${oC}D ${oW}Y</small>
+                </div>
+            </div>`;
+        });
+
+        document.getElementById('vs-compare-list').innerHTML = htmlContent;
+
+        // --- SONUÇ: KİM DOMİNE ETTİ? ---
+        const domText = document.getElementById('vs-domination-text');
+        if (myWins > oppWins) {
+            domText.innerText = `${currentUser} DOMİNE ETTİ!`;
+            domText.style.background = "linear-gradient(90deg, #10b981, #059669)";
+            domText.style.webkitBackgroundClip = "text";
+        } else if (oppWins > myWins) {
+            domText.innerText = `${oppData.name} DOMİNE ETTİ!`;
+            domText.style.background = "linear-gradient(90deg, #ef4444, #b91c1c)";
+            domText.style.webkitBackgroundClip = "text";
+        } else {
+            domText.innerText = "EŞİT GÜÇLER! KAN DÖKÜLMEDİ.";
+            domText.style.background = "linear-gradient(90deg, #f59e0b, #d97706)";
+            domText.style.webkitBackgroundClip = "text";
+        }
+
+    } catch (e) {
+        document.getElementById('vs-compare-list').innerHTML = `<div class="alert alert-danger">Bir hata oluştu: ${e.message}</div>`;
+    }
+}
+    
 </script>
     
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
