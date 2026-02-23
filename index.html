@@ -1580,8 +1580,8 @@ async function testNotification() {
     }
 }
 
-// Rakibi geçtiğinde ona ntfy bildirimi gönder (JSON formatı ile emojiler sorunsuz çalışır)
-async function sendOvertakeNotification(overtakenPlayerName, overtakenChannel, myName) {
+// 1. GÜNLÜK Skorda geçilen kişiye gidecek bildirim
+async function sendDailyOvertakeNotification(overtakenChannel, myName, myScore) {
     if (!overtakenChannel) return;
     try {
         await fetch('https://ntfy.sh/', {
@@ -1589,16 +1589,31 @@ async function sendOvertakeNotification(overtakenPlayerName, overtakenChannel, m
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 topic: overtakenChannel,
-                title: "🚨 Liderliği Kaybettin!",
-                message: `${myName} seni geçti! 😤 Hadi geri al tahtını! 💪🔥`,
-                tags: ["rotating_light", "trophy"],
+                title: "🚨 Günlük Skorda Geçildin!",
+                message: `${myName}, bugün ${myScore} puanla seni geride bıraktı! 😤 Hemen soru çöz ve tahtını geri al! 💪`,
+                tags: ["rotating_light", "dart"],
                 priority: 4
             })
         });
-        console.log("Bildirim gönderildi:", overtakenPlayerName);
-    } catch(e) {
-        console.log("Bildirim gönderilemedi:", e);
-    }
+    } catch(e) { console.log("Bildirim hatası:", e); }
+}
+
+// 2. TOTAL Skorda (Level & TP) geçilen kişiye gidecek bildirim
+async function sendTotalOvertakeNotification(overtakenChannel, myName, myTP, myLevel) {
+    if (!overtakenChannel) return;
+    try {
+        await fetch('https://ntfy.sh/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                topic: overtakenChannel,
+                title: "🏆 Genel Sıralamada Geçildin!",
+                message: `${myName}; Lv.${myLevel} (${myTP.toLocaleString('tr-TR')} TP) seviyesine ulaşarak  seni FRAMEMOOGLADI! 😤`,
+                tags: ["trophy", "chart_with_upwards_trend"],
+                priority: 4
+            })
+        });
+    } catch(e) { console.log("Bildirim hatası:", e); }
 }
 
 // 4. KULLANICI ADINI KAYDETME
