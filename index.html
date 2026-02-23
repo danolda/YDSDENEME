@@ -1718,10 +1718,11 @@ function addScorePoints(amount) {
     syncScoreToCloud(amount);
 }
 
-// 6. BULUT SENKRONİZASYON (avatar + ntfy channel dahil)
+// 6. BULUT SENKRONİZASYON VE DETAYLI GEÇİLME KONTROLÜ
 async function syncScoreToCloud(pointsToAdd) {
     const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BUCKET_NAME}`;
     const todayStr = new Date().toLocaleDateString("tr-TR");
+    
     try {
         let data = { date: todayStr, players: [] };
         try {
@@ -1734,10 +1735,25 @@ async function syncScoreToCloud(pointsToAdd) {
 
         if (!data.players) data.players = [];
 
-        // Eski sıralamayı kaydet
+        // --- 1. GÜNCELLEMEDEN ÖNCE KİMLER BENDEN ÖNDEYDİ? ---
+        let myOldDaily = 0;
+        let myOldTotal = 0;
+        let myIndexBefore = data.players.findIndex(p => p.name === currentUser);
+
+        if (myIndexBefore > -1) {
+            myOldDaily = data.players[myIndexBefore].score || 0;
+            myOldTotal = data.players[myIndexBefore].totalScore || 0;
+        }
+
+        // Benden önde olanların isimlerini kaydet
+        let dailyAheadBefore = data.players.filter(p => p.score > myOldDaily).map(p => p.name);
+        let tpAheadBefore = data.players.filter(p => (p.totalScore || 0) > myOldTotal).map(p => p.name);
+
+        // Ekrandaki HTML uyarı için eski lideri bulalım
         let sortedBefore = [...data.players].sort((a,b) => b.score - a.score);
         let oldLeader = sortedBefore.length > 0 ? sortedBefore[0].name : "";
 
+        // --- 2. KENDİ SKORUMU LİSTEYE YAZ ---
         let idx = data.players.findIndex(p => p.name === currentUser);
         const playerObj = { 
             name: currentUser, 
@@ -1748,26 +1764,41 @@ async function syncScoreToCloud(pointsToAdd) {
             ntfyChannel: (notifEnabled && myNotifChannel) ? myNotifChannel : ""
         };
 
-        if (idx > -1) {
-            data.players[idx] = playerObj;
-        } else {
-            data.players.push(playerObj);
+        if (idx > -1) { data.players[idx] = playerObj; } 
+        else { data.players.push(playerObj); }
+
+        // --- 3. GÜNCELLEMEDEN SONRA KİMLER HALA BENDEN ÖNDE? ---
+        let dailyAheadAfter = data.players.filter(p => p.score > myLocalScore).map(p => p.name);
+        let tpAheadAfter = data.players.filter(p => (p.totalScore || 0) > myTotalScore).map(p => p.name);
+
+        // --- 4. GEÇTİĞİM KİŞİLERİ BUL VE ONLARA BİLDİRİM AT! ---
+        if (pointsToAdd > 0) {
+            // Eskiden benden önde olup, şimdi önde OLMAYANLAR (Yani benim altıma düşenler)
+            let overtookDaily = dailyAheadBefore.filter(name => !dailyAheadAfter.includes(name));
+            let overtookTP = tpAheadBefore.filter(name => !tpAheadAfter.includes(name));
+
+            // Günlük skorda geçtiklerime füzeyi yolla
+            overtookDaily.forEach(overtakenName => {
+                let p = data.players.find(x => x.name === overtakenName);
+                if (p && p.ntfyChannel && p.name !== currentUser) {
+                    sendDailyOvertakeNotification(p.ntfyChannel, currentUser, myLocalScore);
+                }
+            });
+
+            // Total TP'de (Level'da) geçtiklerime füzeyi yolla
+            overtookTP.forEach(overtakenName => {
+                let p = data.players.find(x => x.name === overtakenName);
+                if (p && p.ntfyChannel && p.name !== currentUser) {
+                    sendTotalOvertakeNotification(p.ntfyChannel, currentUser, myTotalScore, myLevel);
+                }
+            });
         }
 
-        // Yeni sıralama
+        // --- 5. LİDERLİK KAYBI HTML UYARISI (Uygulama açık olanlar için) ---
         let sortedAfter = [...data.players].sort((a,b) => b.score - a.score);
         let newLeader = sortedAfter[0]?.name || "";
 
-        // BEN birini geçtiyse → o kişiye ntfy bildirimi gönder!
-        if (pointsToAdd > 0 && newLeader === currentUser && oldLeader !== currentUser && oldLeader !== "") {
-            // Eski lideri bul, ntfy kanalı varsa bildirim at
-            const overtakenPlayer = data.players.find(p => p.name === oldLeader);
-            if (overtakenPlayer && overtakenPlayer.ntfyChannel) {
-                sendOvertakeNotification(oldLeader, overtakenPlayer.ntfyChannel, currentUser);
-            }
-        }
-
-        // BENİ biri geçtiyse → ekranda uyarı göster
+        // Eğer birinci bendim ama yerime başkası geçtiyse HTML alert göster
         if (oldLeader === currentUser && newLeader !== currentUser && newLeader !== "") {
             checkOvertakeAlert(newLeader);
         }
@@ -1775,6 +1806,7 @@ async function syncScoreToCloud(pointsToAdd) {
         previousLeader = newLeader;
         localStorage.setItem('yds_prev_leader', newLeader);
 
+        // Sunucuya kaydet
         await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
 
     } catch (error) {
