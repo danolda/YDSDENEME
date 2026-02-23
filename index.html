@@ -1835,7 +1835,7 @@ function showOvertakeToast(name) {
     setTimeout(() => { if (div.parentNode) div.remove(); }, 6000);
 }
 
-// Sayfa açılışında liderliği kontrol et
+// Sayfa açılışında ve arka planda liderliği (sadece ekran uyarısı için) kontrol et
 async function checkLeadershipOnLoad() {
     const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BUCKET_NAME}`;
     const todayStr = new Date().toLocaleDateString("tr-TR");
@@ -1848,17 +1848,10 @@ async function checkLeadershipOnLoad() {
         data.players.sort((a,b) => b.score - a.score);
         const leader = data.players[0]?.name || "";
         
+        // Sadece HTML (Ekranda açıkken düşen) alert için kontrol: 
         // Eğer önceki lider bendim ama artık değilsem → geçildim!
         if (previousLeader === currentUser && leader !== currentUser && leader !== "") {
             checkOvertakeAlert(leader);
-        }
-        
-        // Ben şu an lidersem ve önceki lider ben değildiyse → birini geçtik, ona bildirim at
-        if (leader === currentUser && previousLeader !== currentUser && previousLeader !== "") {
-            const overtakenPlayer = data.players.find(p => p.name === previousLeader);
-            if (overtakenPlayer && overtakenPlayer.ntfyChannel) {
-                sendOvertakeNotification(previousLeader, overtakenPlayer.ntfyChannel, currentUser);
-            }
         }
         
         previousLeader = leader;
