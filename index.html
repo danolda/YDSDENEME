@@ -1188,7 +1188,8 @@
                     <div class="tab-pane fade" id="compareTab">
                         <div class="input-group mb-3">
                             <span class="input-group-text bg-primary text-white"><i class="bi bi-search"></i></span>
-                            <input type="text" id="vs-opponent-name" class="form-control fw-bold" placeholder="Kıyaslanacak Rakibin Adı (Tam yazın)">
+                            <input type="text" id="vs-opponent-name" class="form-control fw-bold" list="players-datalist" placeholder="Kıyaslanacak Rakibin Adı (Listeden seçin)">
+                            <datalist id="players-datalist"></datalist>
                             <button class="btn btn-danger fw-bold" onclick="compareWithOpponent()">MEYDAN OKU</button>
                         </div>
                         <div id="vs-compare-result" class="d-none">
@@ -11254,7 +11255,10 @@ window.checkAnswer = function(qId, selectedOpt) {
             const badge = document.querySelector('#menu-mistakes .badge');
             if(badge) badge.innerText = wrongBank.length;
         }
-        progressData[qId] = 'correct'; // Kaydet
+        // DÜZELTME: Eğer "Yanlışlarım" sekmesinde çözüyorsak ana bölümdeki "Hatalı" etiketini bozma!
+        if (currentSectionKey !== 'mistakes') {
+            progressData[qId] = 'correct'; 
+        }
 
     } else {
         feedbackDiv.innerHTML = `<div class="mt-2 text-danger fw-bold"><i class="bi bi-x-circle"></i> Yanlış. Cevap: ${q.correctAnswer}</div>`;
@@ -12774,10 +12778,28 @@ function openProfileModal() {
         </div>`;
     });
 
-    // Buluta da anlık yedekle
+    // Buluta anlık yedekle
     syncScoreToCloud(0); 
 
-    new bootstrap.Modal(document.getElementById('profileModal')).show();
+    // OYUNCU LİSTESİNİ ÇEK VE AÇILIR LİSTEYİ (DROPDOWN) DOLDUR
+    const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BUCKET_NAME}`;
+    fetch(url).then(res => res.json()).then(data => {
+        const datalist = document.getElementById('players-datalist');
+        datalist.innerHTML = "";
+        if(data.players) {
+            // Skora göre sırala ve listeye ekle
+            data.players.sort((a,b) => b.score - a.score).forEach(p => {
+                if(p.name !== currentUser) {
+                    datalist.innerHTML += `<option value="${p.name}">Lv.${p.level || 1} | ${p.score} Günlük Puan</option>`;
+                }
+            });
+        }
+    }).catch(e => console.log("Oyuncu listesi yüklenemedi."));
+
+    // SİYAH EKRAN (BUG) ÇÖZÜMÜ: getOrCreateInstance kullanıyoruz!
+    const modalEl = document.getElementById('profileModal');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modal.show();
 }
 
 // Rakiple kıyaslama mantığı
