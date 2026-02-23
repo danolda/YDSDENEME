@@ -12796,8 +12796,17 @@ function openProfileModal() {
         }
     }).catch(e => console.log("Oyuncu listesi yüklenemedi."));
 
-    // SİYAH EKRAN (BUG) ÇÖZÜMÜ: getOrCreateInstance kullanıyoruz!
+    // ========================================================
+    // SİYAH EKRAN BUG ÇÖZÜMÜ: MODALI ZORLA EN ÜST KATMANA TAŞI
+    // ========================================================
     const modalEl = document.getElementById('profileModal');
+    
+    // Eğer modal sayfanın ana gövdesinde (body) değilse, onu oraya taşıyoruz. 
+    // Bu sayede CSS kilitlenmelerinden kurtulur ve her sayfada kusursuz açılır.
+    if (modalEl.parentNode !== document.body) {
+        document.body.appendChild(modalEl);
+    }
+
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     modal.show();
 }
