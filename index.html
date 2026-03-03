@@ -2346,6 +2346,12 @@ function showLevelUpNotification(newLevel) {
 
 // 7. CEVAP KONTROL (PUANLAMA İÇERİR)
 window.checkAnswer = function(qId, selectedOpt) {
+    // Eğer şıklar zaten kilitliyse (DOM kontrolü) tekrar tıklamayı engelle
+    const optContainer = document.getElementById(`opts-${qId}`);
+    if (optContainer && optContainer.querySelector('.option-row.disabled-opts')) {
+        console.log("Bu soru zaten cevaplanmış (DOM kilidi).");
+        return;
+    }
     // Soruyu bul
     let q = allQuestions.find(i => i.id === qId) || generatedQuestions.find(i => i.id === qId);
     if(!q) return;
@@ -11163,6 +11169,23 @@ function showSection(key) {
             [filteredQ[i], filteredQ[j]] = [filteredQ[j], filteredQ[i]];
         }
         cachedVocabOrder = filteredQ;
+    }
+    // Karma bölümünde kayıtlı karışık sırayı kullan
+    else if (key === 'secKarma') {
+        let karmaOrder = JSON.parse(localStorage.getItem('yds_karma_order') || '[]');
+        if (karmaOrder.length === 0) {
+            // İlk kez: karıştır ve kaydet
+            for (let i = filteredQ.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [filteredQ[i], filteredQ[j]] = [filteredQ[j], filteredQ[i]];
+            }
+            karmaOrder = filteredQ.map(q => q.id);
+            localStorage.setItem('yds_karma_order', JSON.stringify(karmaOrder));
+        } else {
+            // Kayıtlı sıraya göre diz
+            filteredQ.sort((a, b) => karmaOrder.indexOf(a.id) - karmaOrder.indexOf(b.id));
+        }
+        cachedVocabOrder = filteredQ;
     } else {
         cachedVocabOrder = null;
     }
@@ -11592,7 +11615,13 @@ function showGoalKoOverlay() {
 
 /* ================= CEVAP KONTROLÜ (TEKRAR TIKLAMA ENGELLİ) ================= */
 window.checkAnswer = function(qId, selectedOpt) {
-    // YANLIŞLARIM bölümünde tekrar cevaplanabilir olmalı
+    // Eğer şıklar zaten kilitliyse (DOM kontrolü) tekrar tıklamayı engelle
+    const optContainer = document.getElementById(`opts-${qId}`);
+    if (optContainer && optContainer.querySelector('.option-row.disabled-opts')) {
+        console.log("Bu soru zaten cevaplanmış (DOM kilidi).");
+        return;
+    }
+    // Normal bölümlerde progressData kontrolü
     if (progressData[qId] && currentSectionKey !== 'mistakes') {
         console.log("Bu soru zaten çözüldü.");
         return; 
@@ -11682,7 +11711,7 @@ function goToFirstUnsolved() {
         activeList = [...generatedQuestions].reverse();
     } else {
         const secData = sections.find(s => s.key === currentSectionKey);
-        if(secData) activeList = (currentSectionKey === 'secVocab' && cachedVocabOrder) 
+        if(secData) activeList = ((currentSectionKey === 'secVocab' || currentSectionKey === 'secKarma') && cachedVocabOrder) 
             ? cachedVocabOrder 
             : allQuestions.filter(q => q.id >= secData.start && q.id <= secData.end);
     }
@@ -11751,6 +11780,16 @@ function goToFirstUnsolved() {
             if (secData) {
                 const qList = allQuestions.filter(q => q.id >= secData.start && q.id <= secData.end);
                 qList.forEach(q => targetIds.push(q.id));
+                
+                // Karma bölümü sıfırlanınca soruları yeniden karıştır
+                if (currentSectionKey === 'secKarma') {
+                    const shuffled = [...qList];
+                    for (let i = shuffled.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                    }
+                    localStorage.setItem('yds_karma_order', JSON.stringify(shuffled.map(q => q.id)));
+                }
             }
         }
 
