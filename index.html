@@ -2380,9 +2380,10 @@ window.checkAnswer = function(qId, selectedOpt) {
             let points = 0;
             // Eğer daha önce doğru yapılmadıysa
             if (progressData[qId] !== 'correct') {
-                if (currentSectionKey === 'mistakes') points = 50; 
-                else if (['secExamPrep','secExamConj','secExamTense','secExamVocab'].includes(currentSectionKey)) points = 400;
-                else points = 100;
+                if (currentSectionKey === 'mistakes') points = 100; 
+                else if (['secExamPrep','secExamConj','secExamTense','secExamVocab'].includes(currentSectionKey)) points = 500;
+                else if (currentSectionKey === 'secKarma') points = 300;
+                else points = 150;
                 
                 addScorePoints(points); // Puan ver ve kaydet
             }
@@ -11654,9 +11655,10 @@ window.checkAnswer = function(qId, selectedOpt) {
         // Puanlama
         if (!q.isAi) {
             let points = 0;
-            if (currentSectionKey === 'mistakes') points = 50;
-            else if (['secExamPrep','secExamConj','secExamTense','secExamVocab'].includes(currentSectionKey)) points = 300;
-            else points = 100;
+            if (currentSectionKey === 'mistakes') points = 100;
+            else if (['secExamPrep','secExamConj','secExamTense','secExamVocab'].includes(currentSectionKey)) points = 500;
+            else if (currentSectionKey === 'secKarma') points = 300;
+            else points = 150;
             addScorePoints(points);
         }
 
