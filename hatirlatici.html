@@ -9063,7 +9063,7 @@ function syncWithMainApp() {
     }
 
     // --- CEVAP KONTROLÜ (DÜZELTİLMİŞ HALİ) ---
-    // === PUAN SİSTEMİ (150 PUAN) + LEVEL SİSTEMİ ===
+    // === PUAN SİSTEMİ (300 PUAN) + LEVEL SİSTEMİ ===
     const PANTRY_ID = "41e0725c-beab-4cea-9de2-ed320c7b115a"; 
     const BUCKET_NAME = "YdsLiderlikTablosu";
 
@@ -9316,8 +9316,8 @@ function syncWithMainApp() {
             // Böylece sayfa yenilendiğinde "Bekleyenler" arasına tekrar girmez.
             feedback.innerHTML = `<span class="text-success"><i class="bi bi-check-circle"></i> Tebrikler! Soru listeden tamamen silindi.</span>`;
             
-            // +150 PUAN ekle ve sunucuya gönder
-            addScorePoints(150);
+            // +300 PUAN ekle ve sunucuya gönder
+            addScorePoints(300);
             
             // 1. SRS Takviminden sil
             delete srsSchedule[qId];
