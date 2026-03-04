@@ -11163,11 +11163,19 @@ function showSection(key) {
 
     const filteredQ = allQuestions.filter(q => q.id >= secData.start && q.id <= secData.end);
     
-    // Kelime bölümünde soruları rastgele sırala (alfabetik tahmin engellemek için)
+    // Kelime bölümünde kayıtlı karışık sırayı kullan
     if (key === 'secVocab') {
-        for (let i = filteredQ.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [filteredQ[i], filteredQ[j]] = [filteredQ[j], filteredQ[i]];
+        let vocabOrder = JSON.parse(localStorage.getItem('yds_vocab_order') || '[]');
+        if (vocabOrder.length === 0) {
+            // İlk kez: karıştır ve kaydet
+            for (let i = filteredQ.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [filteredQ[i], filteredQ[j]] = [filteredQ[j], filteredQ[i]];
+            }
+            vocabOrder = filteredQ.map(q => q.id);
+            localStorage.setItem('yds_vocab_order', JSON.stringify(vocabOrder));
+        } else {
+            filteredQ.sort((a, b) => vocabOrder.indexOf(a.id) - vocabOrder.indexOf(b.id));
         }
         cachedVocabOrder = filteredQ;
     }
@@ -11791,6 +11799,15 @@ function goToFirstUnsolved() {
                         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
                     }
                     localStorage.setItem('yds_karma_order', JSON.stringify(shuffled.map(q => q.id)));
+                }
+                // Kelime bölümü sıfırlanınca soruları yeniden karıştır
+                if (currentSectionKey === 'secVocab') {
+                    const shuffled = [...qList];
+                    for (let i = shuffled.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                    }
+                    localStorage.setItem('yds_vocab_order', JSON.stringify(shuffled.map(q => q.id)));
                 }
             }
         }
