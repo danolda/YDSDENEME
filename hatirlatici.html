@@ -212,8 +212,8 @@
 </div>
 
 <script>
-/* ================= YDS MEGA KELİME HAVUZU (GÜNCELLENMİŞ - 1200+ KELİME) ================= */
-    const ydsVocabDB = [
+/* ================= YDS MEGA KELİME HAVUZU (GÜNCELLENMİŞ VE BAĞLAÇLAR EKLENMİŞ) ================= */
+    const ydsVocabDB =[
         // --- A GRUBU ---
         { en: "Abandon", tr: "Terk etmek, vazgeçmek" },
         { en: "Abolition", tr: "Yürürlükten kaldırma, iptal" },
@@ -257,7 +257,7 @@
         { en: "Adversity", tr: "Zorluk, sıkıntı, bela" },
         { en: "Advocate", tr: "Savunmak, desteklemek" },
         { en: "Affluent", tr: "Zengin, varlıklı" },
-        { en: "Aggravate", tr: "Giderek kötüleşmek, sinirlendirmek" },
+        { en: "Aggravate", tr: "Kötüleştirmek, ağırlaştırmak, sinirlendirmek" }, // DÜZELTİLDİ
         { en: "Alienate", tr: "Yabancılaştırmak, uzaklaştırmak" },
         { en: "Align with", tr: "Uyum sağlamak, hizalanmak" },
         { en: "Allegedly", tr: "İddia edildiğine göre" },
@@ -334,7 +334,7 @@
         { en: "Bring back", tr: "Geri getirmek, hatırlatmak" },
         { en: "Bring down", tr: "Devirmek, azaltmak, indirmek" },
         { en: "Bring in", tr: "Kazandırmak, getirmek" },
-        { en: "Bring out", tr: "Ortaya çık, yayımlamak" },
+        { en: "Bring out", tr: "Ortaya çıkarmak, yayımlamak" }, // DÜZELTİLDİ
         { en: "Bring up", tr: "Büyütmek (çocuk), gündeme getirmek" },
         { en: "Broad", tr: "Geniş" },
 
@@ -405,7 +405,7 @@
         { en: "Conflict", tr: "Çatışma" },
         { en: "Conform", tr: "Uymak (kurallara)" },
         { en: "Confront", tr: "Yüzleşmek" },
-        { en: "Confuse", tr: "Kafası karışmak" },
+        { en: "Confuse", tr: "Kafasını karıştırmak" }, // DÜZELTİLDİ
         { en: "Congest", tr: "Tıkamak (trafik)" },
         { en: "Consecutive", tr: "Ardışık, peş peşe" },
         { en: "Consecutively", tr: "Ardışık olarak" },
@@ -878,6 +878,7 @@
         { en: "Final", tr: "Son" },
         { en: "Finance", tr: "Finans" },
         { en: "Find", tr: "Bulmak" },
+        { en: "Find out", tr: "Öğrenmek, keşfetmek, bulmak" }, // DÜZELTİLDİ (Found out -> Find out)
         { en: "Fine", tr: "İyi / Para cezası" },
         { en: "Finger", tr: "Parmak" },
         { en: "Finish", tr: "Bitirmek" },
@@ -938,7 +939,6 @@
         { en: "Fortune", tr: "Servet / Şans" },
         { en: "Forward", tr: "İleri" },
         { en: "Foster", tr: "Teşvik etmek, büyütmek" },
-        { en: "Found out", tr: "Öğrenmek, keşfetmek" },
         { en: "Foundation", tr: "Temel, vakıf" },
         { en: "Fragile", tr: "Kırılgan" },
         { en: "Fragment", tr: "Parça" },
@@ -1005,7 +1005,7 @@
         { en: "Genuine", tr: "Gerçek, samimi" },
         { en: "Geography", tr: "Coğrafya" },
         { en: "Get", tr: "Almak" },
-        { en: "Get along", tr: "Geçinmek, başarmak" },
+        { en: "Get along", tr: "İyi geçinmek, idare etmek" }, // DÜZELTİLDİ
         { en: "Get along with", tr: "Biriyle iyi geçinmek" },
         { en: "Get away from", tr: "Uzaklaşmak, kaçmak" },
         { en: "Get back to", tr: "Geri dönmek" },
@@ -1090,7 +1090,7 @@
         { en: "Handle", tr: "Ele almak, halletmek" },
         { en: "Handsome", tr: "Yakışıklı" },
         { en: "Hang", tr: "Asmak" },
-        { en: "Happen", tr: "Olmak" },
+        { en: "Happen", tr: "Olmak, meydana gelmek" }, // DÜZELTİLDİ
         { en: "Happy", tr: "Mutlu" },
         { en: "Harass", tr: "Taciz etmek" },
         { en: "Harbor", tr: "Liman / Barındırmak" },
@@ -1689,7 +1689,129 @@
         { en: "Worthwhile", tr: "Değer, zahmete değer" },
 
         // --- Y GRUBU ---
-        { en: "Yield", tr: "Ürün vermek / Teslim olmak" }
+        { en: "Yield", tr: "Ürün vermek / Teslim olmak" },
+
+        // ================= BAĞLAÇLAR (CONJUNCTIONS - YENİ EKLENENLER) =================
+        // Çıkmış YDS/YÖKDİL/YDT sorularından derlenmiş en hayati bağlaçlar
+        
+        // ZITLIK BAĞLAÇLARI (CONTRAST)
+        { en: "However", tr: "Bununla birlikte, ancak, yine de" },
+        { en: "Although", tr: "-e rağmen, karşın" },
+        { en: "Even though", tr: "Olmasına rağmen, -se de" },
+        { en: "Though", tr: "-e rağmen (cümle sonundaysa 'yine de')" },
+        { en: "While", tr: "İken, oysa, -e rağmen" },
+        { en: "Whereas", tr: "İken, oysa, halbuki" },
+        { en: "Despite", tr: "-e rağmen" },
+        { en: "In spite of", tr: "-e rağmen" },
+        { en: "But", tr: "Fakat, ama" },
+        { en: "Yet", tr: "Fakat, oysaki, yine de" },
+        { en: "Even so", tr: "Öyle olsa bile" },
+        { en: "Conversely", tr: "Aksine, tersine" },
+        { en: "On the contrary", tr: "Aksine, tam tersine" },
+        { en: "In contrast", tr: "Buna karşın, aksine" },
+        { en: "As opposed to", tr: "Aksine, -in tersine" },
+        { en: "Contrary to", tr: "Aksine" },
+        { en: "Unlike", tr: "Aksine, -den farklı olarak" },
+        
+        // SEBEP - SONUÇ BAĞLAÇLARI (CAUSE & EFFECT)
+        { en: "Because", tr: "Çünkü, -dığı için" },
+        { en: "Since", tr: "Çünkü, -dığı için (zaman anlamı da var: -den beri)" },
+        { en: "As", tr: "Çünkü, dıkça/dikçe, iken, gibi" },
+        { en: "Now that", tr: "Mademki, -dığı için, şu var ki" },
+        { en: "Given that", tr: "Göz önüne alındığında, farz edersek" },
+        { en: "Seeing that", tr: "Madem ki, -dığına göre" },
+        { en: "Due to", tr: "-den dolayı, yüzünden" },
+        { en: "Owing to", tr: "-den dolayı, sayesinde" },
+        { en: "Because of", tr: "Yüzünden, nedeniyle" },
+        { en: "As a result of", tr: "Sonucu olarak" },
+        { en: "Thanks to", tr: "Sayesinde" },
+        { en: "On account of", tr: "Yüzünden, sebebiyle" },
+        { en: "Therefore", tr: "Bu yüzden, dolayısıyla" },
+        { en: "Thus", tr: "Böylece, bu nedenle" },
+        { en: "Hence", tr: "Bu yüzden, bundan dolayı" },
+        { en: "As a result", tr: "Sonuç olarak" },
+        { en: "Consequently", tr: "Sonuç olarak" },
+        { en: "Accordingly", tr: "Buna göre, sonuç olarak" },
+        { en: "So", tr: "Bu yüzden, böylece" },
+
+        // KOŞUL BAĞLAÇLARI (CONDITION)
+        { en: "If", tr: "Eğer" },
+        { en: "Unless", tr: "-medikçe, -mezse (if not)" },
+        { en: "Provided that", tr: "Şartıyla, koşuluyla" },
+        { en: "Providing that", tr: "Şartıyla" },
+        { en: "As long as", tr: "Sürece, yeter ki" },
+        { en: "Only if", tr: "Sadece ... olursa" },
+        { en: "In case", tr: "Durumunda, -ihtimaline karşı" },
+        { en: "In case of", tr: "-durumunda" },
+        { en: "Even if", tr: "Olas bile, -se bile" },
+
+        // EKLEME VE PARALELLİK BAĞLAÇLARI (ADDITION & PARALLEL)
+        { en: "In addition", tr: "Buna ek olarak" },
+        { en: "In addition to", tr: "-e ek olarak" },
+        { en: "Moreover", tr: "Dahası, üstelik" },
+        { en: "Furthermore", tr: "Dahası, ayrıca" },
+        { en: "As well as", tr: "-in yanı sıra, hem de" },
+        { en: "Along with", tr: "İle birlikte, yanı sıra" },
+        { en: "Together with", tr: "İle birlikte" },
+        { en: "Similarly", tr: "Benzer şekilde" },
+        { en: "Likewise", tr: "Aynı şekilde" },
+        { en: "Similar to", tr: "Benzer olarak" },
+
+        // ZAMAN BAĞLAÇLARI (TIME)
+        { en: "Once", tr: "Olur olmaz, -dığında, bir zamanlar" },
+        { en: "Before", tr: "Önce" },
+        { en: "After", tr: "Sonra" },
+        { en: "Until", tr: "-e kadar" },
+        { en: "Till", tr: "-e kadar" },
+        { en: "By the time", tr: "-e kadar, olduğu zamana kadar" },
+        { en: "As soon as", tr: "Yapar yapmaz" },
+        { en: "Whenever", tr: "Her ne zaman" },
+
+        // İKİLİ BAĞLAÇLAR (CORRELATIVE CONJUNCTIONS)
+        { en: "Both ... and", tr: "Hem ... hem de" },
+        { en: "Not only ... but also", tr: "Sadece o değil ... aynı zamanda bu da" },
+        { en: "Either ... or", tr: "Ya ... ya da" },
+        { en: "Neither ... nor", tr: "Ne ... ne de" },
+        { en: "Whether ... or", tr: "Gerek ... gerekse, olsa da olmasa da" },
+        { en: "So ... that", tr: "O kadar ... ki" },
+        { en: "Such ... that", tr: "Öyle (bir) ... ki" },
+        { en: "As ... as", tr: "Kadar (eşitlik bildirir)" },
+        { en: "The more ... the more", tr: "Ne kadar ... o kadar" },
+        { en: "Hardly ... when", tr: "Tam ... olmuştu ki ... oldu" },
+        { en: "No sooner ... than", tr: "Yapar yapmaz, tam ... olmuştu ki ... oldu" },
+
+        // DİĞER ÖNEMLİ BAĞLAÇLAR VE YAPILAR
+        { en: "For example", tr: "Örneğin" },
+        { en: "For instance", tr: "Örneğin" },
+        { en: "Such as", tr: "Gibi (örneklendirme yapar)" },
+        { en: "Instead", tr: "Bunun yerine" },
+        { en: "Instead of", tr: "-in yerine" },
+        { en: "Rather than", tr: "-den ziyade, yerine" },
+        { en: "In other words", tr: "Başka bir deyişle" },
+        { en: "That is", tr: "Yani, başka bir deyişle" },
+        { en: "Namely", tr: "Yani, şöyle ki" },
+        { en: "In short", tr: "Kısacası" },
+        { en: "So that", tr: "-sın diye, amacıyla" },
+        { en: "In order that", tr: "-sın diye, amacıyla" },
+        { en: "With the aim of", tr: "Amacıyla" },
+        { en: "For the purpose of", tr: "Amacıyla" },
+        { en: "As if", tr: "Sanki ... imiş gibi" },
+        { en: "As though", tr: "Sanki ... imiş gibi" },
+        { en: "Otherwise", tr: "Aksi takdirde, yoksa" },
+        { en: "In terms of", tr: "-açısından, bakımından" },
+        { en: "Regardless of", tr: "-e bakılmaksızın" },
+        { en: "Irrespective of", tr: "-e bakılmaksızın" },
+        { en: "Apart from", tr: "-den başka, haricinde" },
+        { en: "Except for", tr: "Haricinde, istisna olarak" },
+        { en: "With the exception of", tr: "Haricinde" },
+        { en: "By means of", tr: "Vasıtasıyla, yoluyla" },
+        { en: "In line with", tr: "Doğrultusunda, uyumlu olarak" },
+        { en: "In accordance with", tr: "Uygun olarak" },
+        { en: "With respect to", tr: "-e gelince, konusunda" },
+        { en: "On behalf of", tr: "Adına, temsilen" },
+        { en: "In pursuit of", tr: "Arayışı içinde, peşinde" },
+        { en: "In relation to", tr: "İle ilişkili olarak, oranla" },
+        { en: "In comparison to", tr: "Kıyasla" }
     ];
 
     /* ================= GRAMER SORULARI (RAW TEXT) ================= */
